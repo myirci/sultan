@@ -1,0 +1,6 @@
+# Add any directories, files, or patterns you don't want to be tracked by version control
+/chess/Deneme/bin
+/chess/Deneme/obj
+/chess/Properties
+/chess/.vs/Chess/v15/.suo
+/chess/.vs/Chess/v15/sqlite3/storage.ide
