@@ -26,7 +26,6 @@ class MoveGenerator
     void generate_knight_moves(int8_t sq, int8_t stm, std::vector<Pin> const & pins, std::vector<Move>& moves) const;
     void generate_pawn_moves(int8_t sq, int8_t stm, std::vector<Pin> const & pins, std::vector<Move>& moves) const;
 
-
     friend class Test;
 
 public:
