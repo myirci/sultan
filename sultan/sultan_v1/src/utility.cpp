@@ -11,7 +11,25 @@
 #include <unordered_map>
 #include <sstream>
 
-void Utility::fen_to_board(const Fen& f, Board& b)
+std::unordered_map<Move_flag, char const *> const Utility::move_flag_to_chararr
+{
+    {Move_flag::Quite, "Quite"}, {Move_flag::Capture, "Capture"}, {Move_flag::Double_Pawn_Push, "Double Pawn Push"},
+    {Move_flag::Bishop_Promotion, "Bishop Promotion"}, {Move_flag::Bishop_Promotion_Capture, "Bishop Promotion Capture"}, 
+    {Move_flag::En_Passant_Capture, "En-passant Capture"}, {Move_flag::King_Side_Castle, "King Side Castle"}, 
+    {Move_flag::Knight_Promotion, "Knight Promotion"}, {Move_flag::Knight_Promotion_Capture, "Knight Promotion Capture"},
+    {Move_flag::Queen_Promotion, "Queen Promotion"}, {Move_flag::Queen_Promotion_Capture, "Queen Promotion Capture"}, 
+    {Move_flag::Queen_Side_Castle, "Queen Side Castle"}, {Move_flag::Rook_Promotion, "Rook Promotion"}, 
+    {Move_flag::Rook_Promotion_Capture, " Rook Promotion Capture"}
+};
+
+bool Utility::is_equal(Move m1, Move m2) 
+{
+    return m1.get_from() == m2.get_from() && 
+           m1.get_to() == m2.get_to() && 
+           m1.get_move_flag() == m2.get_move_flag();
+}
+
+void Utility::fen_to_board(Fen const & f, Board& b)
 {
     // piece placement
     size_t start{0}, pos{0};
@@ -71,7 +89,7 @@ void Utility::fen_to_board(const Fen& f, Board& b)
     b.set_full_move_counter(f.full_move_number);
 }
 
-std::string Utility::board_to_fen_string(const Board& b)
+std::string Utility::board_to_fen_string(Board const & b)
 {
     auto board = b.get_board();
     int count_empty{0};
@@ -127,7 +145,7 @@ std::string Utility::board_to_fen_string(const Board& b)
     return ss.str();
 }
 
-void Utility::print_board(const Board &b, bool full)
+void Utility::print_board(Board const & b, bool full)
 {
     auto board = b.get_board();
     std::cout << "\n";
@@ -161,5 +179,16 @@ void Utility::print_board(const Board &b, bool full)
     for(auto it = bp.begin(); it != bp.end(); it++)
         std::cout << Piece::piece_to_char.find(board[*it])->second << ": " << static_cast<int>(*it) << " ";
     std::cout << "\n";
+}
 
+void Utility::print_moves(std::vector<Move> const& moves) 
+{
+    for (auto it = moves.begin(); it != moves.end(); it++) 
+    {
+        std::cout
+            << "From: " << Square::square_to_string(it->get_from())
+            << " To: " << Square::square_to_string(it->get_to())
+            << " Flag: " << Utility::move_flag_to_chararr.find(it->get_move_flag())->second
+            << std::endl;
+    }
 }

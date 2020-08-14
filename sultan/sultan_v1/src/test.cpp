@@ -9,7 +9,7 @@
 
 #include "test.hpp"
 #include "fen.hpp"
-#include "move.hpp"
+#include "board_representation/move.hpp"
 #include "piece.hpp"
 #include "board_representation/square.hpp"
 #include "board_representation/board.hpp"
@@ -73,23 +73,42 @@ bool Test::test6_()
     return f2.get_fen() == pos1;
 }
 
-bool Test::test6() {
-
-    // tests: constructor, set_from, get_from set_to, get_to, set_move_flag, get_move_flag
+bool Test::test6() 
+{
+    int8_t f{ 23 }, t{ 54 };
     Move m { 23, 54, Move_flag::Quite };
-    return m.get_from() == 23 && m.get_to() == 54 && m.get_move_flag() == Move_flag::Quite;
+
+    if (m.get_from() != f) 
+    {
+        std::cout << "from: " << static_cast<int>(m.get_from()) << " expected: " << f << std::endl;
+        return false;
+    }
+    
+    if (m.get_to() != t) 
+    {
+        std::cout << "to: " << static_cast<int>(m.get_to()) << " expected: " << t << std::endl;
+        return false;
+    }
+
+    if (m.get_move_flag() != Move_flag::Quite) 
+    {
+        std::cout << "move flag: " << Utility::move_flag_to_chararr.find(m.get_move_flag())->second
+                  << " expected: " << Utility::move_flag_to_chararr.find(Move_flag::Quite)->second << std::endl;
+        return false;
+    }
+    return true;
 }
 
 bool Test::test7()
 {
-    Move m { 23, 54, Move_flag::Capture };
-    return m.is_capture() == true;
+    Move m { 0, 119, Move_flag::Capture };
+    return m.get_from() == 0 && m.get_to() == 119 && m.is_capture() == true;
 }
 
 bool Test::test8()
 {
-    Move m { 23, 54, Move_flag::King_Side_Castle };
-    return m.is_capture() == false;
+    Move m { 119, 0, Move_flag::King_Side_Castle };
+    return m.get_from() == 119 && m.get_to() == 0 && m.is_capture() == false;
 }
 
 bool Test::test9()
@@ -641,7 +660,129 @@ bool Test::test34()
 
 bool Test::test35()
 {
-    return false;
+    Board b;
+    Fen f;
+    Utility::fen_to_board(f, b);
+    MoveGenerator mg(b);
+
+    std::vector<Move> moves;
+
+    auto wattpin = mg.compute_attacks_and_pins(Square::e1, -1);
+    auto battpin = mg.compute_attacks_and_pins(Square::e8, 1);
+
+    // white pawn moves
+    std::vector<int8_t> wsq
+    {
+        Square::a2, Square::a3, Square::a4,
+        Square::b2, Square::b3, Square::b4,
+        Square::c2, Square::c3, Square::c4,
+        Square::d2, Square::d3, Square::d4,
+        Square::e2, Square::e3, Square::e4,
+        Square::f2, Square::f3, Square::f4,
+        Square::g2, Square::g3, Square::g4,
+        Square::h2, Square::h3, Square::h4
+    };
+
+    for (size_t i = 0; i < 24; i+=3) 
+    {
+        mg.generate_pawn_moves(wsq[i], 1, wattpin.second, moves);
+        // Utility::print_moves(moves);
+        if (moves.size() != 2 ||
+            !Utility::is_equal(moves[0], Move(wsq[i], wsq[i + 1], Move_flag::Quite)) ||
+            !Utility::is_equal(moves[1], Move(wsq[i], wsq[i + 2], Move_flag::Double_Pawn_Push)))
+            return false;
+        moves.clear();
+    }
+
+    // black pawn moves
+    std::vector<int8_t> bsq
+    {
+        Square::a7, Square::a6, Square::a5,
+        Square::b7, Square::b6, Square::b5,
+        Square::c7, Square::c6, Square::c5,
+        Square::d7, Square::d6, Square::d5,
+        Square::e7, Square::e6, Square::e5,
+        Square::f7, Square::f6, Square::f5,
+        Square::g7, Square::g6, Square::g5,
+        Square::h7, Square::h6, Square::h5
+    };
+
+    for (size_t i = 0; i < 24; i += 3)
+    {
+        mg.generate_pawn_moves(bsq[i], -1, battpin.second, moves);
+        // Utility::print_moves(moves);
+        if (moves.size() != 2 ||
+            !Utility::is_equal(moves[0], Move(bsq[i], bsq[i + 1], Move_flag::Quite)) ||
+            !Utility::is_equal(moves[1], Move(bsq[i], bsq[i + 2], Move_flag::Double_Pawn_Push)))
+            return false;
+        moves.clear();
+    }
+
+    // Rook moves:
+    mg.generate_sliding_piece_moves(Square::a1, Piece::Rook, 1, wattpin.second, moves);
+    if (!moves.empty()) return false;
+    mg.generate_sliding_piece_moves(Square::h1, Piece::Rook, 1, wattpin.second, moves);
+    if (!moves.empty()) return false;
+    mg.generate_sliding_piece_moves(Square::a8, Piece::Rook, -1, battpin.second, moves);
+    if (!moves.empty()) return false;
+    mg.generate_sliding_piece_moves(Square::h8, Piece::Rook, -1, battpin.second, moves);
+    if (!moves.empty()) return false;
+
+    // Bishop moves
+    mg.generate_sliding_piece_moves(Square::c1, Piece::Bishop, 1, wattpin.second, moves);
+    if (!moves.empty()) return false;
+    mg.generate_sliding_piece_moves(Square::f1, Piece::Bishop, 1, wattpin.second, moves);
+    if (!moves.empty()) return false;
+    mg.generate_sliding_piece_moves(Square::c8, Piece::Bishop, -1, battpin.second, moves);
+    if (!moves.empty()) return false;
+    mg.generate_sliding_piece_moves(Square::f8, Piece::Bishop, -1, battpin.second, moves);
+    if (!moves.empty()) return false;
+
+    // Queen moves
+    mg.generate_sliding_piece_moves(Square::d1, Piece::Queen, 1, wattpin.second, moves);
+    if (!moves.empty()) return false;
+    mg.generate_sliding_piece_moves(Square::d8, Piece::Queen, -1, battpin.second, moves);
+    if (!moves.empty()) return false;
+
+    // King moves
+    mg.generate_king_moves(Square::e1, -1, false, moves);
+    if (!moves.empty()) return false;
+    mg.generate_king_moves(Square::e8, 1, false, moves);
+    if (!moves.empty()) return false;
+
+    // Knight moves
+    mg.generate_knight_moves(Square::b1, 1, wattpin.second, moves);
+    // Utility::print_moves(moves);
+    if (moves.size() != 2 ||
+        !Utility::is_equal(moves[0], Move(Square::b1, Square::c3, Move_flag::Quite)) ||
+        !Utility::is_equal(moves[1], Move(Square::b1, Square::a3, Move_flag::Quite)))
+        return false;
+
+    moves.clear();
+    mg.generate_knight_moves(Square::g1, 1, wattpin.second, moves);
+    // Utility::print_moves(moves);
+    if (moves.size() != 2 ||
+        !Utility::is_equal(moves[0], Move(Square::g1, Square::h3, Move_flag::Quite)) ||
+        !Utility::is_equal(moves[1], Move(Square::g1, Square::f3, Move_flag::Quite)))
+        return false;
+
+    moves.clear();
+    mg.generate_knight_moves(Square::b8, -1, battpin.second, moves);
+    // Utility::print_moves(moves);
+    if (moves.size() != 2 ||
+        !Utility::is_equal(moves[0], Move(Square::b8, Square::c6, Move_flag::Quite)) ||
+        !Utility::is_equal(moves[1], Move(Square::b8, Square::a6, Move_flag::Quite)))
+        return false;
+    
+    moves.clear();
+    mg.generate_knight_moves(Square::g8, -1, battpin.second, moves);
+    // Utility::print_moves(moves);
+    if (moves.size() != 2 ||
+        !Utility::is_equal(moves[0], Move(Square::g8, Square::h6, Move_flag::Quite)) ||
+        !Utility::is_equal(moves[1], Move(Square::g8, Square::f6, Move_flag::Quite)))
+        return false;
+
+    return true;
 }
 
 bool Test::test36() { return false; }
@@ -682,7 +823,7 @@ void Test::run_utility_tests()
 
 void Test::run_move_generator_tests()
 {
-    std::vector<bool (*)()> tests { test30, test31, test32, test33, test34 };
+    std::vector<bool (*)()> tests { test30, test31, test32, test33, test34, test35 };
     run_test("Move Generator", tests);
 }
 

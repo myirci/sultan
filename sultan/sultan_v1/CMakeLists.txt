@@ -7,7 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(${PROJECT_NAME}
     src/fen.hpp src/fen.cpp
-    src/move.hpp src/move.cpp
+    src/board_representation/move.hpp 
+	src/board_representation/move.cpp
     src/board_representation/board.hpp 
 	src/board_representation/board.cpp
     src/board_representation/square.hpp 

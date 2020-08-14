@@ -2,6 +2,9 @@
 #define UTILITY_HPP
 
 #include <string>
+#include <unordered_map>
+
+#include "board_representation/move.hpp"
 
 class Fen;
 class Board;
@@ -12,11 +15,17 @@ class Utility
 
 public:
 
-    static std::string board_to_fen_string(const Board& b);
+    static const std::unordered_map<Move_flag, char const*> move_flag_to_chararr;
 
-    static void fen_to_board(const Fen& f, Board& b);
+    static std::string board_to_fen_string(Board const & b);
 
-    static void print_board(const Board& b, bool full = false);
+    static void fen_to_board(Fen const & f, Board& b);
+
+    static void print_board(Board const & b, bool full = false);
+
+    static void print_moves(std::vector<Move> const& moves);
+
+    static bool is_equal(Move m1, Move m2);
 
 };
 

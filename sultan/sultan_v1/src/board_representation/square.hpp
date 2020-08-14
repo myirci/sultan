@@ -61,13 +61,13 @@ namespace Square
         a1, b1, c1, d1, e1, f1, g1, h1, twin(a1), twin(b1), twin(c1), twin(d1), twin(e1), twin(f1), twin(g1), twin(h1)
     };
 
-    int8_t sq(int8_t rank, int8_t file);
+    constexpr int8_t sq(int8_t rank, int8_t file) { return  rank * 16 + file;  }
 
-    std::pair<int8_t, int8_t> rank_and_file(int8_t idx);
+    constexpr std::pair<int8_t, int8_t> rank_and_file(int8_t idx) { return std::make_pair(idx >> 4, idx & 0x07); }
 
-    int8_t rank(int8_t idx);
+    constexpr int8_t rank(int8_t idx) { return idx >> 4; }
 
-    int8_t file(int8_t idx);
+    constexpr int8_t file(int8_t idx) { return idx & 0x07; }
 
     std::string square_to_string(int8_t sq);
 

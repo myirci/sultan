@@ -4,7 +4,7 @@
 #include <vector>
 #include <utility>
 
-#include "../move.hpp"
+#include "move.hpp"
 
 class Board;
 
