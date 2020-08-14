@@ -13,7 +13,8 @@ A move is represented by a 16-bit unsigned interger.
 
 #include <cstdint>
 
-enum Move_flag : std::uint8_t {
+enum class Move_flag : std::uint8_t
+{
     Quite = 0,                  // 0        0000
     Double_Pawn_Push,           // 1        0001
     King_Side_Castle,           // 2        0010
@@ -38,7 +39,7 @@ private:
 
     void set_from(std::uint8_t from);
     void set_to(std::uint8_t to);
-    void set_move_flag(std::uint8_t mflag);
+    void set_move_flag(Move_flag mflag);
 
 public:
 

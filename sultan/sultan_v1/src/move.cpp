@@ -21,7 +21,7 @@ void Move::set_to(std::uint8_t to)
     mv |= (static_cast<std::uint16_t>(to) << 4);
 }
 
-void Move::set_move_flag(std::uint8_t mflag)
+void Move::set_move_flag(Move_flag mflag)
 {
     mv &= 0xFFF0;
     mv |= static_cast<std::uint16_t>(mflag);
