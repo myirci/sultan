@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 #include "move_generator.hpp"
 #include "square.hpp"
 #include "board.hpp"

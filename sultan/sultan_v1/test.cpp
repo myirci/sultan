@@ -4,6 +4,8 @@
 #include <vector>
 #include <array>
 #include <unordered_set>
+#include <algorithm>
+#include <stdexcept>
 
 #include "test.hpp"
 #include "fen.hpp"

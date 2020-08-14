@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(design_parts LANGUAGES CXX)
+project(sultan_v1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(design_parts
+add_executable(${PROJECT_NAME}
     fen.hpp fen.cpp
     move.hpp move.cpp
     board_representation/board.hpp board_representation/board.cpp
