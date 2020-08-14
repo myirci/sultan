@@ -591,6 +591,7 @@ bool Test::test34()
     Board b;
     Fen f("3k2nq/3b1rp1/3N3n/2B5/4N2b/PPR5/Q2PB3/6K1 w - - 0 1");
     Utility::fen_to_board(f, b);
+    MoveGenerator mg(b);
 
     std::unordered_set<int8_t> black_attacked_squares
     {
@@ -616,7 +617,6 @@ bool Test::test34()
         Square::a1, Square::b1, Square::c1, Square::d1, Square::f1, Square::g1, Square::h1
     };
 
-    MoveGenerator mg(b);
     for(auto i = 0; i < 64; i++)
     {
         auto sq = Square::order[i];
@@ -785,7 +785,12 @@ bool Test::test35()
     return true;
 }
 
-bool Test::test36() { return false; }
+bool Test::test36() 
+{ 
+    return false; 
+}
+
+
 bool Test::test37() { return false; }
 bool Test::test38() { return false; }
 bool Test::test39() { return false; }
@@ -823,7 +828,7 @@ void Test::run_utility_tests()
 
 void Test::run_move_generator_tests()
 {
-    std::vector<bool (*)()> tests { test30, test31, test32, test33, test34, test35 };
+    std::vector<bool (*)()> tests { test30, test31, test32, test33, test34, test35, test36 };
     run_test("Move Generator", tests);
 }
 
