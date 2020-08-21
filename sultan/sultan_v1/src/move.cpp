@@ -15,7 +15,7 @@ void Move::set_from(std::int8_t from)
     mv &= 0x03FF; 
     
     // map to the range 0-63 and update the value 
-    auto [r, f] = Square::rank_and_file(from);
+    auto [r, f] = square::rank_and_file(from);
 
     mv |= (static_cast<std::int16_t>(r * 8 + f) << 10);
 }
@@ -27,7 +27,7 @@ void Move::set_to(std::int8_t to)
     mv &= 0xFC0F;
 
     // map to the range 0-63 and update the value 
-    auto [r, f] = Square::rank_and_file(to);
+    auto [r, f] = square::rank_and_file(to);
     mv |= (static_cast<std::int16_t>(r * 8 + f) << 4);
 }
 

@@ -48,12 +48,12 @@ void Utility::fen_to_board(Fen const & f, Board& b)
             if(std::isdigit(c))
             {
                 for(int i = 0; i < static_cast<int>(c - '0'); i++)
-                    board[Square::order[idx++]] = Piece::eM;
+                    board[square::order[idx++]] = piece::eM;
             }
             else
             {
-                int8_t loc { Square::order[idx++] };
-                int8_t piece = Piece::char_to_piece.at(c);
+                int8_t loc { square::order[idx++] };
+                int8_t piece = piece::char_to_piece.at(c);
                 board[loc] = piece;
                 piece_loc.insert(std::make_pair(piece, loc));
             }
@@ -63,9 +63,9 @@ void Utility::fen_to_board(Fen const & f, Board& b)
 
     // active color
     if (f.active_color == "w")
-        b.set_side_to_move(Piece::white);
+        b.set_side_to_move(color::white);
     else if(f.active_color == "b")
-        b.set_side_to_move(Piece::black);
+        b.set_side_to_move(color::black);
     else
         throw std::invalid_argument("active color parse error");
 
@@ -81,7 +81,7 @@ void Utility::fen_to_board(Fen const & f, Board& b)
 
     // en passant
     if (f.en_passant == "-") b.set_en_passant_loc(def::none);
-    else b.set_en_passant_loc(Square::sq(static_cast<int8_t>(f.en_passant[1] - '1'), static_cast<int8_t>(f.en_passant[0] - 'a')));
+    else b.set_en_passant_loc(square::sq(static_cast<int8_t>(f.en_passant[1] - '1'), static_cast<int8_t>(f.en_passant[0] - 'a')));
 
     // half_move_clock
     b.set_half_move_counter(f.half_move_clock);
@@ -97,7 +97,7 @@ std::string Utility::board_to_fen_string(Board const & b)
     std::stringstream ss;
     for(size_t i = 0; i < 64; i++)
     {
-        if(board[Square::order[i]] == Piece::eM)
+        if(board[square::order[i]] == piece::eM)
         {
             count_empty++;
         }
@@ -108,7 +108,7 @@ std::string Utility::board_to_fen_string(Board const & b)
                ss << count_empty;
                count_empty = 0;
            }
-           auto it = Piece::piece_to_char.find(board[Square::order[i]]);
+           auto it = piece::piece_to_char.find(board[square::order[i]]);
            ss << it->second;
         }
         if((i+1) % 8 == 0)
@@ -123,7 +123,7 @@ std::string Utility::board_to_fen_string(Board const & b)
         }
     }
 
-    auto ac = b.get_side_to_move() == Piece::white ? " w" : " b";
+    auto ac = b.get_side_to_move() == color::white ? " w" : " b";
     ss << ac;
 
     std::string castling{""};
@@ -138,7 +138,7 @@ std::string Utility::board_to_fen_string(Board const & b)
     if(ep == def::none) ss << " -";
     else
     {
-       auto p = Square::rank_and_file(ep);
+       auto p = square::rank_and_file(ep);
        ss << " " << static_cast<char>(p.second + 'a') << static_cast<char>(p.first + '1');
     }
 
@@ -155,7 +155,7 @@ void Utility::print_board(Board const & b, bool full)
         for (auto i = 0; i < 128; i++)
         {
             if(i % 16 == 0) std::cout << "\n";
-            std::cout << std::setw(3) << static_cast<int>(board[Square::full_order[i]]) << " ";
+            std::cout << std::setw(3) << static_cast<int>(board[square::full_order[i]]) << " ";
         }
     }
     else
@@ -163,7 +163,7 @@ void Utility::print_board(Board const & b, bool full)
         for (auto i = 0; i < 64; i++)
         {
             if(i % 8 == 0) std::cout << "\n";
-            std::cout << std::setw(3) << static_cast<int>(board[Square::order[i]]) << " ";
+            std::cout << std::setw(3) << static_cast<int>(board[square::order[i]]) << " ";
         }
     }
 
@@ -180,8 +180,8 @@ void Utility::print_moves(std::vector<Move> const& moves)
 void Utility::print_move(Move m) 
 {
     std::cout
-        << "From: " << Square::square_to_string(m.get_from())
-        << " To: " << Square::square_to_string(m.get_to())
+        << "From: " << square::square_to_string(m.get_from())
+        << " To: " << square::square_to_string(m.get_to())
         << " Flag: " << Utility::move_flag_to_chararr.find(m.get_move_flag())->second
         << std::endl;
 }

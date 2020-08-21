@@ -5,7 +5,7 @@
 #include <utility>
 #include <unordered_map>
 
-namespace Square
+namespace square
 {
     inline constexpr uint8_t inside{ 0x88 }; 
 
@@ -17,22 +17,6 @@ namespace Square
     inline constexpr int8_t f1{5}, f2{21}, f3{37}, f4{53}, f5{69}, f6{85}, f7{101}, f8{117};
     inline constexpr int8_t g1{6}, g2{22}, g3{38}, g4{54}, g5{70}, g6{86}, g7{102}, g8{118};
     inline constexpr int8_t h1{7}, h2{23}, h3{39}, h4{55}, h5{71}, h6{87}, h7{103}, h8{119};
-    
-    namespace Directions
-    {
-        inline constexpr int8_t N{16}, S{-16}, E{1}, W{-1}, NE{17}, SW{-17}, NW{15}, SE{-15}, ND{0};
-        inline constexpr int8_t all_dirs[] { N, S, E, W, NE, SW, NW, SE };
-        inline constexpr int8_t flat_dirs[] { N, E, S, W };
-        inline constexpr int8_t diagonal_dirs[] { NE, SE, SW, NW };
-        inline constexpr int8_t knight_jumps[] { 33, 18, -14, -31, -33, -18, 14, 31 };
-        
-        inline const std::unordered_map<int8_t, char const*> direction_to_chararray =
-        {
-            { N, "North" }, { S, "South" }, { E, "East" }, { W, "West" },
-            { NE, "North-East" }, { SW, "South-West" }, { NW, "North-West" }, { SE, "South-East" },
-            { ND, "No Direction" }
-        };
-    }
     
     inline constexpr int8_t order[64]
     {
@@ -69,6 +53,5 @@ namespace Square
     constexpr int8_t file(int8_t idx) { return idx & 0x07; }
 
     std::string square_to_string(int8_t sq);
-
 }
 

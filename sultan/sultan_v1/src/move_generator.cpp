@@ -17,16 +17,16 @@ std::pair<std::vector<MoveGenerator::Attack>, std::vector<MoveGenerator::Pin>> M
     int8_t dir{ 0 }, ntm {-stm};
     for(auto i {0}; i < 4; i++)
     {
-        dir = Square::Directions::flat_dirs[i];
+        dir = direction::flat_dirs[i];
         int8_t next{target}, pinned {def::none};
-        while(!((next = next + dir) & Square::inside))
+        while(!((next = next + dir) & square::inside))
         {
-            if(board[next] == Piece::eM) continue;
+            if(board[next] == piece::eM) continue;
 
-            if(Piece::is_same_sign(ntm, board[next]))
+            if(piece::is_same_sign(ntm, board[next]))
             {
                 int8_t p = ntm * board[next];
-                if(p == Piece::Rook || p == Piece::Queen)
+                if(p == piece::Rook || p == piece::Queen)
                 {
                     if(pinned == def::none)
                         attacks.push_back(Attack{next, dir});
@@ -45,16 +45,16 @@ std::pair<std::vector<MoveGenerator::Attack>, std::vector<MoveGenerator::Pin>> M
 
     for(auto i{0}; i < 4; i++)
     {
-        dir = Square::Directions::diagonal_dirs[i];
+        dir = direction::diagonal_dirs[i];
         int8_t next {target}, pinned {def::none};
-        while(!((next = next + dir) & Square::inside))
+        while(!((next = next + dir) & square::inside))
         {
-            if(board[next] == Piece::eM) continue;
+            if(board[next] == piece::eM) continue;
 
-            if(Piece::is_same_sign(ntm, board[next]))
+            if(piece::is_same_sign(ntm, board[next]))
             {
                 int8_t p = ntm * board[next];
-                if(p == Piece::Bishop || p == Piece::Queen || (p == Piece::Pawn && (next - target) == dir && dir * ntm < 0))
+                if(p == piece::Bishop || p == piece::Queen || (p == piece::Pawn && (next - target) == dir && dir * ntm < 0))
                 {
                     if(pinned == def::none)
                         attacks.push_back(Attack{next, dir});
@@ -73,9 +73,9 @@ std::pair<std::vector<MoveGenerator::Attack>, std::vector<MoveGenerator::Pin>> M
 
     for(auto i{0}; i < 8; i++)
     {
-        int8_t next = target + Square::Directions::knight_jumps[i];
-        if(!(next & Square::inside) && ntm * board[next] == Piece::Knight)
-            attacks.push_back(Attack{next, Square::Directions::ND});
+        int8_t next = target + direction::knight_jumps[i];
+        if(!(next & square::inside) && ntm * board[next] == piece::Knight)
+            attacks.push_back(Attack{next, direction::ND});
     }
 
     return std::make_pair(std::move(attacks), std::move(pins));
@@ -88,15 +88,15 @@ bool MoveGenerator::is_under_attack(int8_t sq, int8_t stm) const
     for(auto i {0}; i < 4; i++)
     {
         int8_t next{sq};
-        dir = Square::Directions::flat_dirs[i];
-        while(!((next = next + dir) & Square::inside))
+        dir = direction::flat_dirs[i];
+        while(!((next = next + dir) & square::inside))
         {
-            if(board[next] == Piece::eM) continue;
+            if(board[next] == piece::eM) continue;
 
-            if(Piece::is_same_sign(ntm, board[next]))
+            if(piece::is_same_sign(ntm, board[next]))
             {
                 int8_t p = ntm * board[next];
-                if(p == Piece::Rook || p == Piece::Queen || (p == Piece::King && (next - sq) == dir))
+                if(p == piece::Rook || p == piece::Queen || (p == piece::King && (next - sq) == dir))
                     return true;
             }
             break;
@@ -106,17 +106,17 @@ bool MoveGenerator::is_under_attack(int8_t sq, int8_t stm) const
     for(auto i{0}; i < 4; i++)
     {
         int8_t next{sq};
-        dir = Square::Directions::diagonal_dirs[i];
-        while(!((next = next + dir) & Square::inside))
+        dir = direction::diagonal_dirs[i];
+        while(!((next = next + dir) & square::inside))
         {
-            if(board[next] == Piece::eM) continue;
+            if(board[next] == piece::eM) continue;
 
-            if(Piece::is_same_sign(ntm, board[next]))
+            if(piece::is_same_sign(ntm, board[next]))
             {
                 int8_t p = ntm * board[next];
-                if(p == Piece::Bishop || p == Piece::Queen ||
-                  (p == Piece::Pawn && (next - sq) == dir && dir * ntm < 0) ||
-                  (p == Piece::King && (next - sq) == dir))
+                if(p == piece::Bishop || p == piece::Queen ||
+                  (p == piece::Pawn && (next - sq) == dir && dir * ntm < 0) ||
+                  (p == piece::King && (next - sq) == dir))
                     return true;
             }
             break;
@@ -125,8 +125,8 @@ bool MoveGenerator::is_under_attack(int8_t sq, int8_t stm) const
 
     for(auto i{0}; i < 8; i++)
     {
-        int8_t next = sq + Square::Directions::knight_jumps[i];
-        if(!(next & Square::inside) && ntm * board[next] == Piece::Knight)
+        int8_t next = sq + direction::knight_jumps[i];
+        if(!(next & square::inside) && ntm * board[next] == piece::Knight)
             return true;
     }
 
@@ -151,7 +151,7 @@ int8_t MoveGenerator::get_pin_direction(int8_t sq, std::vector<Pin> const & pins
         if(it->pinned_loc == sq)
             return it->pin_dir;
 
-    return Square::Directions::ND;
+    return direction::ND;
 }
 
 void MoveGenerator::generate_non_king_to_square_moves(int8_t sq, int8_t stm, const std::vector<Pin>& pins, Move_flag flag, std::vector<Move> &moves) const
@@ -160,15 +160,15 @@ void MoveGenerator::generate_non_king_to_square_moves(int8_t sq, int8_t stm, con
     for(auto i{0}; i < 4; i++)
     {
         int8_t next{sq};
-        dir = Square::Directions::flat_dirs[i];
-        while(!((next = next + dir) & Square::inside))
+        dir = direction::flat_dirs[i];
+        while(!((next = next + dir) & square::inside))
         {
-            if(board[next] == Piece::eM) continue;
+            if(board[next] == piece::eM) continue;
 
-            if(Piece::is_same_sign(stm, board[next]))
+            if(piece::is_same_sign(stm, board[next]))
             {
                 int8_t p = stm * board[next];
-                if((p == Piece::Rook || p == Piece::Queen) && get_pin_direction(next, pins) == Square::Directions::ND)
+                if((p == piece::Rook || p == piece::Queen) && get_pin_direction(next, pins) == direction::ND)
                     moves.emplace_back(next, sq, flag);
             }
             break;
@@ -178,15 +178,15 @@ void MoveGenerator::generate_non_king_to_square_moves(int8_t sq, int8_t stm, con
     for(auto i{0}; i < 4; i++)
     {
         int8_t next{sq};
-        dir = Square::Directions::diagonal_dirs[i];
-        while(!((next = next + dir) & Square::inside))
+        dir = direction::diagonal_dirs[i];
+        while(!((next = next + dir) & square::inside))
         {
-            if(board[next] == Piece::eM) continue;
+            if(board[next] == piece::eM) continue;
 
-            if(Piece::is_same_sign(stm, board[next]))
+            if(piece::is_same_sign(stm, board[next]))
             {
                 int8_t p = stm * board[next];
-                if((p == Piece::Bishop || p == Piece::Queen) && get_pin_direction(next, pins) == Square::Directions::ND)
+                if((p == piece::Bishop || p == piece::Queen) && get_pin_direction(next, pins) == direction::ND)
                     moves.emplace_back(next, sq, flag);
             }
             break;
@@ -195,17 +195,17 @@ void MoveGenerator::generate_non_king_to_square_moves(int8_t sq, int8_t stm, con
 
     for(auto i{0}; i < 8; i++)
     {
-        int8_t next = sq + Square::Directions::knight_jumps[i];
-        if(!(next & Square::inside) && stm * board[next] == Piece::Knight && get_pin_direction(next, pins) == Square::Directions::ND)
+        int8_t next = sq + direction::knight_jumps[i];
+        if(!(next & square::inside) && stm * board[next] == piece::Knight && get_pin_direction(next, pins) == direction::ND)
             moves.emplace_back(next, sq, flag);
     }
 
     if(flag == Move_flag::Quite)
     {
-        int8_t pos1 = sq + stm * Square::Directions::S;
-        if(stm * board[pos1] == Piece::Pawn && get_pin_direction(pos1, pins) == Square::Directions::ND)
+        int8_t pos1 = sq + stm * direction::S;
+        if(stm * board[pos1] == piece::Pawn && get_pin_direction(pos1, pins) == direction::ND)
         {
-            int8_t rank = Square::rank(sq);
+            int8_t rank = square::rank(sq);
             if((stm > 0 && rank == 7) || (stm < 0 && rank == 0))
             {
                 moves.emplace_back(pos1, sq, Move_flag::Queen_Promotion);
@@ -219,22 +219,22 @@ void MoveGenerator::generate_non_king_to_square_moves(int8_t sq, int8_t stm, con
             }
         }
 
-        int8_t pos2 = pos1 + stm * Square::Directions::S;
-        if(stm * board[pos2] == Piece::Pawn && board[pos1] == Piece::eM && get_pin_direction(pos2, pins) == Square::Directions::ND &&
-                ((stm > 0 && Square::rank(pos2) == 1) || (stm < 0 && Square::rank(pos2) == 6)))
+        int8_t pos2 = pos1 + stm * direction::S;
+        if(stm * board[pos2] == piece::Pawn && board[pos1] == piece::eM && get_pin_direction(pos2, pins) == direction::ND &&
+                ((stm > 0 && square::rank(pos2) == 1) || (stm < 0 && square::rank(pos2) == 6)))
             moves.emplace_back(pos2, sq, Move_flag::Double_Pawn_Push);
     }
     else if(flag == Move_flag::Capture)
     {
         int8_t pos[2] = {
-            static_cast<int8_t>(sq + stm * Square::Directions::SE),
-            static_cast<int8_t>(sq + stm * Square::Directions::SW) };
+            static_cast<int8_t>(sq + stm * direction::SE),
+            static_cast<int8_t>(sq + stm * direction::SW) };
 
         for(auto i = 0; i < 2; i++)
         {
-            if(!(pos[i] & Square::inside) && stm * board[pos[i]] == Piece::Pawn && get_pin_direction(pos[i], pins) == Square::Directions::ND)
+            if(!(pos[i] & square::inside) && stm * board[pos[i]] == piece::Pawn && get_pin_direction(pos[i], pins) == direction::ND)
             {
-                int8_t rank = Square::rank(sq);
+                int8_t rank = square::rank(sq);
                 if((stm > 0 && rank == 7) || (stm < 0 && rank == 0))
                 {
                     moves.emplace_back(pos[i], sq, Move_flag::Queen_Promotion_Capture);
@@ -257,10 +257,10 @@ void MoveGenerator::generate_king_moves(int8_t king_pos, int8_t stm, bool under_
     // int8_t ntm = static_cast<int8_t>(-stm);
     for(int8_t i{0}; i < 8; i++)
     {
-        next_pos = king_pos + Square::Directions::all_dirs[i];
-        if((next_pos & Square::inside) || Piece::is_same_sign(board[next_pos], stm) || is_under_attack(next_pos, stm))
+        next_pos = king_pos + direction::all_dirs[i];
+        if((next_pos & square::inside) || piece::is_same_sign(board[next_pos], stm) || is_under_attack(next_pos, stm))
             continue;
-        Move_flag flag = board[next_pos] == Piece::eM ? Move_flag::Quite : Move_flag::Capture;
+        Move_flag flag = board[next_pos] == piece::eM ? Move_flag::Quite : Move_flag::Capture;
         moves.emplace_back(Move(king_pos, next_pos, flag));
     }
 
@@ -269,44 +269,44 @@ void MoveGenerator::generate_king_moves(int8_t king_pos, int8_t stm, bool under_
     if(stm > 0)
     {
         if(board_obj.query_castling_rights(Castling::white_king_side) &&
-           board[Square::f1] == Piece::eM && board[Square::g1] == Piece::eM &&
-           !is_under_attack(Square::f1, stm) && !is_under_attack(Square::g1, stm))
-            moves.emplace_back(Move(king_pos, Square::g1, Move_flag::King_Side_Castle));
+           board[square::f1] == piece::eM && board[square::g1] == piece::eM &&
+           !is_under_attack(square::f1, stm) && !is_under_attack(square::g1, stm))
+            moves.emplace_back(Move(king_pos, square::g1, Move_flag::King_Side_Castle));
 
         if(board_obj.query_castling_rights(Castling::white_queen_side) &&
-           board[Square::d1] == Piece::eM && board[Square::c1] == Piece::eM &&
-           !is_under_attack(Square::d1, stm) && !is_under_attack(Square::c1, stm))
-            moves.emplace_back(Move(king_pos, Square::c1, Move_flag::Queen_Side_Castle));
+           board[square::d1] == piece::eM && board[square::c1] == piece::eM &&
+           !is_under_attack(square::d1, stm) && !is_under_attack(square::c1, stm))
+            moves.emplace_back(Move(king_pos, square::c1, Move_flag::Queen_Side_Castle));
     }
     else
     {
         if(board_obj.query_castling_rights(Castling::black_king_side) &&
-           board[Square::f8] == Piece::eM && board[Square::g8] == Piece::eM &&
-           !is_under_attack(Square::f8, stm) && !is_under_attack(Square::g8, stm))
-            moves.emplace_back(Move(king_pos, Square::g8, Move_flag::King_Side_Castle));
+           board[square::f8] == piece::eM && board[square::g8] == piece::eM &&
+           !is_under_attack(square::f8, stm) && !is_under_attack(square::g8, stm))
+            moves.emplace_back(Move(king_pos, square::g8, Move_flag::King_Side_Castle));
 
         if(board_obj.query_castling_rights(Castling::black_queen_side) &&
-           board[Square::d8] == Piece::eM && board[Square::c8] == Piece::eM &&
-           !is_under_attack(Square::d8, stm) && !is_under_attack(Square::c8, stm))
-            moves.emplace_back(Move(king_pos, Square::c8, Move_flag::Queen_Side_Castle));
+           board[square::d8] == piece::eM && board[square::c8] == piece::eM &&
+           !is_under_attack(square::d8, stm) && !is_under_attack(square::c8, stm))
+            moves.emplace_back(Move(king_pos, square::c8, Move_flag::Queen_Side_Castle));
     }
 }
 
 void MoveGenerator::generate_sliding_piece_moves(int8_t sq, int8_t ptype, int8_t stm, const std::vector<Pin> &pins, std::vector<Move> &moves) const
 {
-    int8_t const * dir_arr = Square::Directions::all_dirs;
+    int8_t const * dir_arr = direction::all_dirs;
     int size {8};
     switch (ptype)
     {
-        case Piece::Rook:
-            dir_arr = Square::Directions::flat_dirs;
+        case piece::Rook:
+            dir_arr = direction::flat_dirs;
             size = 4;
             break;
-        case Piece::Bishop:
-            dir_arr = Square::Directions::diagonal_dirs;
+        case piece::Bishop:
+            dir_arr = direction::diagonal_dirs;
             size = 4;
             break;
-        case Piece::Queen:
+        case piece::Queen:
             break;
         default:
             throw std::logic_error("Not a sliding piece!");
@@ -317,16 +317,16 @@ void MoveGenerator::generate_sliding_piece_moves(int8_t sq, int8_t ptype, int8_t
     for(int i{0}; i < size; i++)
     {
         dir = dir_arr[i];
-        if(pin_dir != Square::Directions::ND && (dir != pin_dir || dir != -pin_dir))
+        if(pin_dir != direction::ND && (dir != pin_dir || dir != -pin_dir))
             continue;
 
         int8_t next{sq};
-        while(!((next = next + dir) & Square::inside))
+        while(!((next = next + dir) & square::inside))
         {
-            if(Piece::is_same_sign(stm, board[next]))
+            if(piece::is_same_sign(stm, board[next]))
                 break;
 
-            if(board[next] == Piece::eM)
+            if(board[next] == piece::eM)
             {
                 moves.emplace_back(sq, next, Move_flag::Quite);
             }
@@ -341,14 +341,14 @@ void MoveGenerator::generate_sliding_piece_moves(int8_t sq, int8_t ptype, int8_t
 
 void MoveGenerator::generate_knight_moves(int8_t sq, int8_t stm, const std::vector<Pin> &pins, std::vector<Move>& moves) const
 {
-    if(get_pin_direction(sq, pins) != Square::Directions::ND) return;
+    if(get_pin_direction(sq, pins) != direction::ND) return;
     for(int i = 0; i < 8; i++)
     {
-        int8_t next = sq + Square::Directions::knight_jumps[i];
-        if(!(next & Square::inside))
+        int8_t next = sq + direction::knight_jumps[i];
+        if(!(next & square::inside))
         {
-            if(Piece::is_same_sign(stm, board[next])) continue;
-            if(board[next] == Piece::eM) moves.emplace_back(sq, next, Move_flag::Quite);
+            if(piece::is_same_sign(stm, board[next])) continue;
+            if(board[next] == piece::eM) moves.emplace_back(sq, next, Move_flag::Quite);
             else moves.emplace_back(sq, next, Move_flag::Capture);
         }
     }
@@ -359,10 +359,10 @@ void MoveGenerator::generate_pawn_moves(int8_t sq, int8_t stm, const std::vector
     int8_t pin_dir = get_pin_direction(sq, pins);
 
     // single push, double push and single push-promotion moves
-    int8_t next = sq + stm * Square::Directions::N;
-    if(board[next] == Piece::eM && (pin_dir == Square::Directions::ND || pin_dir == stm * Square::Directions::N))
+    int8_t next = sq + stm * direction::N;
+    if(board[next] == piece::eM && (pin_dir == direction::ND || pin_dir == stm * direction::N))
     {
-        int8_t rank = Square::rank(sq);
+        int8_t rank = square::rank(sq);
         if((stm > 0 && rank == 6) || (stm < 0 && rank == 1))
         {
             moves.emplace_back(Move(sq, next, Move_flag::Queen_Promotion));
@@ -377,18 +377,18 @@ void MoveGenerator::generate_pawn_moves(int8_t sq, int8_t stm, const std::vector
 
         if((stm > 0 && rank == 1) || (stm < 0 && rank == 6))
         {
-            int8_t next2 = next + stm * Square::Directions::N;
-            if(board[next2] == Piece::eM)
+            int8_t next2 = next + stm * direction::N;
+            if(board[next2] == piece::eM)
                 moves.emplace_back(Move(sq,next2,Move_flag::Double_Pawn_Push));
         }
     }
 
     // captures, capture-promotions
-    next = sq + stm * Square::Directions::NE;
-    if (!(next & Square::inside) && Piece::is_different_sign(board[next], stm) && 
-        (pin_dir == Square::Directions::ND || pin_dir == stm * Square::Directions::NE))
+    next = sq + stm * direction::NE;
+    if (!(next & square::inside) && piece::is_different_sign(board[next], stm) && 
+        (pin_dir == direction::ND || pin_dir == stm * direction::NE))
     {
-        int8_t rank = Square::rank(sq);
+        int8_t rank = square::rank(sq);
         if ((stm > 0 && rank == 6) || (stm < 0 && rank == 1))
         {
             moves.emplace_back(Move(sq, next, Move_flag::Queen_Promotion_Capture));
@@ -402,11 +402,11 @@ void MoveGenerator::generate_pawn_moves(int8_t sq, int8_t stm, const std::vector
         }
     }
 
-    next = sq + stm * Square::Directions::NW;
-    if (!(next & Square::inside) && Piece::is_different_sign(board[next], stm) && 
-        (pin_dir == Square::Directions::ND || pin_dir == stm * Square::Directions::NW))
+    next = sq + stm * direction::NW;
+    if (!(next & square::inside) && piece::is_different_sign(board[next], stm) && 
+        (pin_dir == direction::ND || pin_dir == stm * direction::NW))
     {
-        int8_t rank = Square::rank(sq);
+        int8_t rank = square::rank(sq);
         if ((stm > 0 && rank == 6) || (stm < 0 && rank == 1))
         {
             moves.emplace_back(Move(sq, next, Move_flag::Queen_Promotion_Capture));
@@ -422,8 +422,8 @@ void MoveGenerator::generate_pawn_moves(int8_t sq, int8_t stm, const std::vector
 
     // en-passant captures
     int8_t ep = board_obj.get_en_passant_loc();
-    if(ep != def::none && (sq == (ep + stm * Square::Directions::SW) || sq == (ep + stm * Square::Directions::SE)) && 
-       (pin_dir == Square::Directions::ND || pin_dir == (ep - sq)))
+    if(ep != def::none && (sq == (ep + stm * direction::SW) || sq == (ep + stm * direction::SE)) && 
+       (pin_dir == direction::ND || pin_dir == (ep - sq)))
         moves.emplace_back(Move(sq, ep, Move_flag::En_Passant_Capture));
 }
 
@@ -433,7 +433,7 @@ std::vector<Move> MoveGenerator::generate_moves() const
    auto ploc = board_obj.get_piece_locations();
 
    int8_t stm = static_cast<int8_t>(board_obj.get_side_to_move());
-   int8_t king_pos = ploc.find(stm * Piece::King)->second;
+   int8_t king_pos = ploc.find(stm * piece::King)->second;
    auto attpin = compute_attacks_and_pins(king_pos, stm);
 
    // generate king moves:
@@ -452,23 +452,23 @@ std::vector<Move> MoveGenerator::generate_moves() const
    }
 
    // generate queen moves
-   auto r = ploc.equal_range(stm * Piece::Queen);
+   auto r = ploc.equal_range(stm * piece::Queen);
    for (auto it = r.first; it != r.second; it++) 
-       generate_sliding_piece_moves(it->second, Piece::Queen, stm, attpin.second, moves);
+       generate_sliding_piece_moves(it->second, piece::Queen, stm, attpin.second, moves);
 
-   r = ploc.equal_range(stm * Piece::Rook);
+   r = ploc.equal_range(stm * piece::Rook);
    for (auto it = r.first; it != r.second; it++)
-       generate_sliding_piece_moves(it->second, Piece::Rook, stm, attpin.second, moves);
+       generate_sliding_piece_moves(it->second, piece::Rook, stm, attpin.second, moves);
 
-   r = ploc.equal_range(stm * Piece::Bishop);
+   r = ploc.equal_range(stm * piece::Bishop);
    for (auto it = r.first; it != r.second; it++)
-       generate_sliding_piece_moves(it->second, Piece::Bishop, stm, attpin.second, moves);
+       generate_sliding_piece_moves(it->second, piece::Bishop, stm, attpin.second, moves);
    
-   r = ploc.equal_range(stm * Piece::Knight);
+   r = ploc.equal_range(stm * piece::Knight);
    for (auto it = r.first; it != r.second; it++)
        generate_knight_moves(it->second, stm, attpin.second, moves);
 
-   r = ploc.equal_range(stm * Piece::Pawn);
+   r = ploc.equal_range(stm * piece::Pawn);
    for (auto it = r.first; it != r.second; it++)
        generate_pawn_moves(it->second, stm, attpin.second, moves);
 
