@@ -1,10 +1,9 @@
-#ifndef UTILITY_HPP
-#define UTILITY_HPP
+#pragma once
 
 #include <string>
 #include <unordered_map>
 
-#include "board_representation/move.hpp"
+#include "move.hpp"
 
 class Fen;
 class Board;
@@ -30,5 +29,3 @@ public:
     static bool is_equal(Move m1, Move m2);
 
 };
-
-#endif // UTILITY_HPP

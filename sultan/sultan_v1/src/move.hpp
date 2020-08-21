@@ -1,5 +1,4 @@
-#ifndef MOVE_HPP
-#define MOVE_HPP
+#pragma once
 
 /*
 A move is represented by a 16-bit unsigned interger.
@@ -53,4 +52,3 @@ public:
     bool is_capture() const;
 };
 
-#endif // MOVE_HPP

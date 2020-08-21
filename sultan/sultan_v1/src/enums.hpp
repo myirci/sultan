@@ -1,5 +1,4 @@
-#ifndef COLOR_HPP
-#define COLOR_HPP
+#pragma once
 
 #include <cstdint>
 
@@ -11,4 +10,3 @@ enum class Castling : int8_t
     black_queen_side = 8
 };
 
-#endif // COLOR_HPP

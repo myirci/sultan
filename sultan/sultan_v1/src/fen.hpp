@@ -1,5 +1,4 @@
-#ifndef FEN_HPP
-#define FEN_HPP
+#pragma once
 
 /*
 FEN: ForsythEdwards Notation
@@ -45,4 +44,3 @@ public:
     const std::string& get_fen() const;
 };
 
-#endif // FEN_HPP

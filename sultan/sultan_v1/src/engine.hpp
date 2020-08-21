@@ -1,12 +1,13 @@
-#ifndef ENGINE_HPP
-#define ENGINE_HPP
+#pragma once
 
 #include <string>
 #include <memory>
 #include <stack>
+#include "move.hpp"
 
 class Board;
 class MoveGenerator;
+
 
 class Engine
 {
@@ -23,5 +24,3 @@ public:
     std::uint64_t perft(int depth);
     std::uint64_t perft_divide(int depth);
 };
-
-#endif // ENGINE_HPP

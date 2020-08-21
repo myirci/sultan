@@ -1,10 +1,9 @@
-#ifndef TEST_HPP
-#define TEST_HPP
+#pragma once
 
 #include <string_view>
 #include <vector>
 
-#include "board_representation/move_generator.hpp"
+#include "move_generator.hpp"
 
 class Test
 {
@@ -105,4 +104,3 @@ private:
     static bool check_piece_locations(Board const & b, int8_t piece, std::vector<int8_t> expected_loc);
 };
 
-#endif // TEST_HPP

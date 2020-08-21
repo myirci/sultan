@@ -12,9 +12,10 @@
 #include "piece.hpp"
 #include "utility.hpp"
 #include "engine.hpp"
-#include "board_representation/move.hpp"
-#include "board_representation/square.hpp"
-#include "board_representation/board.hpp"
+#include "definitions.hpp"
+#include "move.hpp"
+#include "square.hpp"
+#include "board.hpp"
 
 
 bool Test::test1()
@@ -157,7 +158,7 @@ bool Test::test15()
 
 bool Test::test16()
 {
-    return Piece::eM == 0 && Piece::nN == -7 && Piece::wP == -Piece::bP &&
+    return Piece::eM == 0 && def::none == -7 && Piece::wP == -Piece::bP &&
            Piece::wR == -Piece::bR && Piece::wN == -Piece::bN &&
            Piece::wB == -Piece::bB && Piece::wQ == -Piece::bQ &&
            Piece::wK == -Piece::bK;
@@ -166,11 +167,11 @@ bool Test::test16()
 bool Test::test17()
 {
     Board b;
-    auto func = [](int8_t v) { return v == Piece::nN; };
+    auto func = [](int8_t v) { return v == def::none; };
     return  std::all_of(b.board, b.board+Board::BOARDSIZE, func) && b.piece_loc.empty() &&
-            b.en_passant_loc == Piece::nN && b.stored_en_passant_loc == Piece::nN &&
+            b.en_passant_loc == def::none && b.stored_en_passant_loc == def::none &&
             b.castling_rights == 0 && b.stored_castling_rights == 0 && 
-            b.side_to_move == Piece::nN && b.stored_captured_piece == Piece::nN &&
+            b.side_to_move == def::none && b.stored_captured_piece == def::none &&
             b.half_move_counter == -1 && b.full_move_counter == -1;
 }
 
@@ -271,14 +272,14 @@ bool Test::test24()
     Utility::fen_to_board(f, b);
     int8_t board[Board::BOARDSIZE] =
     {
-        Piece::wR, Piece::wN, Piece::wB, Piece::wQ, Piece::wK, Piece::wB, Piece::wN, Piece::wR, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN,
-        Piece::wP, Piece::wP, Piece::wP, Piece::wP, Piece::wP, Piece::wP, Piece::wP, Piece::wP, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN,
-        Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN,
-        Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN,
-        Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN,
-        Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN,
-        Piece::bP, Piece::bP, Piece::bP, Piece::bP, Piece::bP, Piece::bP, Piece::bP, Piece::bP, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN,
-        Piece::bR, Piece::bN, Piece::bB, Piece::bQ, Piece::bK, Piece::bB, Piece::bN, Piece::bR, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN, Piece::nN
+        Piece::wR, Piece::wN, Piece::wB, Piece::wQ, Piece::wK, Piece::wB, Piece::wN, Piece::wR, def::none, def::none, def::none, def::none, def::none, def::none, def::none, def::none,
+        Piece::wP, Piece::wP, Piece::wP, Piece::wP, Piece::wP, Piece::wP, Piece::wP, Piece::wP, def::none, def::none, def::none, def::none, def::none, def::none, def::none, def::none,
+        Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, def::none, def::none, def::none, def::none, def::none, def::none, def::none, def::none,
+        Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, def::none, def::none, def::none, def::none, def::none, def::none, def::none, def::none,
+        Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, def::none, def::none, def::none, def::none, def::none, def::none, def::none, def::none,
+        Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, Piece::eM, def::none, def::none, def::none, def::none, def::none, def::none, def::none, def::none,
+        Piece::bP, Piece::bP, Piece::bP, Piece::bP, Piece::bP, Piece::bP, Piece::bP, Piece::bP, def::none, def::none, def::none, def::none, def::none, def::none, def::none, def::none,
+        Piece::bR, Piece::bN, Piece::bB, Piece::bQ, Piece::bK, Piece::bB, Piece::bN, Piece::bR, def::none, def::none, def::none, def::none, def::none, def::none, def::none, def::none
     };
 
     for (auto i = 0; i < Board::BOARDSIZE; i++)
@@ -319,7 +320,7 @@ bool Test::test24()
     return 
         b.piece_loc.find(Piece::wK)->second == Square::e1 && b.piece_loc.find(Piece::bK)->second == Square::e8 &&
         b.piece_loc.find(Piece::wQ)->second == Square::d1 && b.piece_loc.find(Piece::bQ)->second == Square::d8 &&
-        b.en_passant_loc == Piece::nN && b.castling_rights == 15 && b.side_to_move == Piece::white &&
+        b.en_passant_loc == def::none && b.castling_rights == 15 && b.side_to_move == Piece::white &&
         b.half_move_counter == 0 && b.full_move_counter == 1;
 }
 

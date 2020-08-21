@@ -1,8 +1,9 @@
 #include "utility.hpp"
 #include "fen.hpp"
 #include "piece.hpp"
-#include "board_representation/square.hpp"
-#include "board_representation/board.hpp"
+#include "definitions.hpp"
+#include "square.hpp"
+#include "board.hpp"
 
 #include <iostream>
 #include <iomanip>
@@ -79,7 +80,7 @@ void Utility::fen_to_board(Fen const & f, Board& b)
         b.set_castling_rights(Castling::black_queen_side, true);
 
     // en passant
-    if (f.en_passant == "-") b.set_en_passant_loc(Piece::nN);
+    if (f.en_passant == "-") b.set_en_passant_loc(def::none);
     else b.set_en_passant_loc(Square::sq(static_cast<int8_t>(f.en_passant[1] - '1'), static_cast<int8_t>(f.en_passant[0] - 'a')));
 
     // half_move_clock
@@ -134,7 +135,7 @@ std::string Utility::board_to_fen_string(Board const & b)
     else ss << " " << castling;
 
     auto ep = b.get_en_passant_loc();
-    if(ep == Piece::nN) ss << " -";
+    if(ep == def::none) ss << " -";
     else
     {
        auto p = Square::rank_and_file(ep);

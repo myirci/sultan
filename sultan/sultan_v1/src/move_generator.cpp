@@ -3,7 +3,9 @@
 #include "move_generator.hpp"
 #include "square.hpp"
 #include "board.hpp"
-#include "../piece.hpp"
+
+#include "piece.hpp"
+#include "definitions.hpp"
 
 MoveGenerator::MoveGenerator(Board const & b) : board_obj{b}, board{b.get_board()} { }
 
@@ -16,7 +18,7 @@ std::pair<std::vector<MoveGenerator::Attack>, std::vector<MoveGenerator::Pin>> M
     for(auto i {0}; i < 4; i++)
     {
         dir = Square::Directions::flat_dirs[i];
-        int8_t next{target}, pinned {Piece::nN};
+        int8_t next{target}, pinned {def::none};
         while(!((next = next + dir) & Square::inside))
         {
             if(board[next] == Piece::eM) continue;
@@ -26,7 +28,7 @@ std::pair<std::vector<MoveGenerator::Attack>, std::vector<MoveGenerator::Pin>> M
                 int8_t p = ntm * board[next];
                 if(p == Piece::Rook || p == Piece::Queen)
                 {
-                    if(pinned == Piece::nN)
+                    if(pinned == def::none)
                         attacks.push_back(Attack{next, dir});
                     else
                         pins.push_back(Pin{next, pinned, dir});
@@ -35,7 +37,7 @@ std::pair<std::vector<MoveGenerator::Attack>, std::vector<MoveGenerator::Pin>> M
             }
             else
             {
-                if(pinned == Piece::nN) pinned = next;
+                if(pinned == def::none) pinned = next;
                 else break;
             }
         }
@@ -44,7 +46,7 @@ std::pair<std::vector<MoveGenerator::Attack>, std::vector<MoveGenerator::Pin>> M
     for(auto i{0}; i < 4; i++)
     {
         dir = Square::Directions::diagonal_dirs[i];
-        int8_t next {target}, pinned {Piece::nN};
+        int8_t next {target}, pinned {def::none};
         while(!((next = next + dir) & Square::inside))
         {
             if(board[next] == Piece::eM) continue;
@@ -54,7 +56,7 @@ std::pair<std::vector<MoveGenerator::Attack>, std::vector<MoveGenerator::Pin>> M
                 int8_t p = ntm * board[next];
                 if(p == Piece::Bishop || p == Piece::Queen || (p == Piece::Pawn && (next - target) == dir && dir * ntm < 0))
                 {
-                    if(pinned == Piece::nN)
+                    if(pinned == def::none)
                         attacks.push_back(Attack{next, dir});
                     else
                         pins.push_back(Pin{next, pinned, dir});
@@ -63,7 +65,7 @@ std::pair<std::vector<MoveGenerator::Attack>, std::vector<MoveGenerator::Pin>> M
             }
             else
             {
-                if(pinned == Piece::nN) pinned = next;
+                if(pinned == def::none) pinned = next;
                 else break;
             }
         }
@@ -420,7 +422,7 @@ void MoveGenerator::generate_pawn_moves(int8_t sq, int8_t stm, const std::vector
 
     // en-passant captures
     int8_t ep = board_obj.get_en_passant_loc();
-    if(ep != Piece::nN && (sq == (ep + stm * Square::Directions::SW) || sq == (ep + stm * Square::Directions::SE)) && 
+    if(ep != def::none && (sq == (ep + stm * Square::Directions::SW) || sq == (ep + stm * Square::Directions::SE)) && 
        (pin_dir == Square::Directions::ND || pin_dir == (ep - sq)))
         moves.emplace_back(Move(sq, ep, Move_flag::En_Passant_Capture));
 }

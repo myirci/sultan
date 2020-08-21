@@ -1,9 +1,9 @@
 #include "engine.hpp"
 #include "fen.hpp"
 #include "utility.hpp"
-#include "board_representation/move.hpp"
-#include "board_representation/move_generator.hpp"
-#include "board_representation/board.hpp"
+#include "move.hpp"
+#include "move_generator.hpp"
+#include "board.hpp"
 
 #include <iostream>
 

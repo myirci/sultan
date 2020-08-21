@@ -1,10 +1,10 @@
 #include <iostream>
 #include "fen.hpp"
 #include "test.hpp"
-#include "board_representation/board.hpp"
+#include "board.hpp"
 #include "utility.hpp"
 
-#include "board_representation/square.hpp"
+#include "square.hpp"
 
 using namespace std;
 

@@ -1,5 +1,4 @@
-#ifndef MOVE_GENERATOR_HPP
-#define MOVE_GENERATOR_HPP
+#pragma once
 
 #include <vector>
 #include <utility>
@@ -34,5 +33,3 @@ public:
     MoveGenerator(Board const & b);
     std::vector<Move> generate_moves() const;
 };
-
-#endif // MOVE_GENERATOR_HPP

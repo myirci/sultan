@@ -1,5 +1,4 @@
-#ifndef SQUARE_HPP
-#define SQUARE_HPP
+#pragma once
 
 #include <cstdint>
 #include <string>
@@ -73,5 +72,3 @@ namespace Square
 
 }
 
-
-#endif // SQUARE_HPP

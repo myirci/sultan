@@ -1,6 +1,7 @@
 #include "board.hpp"
 #include "square.hpp"
-#include "../piece.hpp"
+#include "piece.hpp"
+#include "definitions.hpp"
 
 #include <algorithm>
 #include <array>
@@ -13,15 +14,15 @@ Board::Board()
 
 void Board::clear()
 {
-    std::fill(board, board + BOARDSIZE, Piece::nN);
-    en_passant_loc = Piece::nN;
-    stored_en_passant_loc = Piece::nN;
+    std::fill(board, board + BOARDSIZE, def::none);
+    en_passant_loc = def::none;
+    stored_en_passant_loc = def::none;
     castling_rights = 0;
     stored_castling_rights = 0;
     half_move_counter = -1;
     full_move_counter = -1;
-    side_to_move = Piece::nN;
-    stored_captured_piece = Piece::nN;
+    side_to_move = def::none;
+    stored_captured_piece = def::none;
     piece_loc.clear();
 }
 
@@ -190,7 +191,7 @@ void Board::make_move(Move m)
     }
     else 
     {
-        en_passant_loc = Piece::nN;
+        en_passant_loc = def::none;
     }
 
     if (m.is_promotion())
@@ -209,7 +210,7 @@ void Board::make_move(Move m)
     }
 
     if (!m.is_capture())
-        stored_captured_piece = Piece::nN;
+        stored_captured_piece = def::none;
 
     half_move_counter++;
     if (side_to_move == Piece::black) full_move_counter++;

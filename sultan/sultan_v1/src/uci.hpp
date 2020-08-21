@@ -1,6 +1,4 @@
-#ifndef UCI_HPP
-#define UCI_HPP
-
+#pragma once
 
 class Uci
 {
@@ -8,4 +6,4 @@ public:
     Uci();
 };
 
-#endif // UCI_HPP
+
