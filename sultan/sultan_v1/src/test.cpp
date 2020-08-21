@@ -9,11 +9,13 @@
 
 #include "test.hpp"
 #include "fen.hpp"
-#include "board_representation/move.hpp"
 #include "piece.hpp"
+#include "utility.hpp"
+#include "engine.hpp"
+#include "board_representation/move.hpp"
 #include "board_representation/square.hpp"
 #include "board_representation/board.hpp"
-#include "utility.hpp"
+
 
 bool Test::test1()
 {
@@ -165,103 +167,100 @@ bool Test::test17()
 {
     Board b;
     auto func = [](int8_t v) { return v == Piece::nN; };
-    return  std::all_of(b.board, b.board+Board::BOARDSIZE, func) &&
-            b.white_pieces.empty() &&
-            b.black_pieces.empty() &&
-            std::all_of(b.black_pieces.begin(), b.black_pieces.end(), func) &&
-            b.en_passant_loc == Piece::nN &&
-            b.flags == 0 &&
-            b.half_move_counter == -1 &&
-            b.full_move_counter == -1;
+    return  std::all_of(b.board, b.board+Board::BOARDSIZE, func) && b.piece_loc.empty() &&
+            b.en_passant_loc == Piece::nN && b.stored_en_passant_loc == Piece::nN &&
+            b.castling_rights == 0 && b.stored_castling_rights == 0 && 
+            b.side_to_move == Piece::nN && b.stored_captured_piece == Piece::nN &&
+            b.half_move_counter == -1 && b.full_move_counter == -1;
 }
 
 bool Test::test18()
 {
     Board b;
     b.set_side_to_move(Piece::white);
-    return b.flags == 1 && b.get_side_to_move() == Piece::white;
+    return b.get_side_to_move() == Piece::white;
 }
 
 bool Test::test19()
 {
     Board b;
     b.set_side_to_move(Piece::black);
-    return b.flags == 0 && b.get_side_to_move() == Piece::black;
+    return b.get_side_to_move() == Piece::black;
 }
 
 bool Test::test20()
 {
     Board b;
-    b.set_castling_availability(Castling::white_king_side, true);
-    bool res1 { b.flags == 2 &&
-                b.query_castling_availability(Castling::white_king_side) == true &&
-                b.query_castling_availability(Castling::white_queen_side) == false &&
-                b.query_castling_availability(Castling::black_king_side) == false &&
-                b.query_castling_availability(Castling::black_queen_side) == false };
+    b.set_castling_rights(Castling::white_king_side, true);
+    bool res1 { b.castling_rights == 1 &&
+                b.query_castling_rights(Castling::white_king_side) == true &&
+                b.query_castling_rights(Castling::white_queen_side) == false &&
+                b.query_castling_rights(Castling::black_king_side) == false &&
+                b.query_castling_rights(Castling::black_queen_side) == false };
 
-    b.set_castling_availability(Castling::white_king_side, false);
-    bool res2 { b.flags == 0 &&
-                b.query_castling_availability(Castling::white_king_side) == false &&
-                b.query_castling_availability(Castling::white_queen_side) == false &&
-                b.query_castling_availability(Castling::black_king_side) == false &&
-                b.query_castling_availability(Castling::black_queen_side) == false };
+    b.set_castling_rights(Castling::white_king_side, false);
+    bool res2 { b.castling_rights == 0 &&
+                b.query_castling_rights(Castling::white_king_side) == false &&
+                b.query_castling_rights(Castling::white_queen_side) == false &&
+                b.query_castling_rights(Castling::black_king_side) == false &&
+                b.query_castling_rights(Castling::black_queen_side) == false };
     return res1 && res2;
 }
 
 bool Test::test21()
 {
     Board b;
-    b.set_castling_availability(Castling::white_queen_side, true);
-    bool res1 { b.flags == 4 &&
-                b.query_castling_availability(Castling::white_king_side) == false &&
-                b.query_castling_availability(Castling::white_queen_side) == true &&
-                b.query_castling_availability(Castling::black_king_side) == false &&
-                b.query_castling_availability(Castling::black_queen_side) == false };
+    b.set_castling_rights(Castling::white_queen_side, true);
+    bool res1 { b.castling_rights == 2 &&
+                b.query_castling_rights(Castling::white_king_side) == false &&
+                b.query_castling_rights(Castling::white_queen_side) == true &&
+                b.query_castling_rights(Castling::black_king_side) == false &&
+                b.query_castling_rights(Castling::black_queen_side) == false };
 
-    b.set_castling_availability(Castling::white_queen_side, false);
-    bool res2 { b.flags == 0 &&
-                b.query_castling_availability(Castling::white_king_side) == false &&
-                b.query_castling_availability(Castling::white_queen_side) == false &&
-                b.query_castling_availability(Castling::black_king_side) == false &&
-                b.query_castling_availability(Castling::black_queen_side) == false };
+    b.set_castling_rights(Castling::white_queen_side, false);
+    bool res2 { b.castling_rights == 0 &&
+                b.query_castling_rights(Castling::white_king_side) == false &&
+                b.query_castling_rights(Castling::white_queen_side) == false &&
+                b.query_castling_rights(Castling::black_king_side) == false &&
+                b.query_castling_rights(Castling::black_queen_side) == false };
     return res1 && res2;
 }
 
 bool Test::test22()
 {
     Board b;
-    b.set_castling_availability(Castling::black_king_side, true);
-    bool res1 { b.flags == 8 &&
-                b.query_castling_availability(Castling::white_king_side) == false &&
-                b.query_castling_availability(Castling::white_queen_side) == false &&
-                b.query_castling_availability(Castling::black_king_side) == true &&
-                b.query_castling_availability(Castling::black_queen_side) == false };
+    b.set_castling_rights(Castling::black_king_side, true);
+    bool res1 { b.castling_rights == 4 &&
+                b.query_castling_rights(Castling::white_king_side) == false &&
+                b.query_castling_rights(Castling::white_queen_side) == false &&
+                b.query_castling_rights(Castling::black_king_side) == true &&
+                b.query_castling_rights(Castling::black_queen_side) == false };
 
-    b.set_castling_availability(Castling::black_king_side, false);
-    bool res2 { b.flags == 0 &&
-                b.query_castling_availability(Castling::white_king_side) == false &&
-                b.query_castling_availability(Castling::white_queen_side) == false &&
-                b.query_castling_availability(Castling::black_king_side) == false &&
-                b.query_castling_availability(Castling::black_queen_side) == false };
+    b.set_castling_rights(Castling::black_king_side, false);
+    bool res2 { b.castling_rights == 4 &&
+                b.query_castling_rights(Castling::white_king_side) == false &&
+                b.query_castling_rights(Castling::white_queen_side) == false &&
+                b.query_castling_rights(Castling::black_king_side) == false &&
+                b.query_castling_rights(Castling::black_queen_side) == false };
     return res1 && res2;
 }
 
 bool Test::test23()
 {
     Board b;
-    b.set_castling_availability(Castling::black_queen_side, true);
-    bool res1 { b.flags == 16 &&
-                b.query_castling_availability(Castling::white_king_side) == false &&
-                b.query_castling_availability(Castling::white_queen_side) == false &&
-                b.query_castling_availability(Castling::black_king_side) == false &&
-                b.query_castling_availability(Castling::black_queen_side) == true };
+    b.set_castling_rights(Castling::black_queen_side, true);
+    bool res1 { b.castling_rights == 8 &&
+                b.query_castling_rights(Castling::white_king_side) == false &&
+                b.query_castling_rights(Castling::white_queen_side) == false &&
+                b.query_castling_rights(Castling::black_king_side) == false &&
+                b.query_castling_rights(Castling::black_queen_side) == true };
 
-    b.set_castling_availability(Castling::black_queen_side, false);
-    bool res2 { b.flags == 0 &&
-                b.query_castling_availability(Castling::white_king_side) == false &&
-                b.query_castling_availability(Castling::white_queen_side) == false &&
-                b.query_castling_availability(Castling::black_king_side) == false &&
-                b.query_castling_availability(Castling::black_queen_side) == false };
+    b.set_castling_rights(Castling::black_queen_side, false);
+    bool res2 { b.castling_rights == 0 &&
+                b.query_castling_rights(Castling::white_king_side) == false &&
+                b.query_castling_rights(Castling::white_queen_side) == false &&
+                b.query_castling_rights(Castling::black_king_side) == false &&
+                b.query_castling_rights(Castling::black_queen_side) == false };
     return res1 && res2;
 }
 
@@ -291,45 +290,37 @@ bool Test::test24()
         }
     }
 
-    if(b.white_pieces.size() != 16)
-        return false;
+    if (b.piece_loc.size() != 32) return false;
 
-    std::array<int8_t, 16> wpieces {
-        Square::e1, Square::d1, Square::a1, Square::h1, Square::c1, Square::f1, Square::b1, Square::g1,
-        Square::a2, Square::b2, Square::c2, Square::d2, Square::e2, Square::f2, Square::g2, Square::h2
-    };
+    std::vector<int8_t> white_pawn_loc { Square::a2, Square::b2, Square::c2, Square::d2, Square::e2, Square::f2, Square::g2, Square::h2 };
+    if(!check_piece_locations(b, Piece::wP, white_pawn_loc)) return false;
 
-    for(size_t i = 0; i < b.white_pieces.size(); i++)
-    {
-        if(b.white_pieces[i] != wpieces[i])
-        {
-            std::cout << "White pieces, mismatch at location " << i << " : " << static_cast<int>(wpieces[i]) << " != " << static_cast<int>(b.white_pieces[i]) << std::endl;
-            return false;
-        }
-    }
+    std::vector<int8_t> black_pawn_loc { Square::a7, Square::b7, Square::c7, Square::d7, Square::e7, Square::f7, Square::g7, Square::h7 };
+    if(!check_piece_locations(b, Piece::bP, black_pawn_loc)) return false;
 
-    if(b.black_pieces.size() != 16)
-        return false;
+    std::vector<int8_t> white_rook_loc { Square::a1, Square::h1 };
+    if (!check_piece_locations(b, Piece::wR, white_rook_loc)) return false;
 
-    std::array<int8_t, 16> bpieces {
-        Square::e8, Square::d8, Square::a8, Square::h8, Square::c8, Square::f8, Square::b8, Square::g8,
-        Square::a7, Square::b7, Square::c7, Square::d7, Square::e7, Square::f7, Square::g7, Square::h7
-    };
+    std::vector<int8_t> black_rook_loc { Square::a8, Square::h8 };
+    if (!check_piece_locations(b, Piece::bR, black_rook_loc)) return false;
 
-    for(size_t i = 0; i < b.black_pieces.size(); i++)
-    {
-        if(b.black_pieces[i] != bpieces[i])
-        {
-            std::cout << "Black pieces, mismatch at location " << i << " : " << static_cast<int>(bpieces[i]) << " != " << static_cast<int>(b.black_pieces[i]) << std::endl;
-            return false;
-        }
-    }
+    std::vector<int8_t> white_knight_loc { Square::b1, Square::g1 };
+    if (!check_piece_locations(b, Piece::wN, white_knight_loc)) return false;
 
-    return
-            b.en_passant_loc == Piece::nN &&
-            b.flags == 31 &&
-            b.half_move_counter == 0 &&
-            b.full_move_counter == 1;
+    std::vector<int8_t> black_knight_loc { Square::b8, Square::g8 };
+    if (!check_piece_locations(b, Piece::bN, black_knight_loc)) return false;
+
+    std::vector<int8_t> white_bishop_loc { Square::c1, Square::f1 };
+    if (!check_piece_locations(b, Piece::wB, white_bishop_loc)) return false;
+
+    std::vector<int8_t> black_bishop_loc { Square::c8, Square::f8 };
+    if (!check_piece_locations(b, Piece::bB, black_bishop_loc)) return false;
+
+    return 
+        b.piece_loc.find(Piece::wK)->second == Square::e1 && b.piece_loc.find(Piece::bK)->second == Square::e8 &&
+        b.piece_loc.find(Piece::wQ)->second == Square::d1 && b.piece_loc.find(Piece::bQ)->second == Square::d8 &&
+        b.en_passant_loc == Piece::nN && b.castling_rights == 15 && b.side_to_move == Piece::white &&
+        b.half_move_counter == 0 && b.full_move_counter == 1;
 }
 
 bool Test::test25()
@@ -379,6 +370,7 @@ bool Test::test29()
 
 bool Test::test30()
 {
+    // test: attacks and pins detection
     Board b;
     Fen f("3qk3/pp2pppb/b6n/2n2P2/2N5/r1PKB2r/P2RN1PP/3r1b1R w - - 0 1");
     Utility::fen_to_board(f, b);
@@ -400,7 +392,7 @@ bool Test::test30()
     };
 
     MoveGenerator mg(b);
-    auto ap = mg.compute_attacks_and_pins(Square::d3, -1);
+    auto ap = mg.compute_attacks_and_pins(Square::d3, 1);
 
     if(ap.first.size() != attacks.size())
     {
@@ -438,6 +430,7 @@ bool Test::test30()
 
 bool Test::test31()
 {
+    // test: attacks and pins detection
     Board b;
     Fen f("Q2R2Q1/1p3b2/3p4/R1nk2qR/8/1q1r1p2/B2R4/7B b - - 0 1");
     Utility::fen_to_board(f, b);
@@ -456,7 +449,7 @@ bool Test::test31()
     };
 
     MoveGenerator mg(b);
-    auto ap = mg.compute_attacks_and_pins(Square::d5, 1);
+    auto ap = mg.compute_attacks_and_pins(Square::d5, -1);
 
     if(ap.first.size() != attacks.size())
     {
@@ -486,6 +479,7 @@ bool Test::test31()
 
 bool Test::test32()
 {
+    // test: attacks and pins detection
     Board b;
     Fen f("Q2R2Q1/1p1NNb2/2Ppp3/RPnk1pqR/2Pn4/1q1r1p2/B2R2P1/7B b - - 0 1");
     Utility::fen_to_board(f, b);
@@ -499,7 +493,7 @@ bool Test::test32()
     std::vector<MoveGenerator::Pin> pins { };
 
     MoveGenerator mg(b);
-    auto ap = mg.compute_attacks_and_pins(Square::d5, 1);
+    auto ap = mg.compute_attacks_and_pins(Square::d5, -1);
 
     if(ap.first.size() != attacks.size())
     {
@@ -528,6 +522,7 @@ bool Test::test32()
 
 bool Test::test33()
 {
+    // test: white and black attacked squares
     Board b;
     Fen f("8/1k2p1p1/6P1/p7/8/8/2P1K2P/8 w - - 0 1");
     Utility::fen_to_board(f, b);
@@ -550,7 +545,7 @@ bool Test::test33()
         auto sq = Square::order[i];
         if(black_attacked_squares.find(sq) != black_attacked_squares.end())
         {
-            if(!mg.is_under_attack(sq, -1))
+            if(!mg.is_under_attack(sq, 1))
             {
                 std::cout << Square::square_to_string(sq) << " is attacked by black but the attack cannot be detected" << std::endl;
                 return false;
@@ -558,7 +553,7 @@ bool Test::test33()
         }
         else
         {
-            if(mg.is_under_attack(sq, -1))
+            if(mg.is_under_attack(sq, 1))
             {
                 std::cout << Square::square_to_string(sq) << " is not attacked by black but it is detected" << std::endl;
                 return false;
@@ -567,7 +562,7 @@ bool Test::test33()
 
         if(white_attacked_squares.find(sq) != white_attacked_squares.end())
         {
-            if(!mg.is_under_attack(sq, 1))
+            if(!mg.is_under_attack(sq, -1))
             {
                 std::cout << Square::square_to_string(sq) << " is attacked by white but the attack cannot be detected" << std::endl;
                 return false;
@@ -575,7 +570,7 @@ bool Test::test33()
         }
         else
         {
-            if(mg.is_under_attack(sq, 1))
+            if(mg.is_under_attack(sq, -1))
             {
                 std::cout << Square::square_to_string(sq) << " is not attacked by white but it is detected" << std::endl;
                 return false;
@@ -588,6 +583,7 @@ bool Test::test33()
 
 bool Test::test34()
 {
+    // test: white and black attacked squares
     Board b;
     Fen f("3k2nq/3b1rp1/3N3n/2B5/4N2b/PPR5/Q2PB3/6K1 w - - 0 1");
     Utility::fen_to_board(f, b);
@@ -622,7 +618,7 @@ bool Test::test34()
         auto sq = Square::order[i];
         if(black_attacked_squares.find(sq) != black_attacked_squares.end())
         {
-            if(!mg.is_under_attack(sq, -1))
+            if(!mg.is_under_attack(sq, 1))
             {
                 std::cout << Square::square_to_string(sq) << " is attacked by black but the attack cannot be detected" << std::endl;
                 return false;
@@ -630,7 +626,7 @@ bool Test::test34()
         }
         else
         {
-            if(mg.is_under_attack(sq, -1))
+            if(mg.is_under_attack(sq, 1))
             {
                 std::cout << Square::square_to_string(sq) << " is not attacked by black but it is detected" << std::endl;
                 return false;
@@ -639,7 +635,7 @@ bool Test::test34()
 
         if(white_attacked_squares.find(sq) != white_attacked_squares.end())
         {
-            if(!mg.is_under_attack(sq, 1))
+            if(!mg.is_under_attack(sq, -1))
             {
                 std::cout << Square::square_to_string(sq) << " is attacked by white but the attack cannot be detected" << std::endl;
                 return false;
@@ -647,7 +643,7 @@ bool Test::test34()
         }
         else
         {
-            if(mg.is_under_attack(sq, 1))
+            if(mg.is_under_attack(sq, -1))
             {
                 std::cout << Square::square_to_string(sq) << " is not attacked by white but it is detected" << std::endl;
                 return false;
@@ -660,6 +656,7 @@ bool Test::test34()
 
 bool Test::test35()
 {
+    // test: moves for black and white at the initial position
     Board b;
     Fen f;
     Utility::fen_to_board(f, b);
@@ -667,8 +664,8 @@ bool Test::test35()
 
     std::vector<Move> moves;
 
-    auto wattpin = mg.compute_attacks_and_pins(Square::e1, -1);
-    auto battpin = mg.compute_attacks_and_pins(Square::e8, 1);
+    auto wattpin = mg.compute_attacks_and_pins(Square::e1, 1);
+    auto battpin = mg.compute_attacks_and_pins(Square::e8, -1);
 
     // white pawn moves
     std::vector<int8_t> wsq
@@ -745,9 +742,9 @@ bool Test::test35()
     if (!moves.empty()) return false;
 
     // King moves
-    mg.generate_king_moves(Square::e1, -1, false, moves);
+    mg.generate_king_moves(Square::e1, 1, false, moves);
     if (!moves.empty()) return false;
-    mg.generate_king_moves(Square::e8, 1, false, moves);
+    mg.generate_king_moves(Square::e8, -1, false, moves);
     if (!moves.empty()) return false;
 
     // Knight moves
@@ -786,15 +783,628 @@ bool Test::test35()
 }
 
 bool Test::test36() 
-{ 
-    return false; 
+{
+    // test en-passant capture: white
+    Board b;
+    Fen f("4k3/8/8/1pP5/8/8/8/4K3 w - b6 0 1");
+    Utility::fen_to_board(f, b);
+    MoveGenerator mg(b);
+    std::vector<Move> moves;
+    auto wattpin = mg.compute_attacks_and_pins(Square::e1, 1);    
+    mg.generate_pawn_moves(Square::c5, 1, wattpin.second, moves);
+    // Utility::print_moves(moves);
+    if (moves.size() != 2 || 
+        !Utility::is_equal(moves[0], Move(Square::c5, Square::c6, Move_flag::Quite)) ||
+        !Utility::is_equal(moves[1], Move(Square::c5, Square::b6, Move_flag::En_Passant_Capture)))
+        return false;
+    return true;
 }
 
+bool Test::test37()
+{
+    // test en-passant capture: white
+    Board b;
+    Fen f1("4k3/8/8/2Pp4/8/8/8/4K3 w - d6 0 1");
+    Utility::fen_to_board(f1, b);
+    MoveGenerator mg(b);
+    std::vector<Move> moves;
+    auto wattpin = mg.compute_attacks_and_pins(Square::e1, 1);
+    mg.generate_pawn_moves(Square::c5, 1, wattpin.second, moves);
+    // Utility::print_moves(moves);
+    if (moves.size() != 2 || 
+        !Utility::is_equal(moves[0], Move(Square::c5, Square::c6, Move_flag::Quite)) ||
+        !Utility::is_equal(moves[1], Move(Square::c5, Square::d6, Move_flag::En_Passant_Capture)))
+        return false;
+    return true;
+}
 
-bool Test::test37() { return false; }
-bool Test::test38() { return false; }
-bool Test::test39() { return false; }
-bool Test::test40() { return false; }
+bool Test::test38()
+{
+    // test en-passant capture: black
+    Board b;
+    Fen f("4k3/8/8/8/4pP2/8/8/4K3 b - f3 0 1");
+    Utility::fen_to_board(f, b);
+    MoveGenerator mg(b);
+    std::vector<Move> moves;
+    auto wattpin = mg.compute_attacks_and_pins(Square::e8, -1);
+    mg.generate_pawn_moves(Square::e4, -1, wattpin.second, moves);
+    // Utility::print_moves(moves);
+    if (moves.size() != 2 ||
+        !Utility::is_equal(moves[0], Move(Square::e4, Square::e3, Move_flag::Quite)) ||
+        !Utility::is_equal(moves[1], Move(Square::e4, Square::f3, Move_flag::En_Passant_Capture)))
+        return false;
+    return true;
+}
+
+bool Test::test39()
+{
+    // test en-passant capture: black
+    Board b;
+    Fen f1("4k3/8/8/8/3Pp3/8/8/4K3 b - d3 0 1");
+    Utility::fen_to_board(f1, b);
+    MoveGenerator mg(b);
+    std::vector<Move> moves;
+    auto wattpin = mg.compute_attacks_and_pins(Square::e8, -1);
+    mg.generate_pawn_moves(Square::e4, -1, wattpin.second, moves);
+    // Utility::print_moves(moves);
+    if (moves.size() != 2 ||
+        !Utility::is_equal(moves[0], Move(Square::e4, Square::e3, Move_flag::Quite)) ||
+        !Utility::is_equal(moves[1], Move(Square::e4, Square::d3, Move_flag::En_Passant_Capture)))
+        return false;
+    return true;
+}
+
+bool Test::test40() 
+{ 
+    // test: en-passant capture in the pinned direction: white
+    Board b;
+    Fen f("8/q7/8/1pP5/3K4/8/8/8 w - b6 0 1");
+    Utility::fen_to_board(f, b);
+    MoveGenerator mg(b);
+
+    std::vector<Move> moves;
+    auto wattpin = mg.compute_attacks_and_pins(Square::d4, 1);
+    mg.generate_pawn_moves(Square::c5, 1, wattpin.second, moves);
+    // Utility::print_moves(moves);
+    if(moves.size() != 1 || !Utility::is_equal(moves[0], Move(Square::c5, Square::b6, Move_flag::En_Passant_Capture)))
+        return false;
+    return true;
+}
+
+bool Test::test41()
+{
+    // test: prevented en-passant capture due to pin: white
+    Board b;
+    Fen f("8/q7/8/2Pp4/3K4/8/8/8 w - d6 0 1");
+    Utility::fen_to_board(f, b);
+    MoveGenerator mg(b);
+
+    std::vector<Move> moves;
+    auto wattpin = mg.compute_attacks_and_pins(Square::d4, 1);
+    mg.generate_pawn_moves(Square::c5, 1, wattpin.second, moves);
+    Utility::print_moves(moves);
+    if(!moves.empty())
+        return false;
+    return true;
+}
+
+bool Test::test42()
+{
+    // test: en-passant capture in the pinned direction: black
+    Board b;
+    Fen f("8/7k/8/8/3Pp3/8/8/1B2K3 b - d3 0 1");
+    Utility::fen_to_board(f, b);
+    MoveGenerator mg(b);
+
+    std::vector<Move> moves;
+    auto battpin = mg.compute_attacks_and_pins(Square::h7, -1);
+    mg.generate_pawn_moves(Square::e4, -1, battpin.second, moves);
+    // Utility::print_moves(moves);
+    if (moves.size() != 1 || !Utility::is_equal(moves[0], Move(Square::e4, Square::d3, Move_flag::En_Passant_Capture)))
+        return false;
+    return true;
+}
+
+bool Test::test43()
+{
+    // test: prevented en-passant capture due to pin: black
+    Board b;
+    Fen f("8/1k6/8/8/3Pp3/8/8/4K2B b - d3 0 1");
+    Utility::fen_to_board(f, b);
+    MoveGenerator mg(b);
+
+    std::vector<Move> moves;
+    auto battpin = mg.compute_attacks_and_pins(Square::b7, -1);
+    mg.generate_pawn_moves(Square::e4, -1, battpin.second, moves);
+    Utility::print_moves(moves);
+    if (!moves.empty())
+        return false;
+    return true;
+}
+
+bool Test::test44() 
+{ 
+    // test: pawn promotions with and without capture: white
+    Board b;
+    Fen f("1r1n1n2/P1P1PP1P/4r3/2k4b/2b5/3PPP2/4K3/8 w - - 0 1");
+    Utility::fen_to_board(f, b);
+    MoveGenerator mg(b); 
+    auto wattpin = mg.compute_attacks_and_pins(Square::e2, 1);
+    std::vector<Move> moves;
+    
+    mg.generate_pawn_moves(Square::a7, 1, wattpin.second, moves);
+    // Utility::print_moves(moves);
+    if(moves.size() != 8 || 
+        !Utility::is_equal(moves[0], Move(Square::a7, Square::a8, Move_flag::Queen_Promotion)) ||
+        !Utility::is_equal(moves[1], Move(Square::a7, Square::a8, Move_flag::Knight_Promotion)) ||
+        !Utility::is_equal(moves[2], Move(Square::a7, Square::a8, Move_flag::Bishop_Promotion)) ||
+        !Utility::is_equal(moves[3], Move(Square::a7, Square::a8, Move_flag::Rook_Promotion)) ||
+        !Utility::is_equal(moves[4], Move(Square::a7, Square::b8, Move_flag::Queen_Promotion_Capture)) ||
+        !Utility::is_equal(moves[5], Move(Square::a7, Square::b8, Move_flag::Knight_Promotion_Capture)) ||
+        !Utility::is_equal(moves[6], Move(Square::a7, Square::b8, Move_flag::Bishop_Promotion_Capture)) ||
+        !Utility::is_equal(moves[7], Move(Square::a7, Square::b8, Move_flag::Rook_Promotion_Capture)))
+        return false;
+    moves.clear();
+
+    mg.generate_pawn_moves(Square::c7, 1, wattpin.second, moves);
+    // Utility::print_moves(moves);
+    if (moves.size() != 12 ||
+        !Utility::is_equal(moves[0], Move(Square::c7, Square::c8, Move_flag::Queen_Promotion)) ||
+        !Utility::is_equal(moves[1], Move(Square::c7, Square::c8, Move_flag::Knight_Promotion)) ||
+        !Utility::is_equal(moves[2], Move(Square::c7, Square::c8, Move_flag::Bishop_Promotion)) ||
+        !Utility::is_equal(moves[3], Move(Square::c7, Square::c8, Move_flag::Rook_Promotion)) ||
+        !Utility::is_equal(moves[4], Move(Square::c7, Square::d8, Move_flag::Queen_Promotion_Capture)) ||
+        !Utility::is_equal(moves[5], Move(Square::c7, Square::d8, Move_flag::Knight_Promotion_Capture)) ||
+        !Utility::is_equal(moves[6], Move(Square::c7, Square::d8, Move_flag::Bishop_Promotion_Capture)) ||
+        !Utility::is_equal(moves[7], Move(Square::c7, Square::d8, Move_flag::Rook_Promotion_Capture)) ||
+        !Utility::is_equal(moves[8], Move(Square::c7, Square::b8, Move_flag::Queen_Promotion_Capture)) ||
+        !Utility::is_equal(moves[9], Move(Square::c7, Square::b8, Move_flag::Knight_Promotion_Capture)) ||
+        !Utility::is_equal(moves[10], Move(Square::c7, Square::b8, Move_flag::Bishop_Promotion_Capture)) ||
+        !Utility::is_equal(moves[11], Move(Square::c7, Square::b8, Move_flag::Rook_Promotion_Capture)))
+        return false;
+    moves.clear();
+
+    mg.generate_pawn_moves(Square::h7, 1, wattpin.second, moves);
+    // Utility::print_moves(moves);
+    if (moves.size() != 4 ||
+        !Utility::is_equal(moves[0], Move(Square::h7, Square::h8, Move_flag::Queen_Promotion)) ||
+        !Utility::is_equal(moves[1], Move(Square::h7, Square::h8, Move_flag::Knight_Promotion)) ||
+        !Utility::is_equal(moves[2], Move(Square::h7, Square::h8, Move_flag::Bishop_Promotion)) ||
+        !Utility::is_equal(moves[3], Move(Square::h7, Square::h8, Move_flag::Rook_Promotion)))
+        return false;
+    moves.clear();
+
+    mg.generate_pawn_moves(Square::f7, 1, wattpin.second, moves);
+    if (!moves.empty())
+        return false;
+
+    mg.generate_pawn_moves(Square::f3, 1, wattpin.second, moves);
+    if (!moves.empty())
+        return false;
+
+    mg.generate_pawn_moves(Square::d3, 1, wattpin.second, moves);
+    // Utility::print_moves(moves);
+    if (moves.size() != 1 ||
+        !Utility::is_equal(moves[0], Move(Square::d3, Square::c4, Move_flag::Capture)))
+        return false;
+    moves.clear();
+
+    mg.generate_pawn_moves(Square::e3, 1, wattpin.second, moves);
+    // Utility::print_moves(moves);
+    if (moves.size() != 1 ||
+        !Utility::is_equal(moves[0], Move(Square::e3, Square::e4, Move_flag::Quite)))
+        return false;
+    moves.clear();
+    return true;
+}
+
+bool Test::test45()
+{
+    // test: prevented en-passant capture due to pin: black
+    Board b;
+    Fen f("1k6/8/8/4p3/3PPP2/8/pK1p3p/NNQ1B1R1 b - - 0 1");
+    Utility::fen_to_board(f, b);
+    MoveGenerator mg(b);
+
+    std::vector<Move> moves;
+    auto battpin = mg.compute_attacks_and_pins(Square::b8, -1);
+    mg.generate_pawn_moves(Square::a2, -1, battpin.second, moves);
+    // Utility::print_moves(moves);
+    if (moves.size() != 4 ||
+        !Utility::is_equal(moves[0], Move(Square::a2, Square::b1, Move_flag::Queen_Promotion_Capture)) || 
+        !Utility::is_equal(moves[1], Move(Square::a2, Square::b1, Move_flag::Knight_Promotion_Capture)) || 
+        !Utility::is_equal(moves[2], Move(Square::a2, Square::b1, Move_flag::Bishop_Promotion_Capture)) || 
+        !Utility::is_equal(moves[3], Move(Square::a2, Square::b1, Move_flag::Rook_Promotion_Capture)))
+        return false;
+    moves.clear();
+
+    mg.generate_pawn_moves(Square::d2, -1, battpin.second, moves);
+    // Utility::print_moves(moves);
+    if (moves.size() != 12 ||
+        !Utility::is_equal(moves[0], Move(Square::d2, Square::d1, Move_flag::Queen_Promotion)) ||
+        !Utility::is_equal(moves[1], Move(Square::d2, Square::d1, Move_flag::Knight_Promotion)) ||
+        !Utility::is_equal(moves[2], Move(Square::d2, Square::d1, Move_flag::Bishop_Promotion)) ||
+        !Utility::is_equal(moves[3], Move(Square::d2, Square::d1, Move_flag::Rook_Promotion)) ||
+        !Utility::is_equal(moves[4], Move(Square::d2, Square::c1, Move_flag::Queen_Promotion_Capture)) ||
+        !Utility::is_equal(moves[5], Move(Square::d2, Square::c1, Move_flag::Knight_Promotion_Capture)) ||
+        !Utility::is_equal(moves[6], Move(Square::d2, Square::c1, Move_flag::Bishop_Promotion_Capture)) ||
+        !Utility::is_equal(moves[7], Move(Square::d2, Square::c1, Move_flag::Rook_Promotion_Capture)) ||
+        !Utility::is_equal(moves[8], Move(Square::d2, Square::e1, Move_flag::Queen_Promotion_Capture)) ||
+        !Utility::is_equal(moves[9], Move(Square::d2, Square::e1, Move_flag::Knight_Promotion_Capture)) ||
+        !Utility::is_equal(moves[10], Move(Square::d2, Square::e1, Move_flag::Bishop_Promotion_Capture)) ||
+        !Utility::is_equal(moves[11], Move(Square::d2, Square::e1, Move_flag::Rook_Promotion_Capture)))
+        return false;
+    moves.clear();
+
+    mg.generate_pawn_moves(Square::e5, -1, battpin.second, moves);
+    // Utility::print_moves(moves);
+    if (moves.size() != 2 ||
+        !Utility::is_equal(moves[0], Move(Square::e5, Square::d4, Move_flag::Capture)) ||
+        !Utility::is_equal(moves[1], Move(Square::e5, Square::f4, Move_flag::Capture)))
+        return false;
+    moves.clear();
+    return true;
+}
+
+bool Test::test46()
+{
+    // test: quite move 
+    Board b;
+    std::string fen1{ "8/3k4/2r5/8/7B/8/1K4P1/8 w - - 0 1" };
+    std::string fen2{ "8/3k4/2r5/8/8/8/1K3BP1/8 b - - 1 1" };
+    Fen f(fen1);
+    Utility::fen_to_board(f, b);
+    Move m(Square::h4, Square::f2, Move_flag::Quite);
+    b.make_move(m);
+    auto fen3 = Utility::board_to_fen_string(b);
+    if (fen3 != fen2) 
+    {
+        std::cout << "Board is not correct after make move!" << std::endl;
+        std::cout << "Expected: " << fen2 << std::endl;
+        std::cout << "Got     : " << fen3 << std::endl;
+        return false;
+    }
+        
+    b.unmake_move(m);
+    auto fen4 = Utility::board_to_fen_string(b);
+    if (fen4 != fen1) 
+    {
+        std::cout << "Board is not correct after unmake move!" << std::endl;
+        std::cout << "Expected: " << fen2 << std::endl;
+        std::cout << "Got     : " << fen4 << std::endl;
+        return false;
+    }
+    return true;
+}
+
+bool Test::test47()
+{
+    // test: double pawn push move 
+    Board b;
+    std::string fen1{ "8/3k4/2r5/8/7B/8/1K4P1/8 w - - 0 1" };
+    std::string fen2{ "8/3k4/2r5/8/6PB/8/1K6/8 b - g3 1 1" };
+    Fen f(fen1);
+    Utility::fen_to_board(f, b);
+    Move m(Square::g2, Square::g4, Move_flag::Double_Pawn_Push);
+    b.make_move(m);
+    auto fen3 = Utility::board_to_fen_string(b);
+    if (fen3 != fen2)
+    {
+        std::cout << "Board is not correct after make move!" << std::endl;
+        std::cout << "Expected: " << fen2 << std::endl;
+        std::cout << "Got     : " << fen3 << std::endl;
+        return false;
+    }
+
+    b.unmake_move(m);
+    auto fen4 = Utility::board_to_fen_string(b);
+    if (fen4 != fen1)
+    {
+        std::cout << "Board is not correct after unmake move!" << std::endl;
+        std::cout << "Expected: " << fen2 << std::endl;
+        std::cout << "Got     : " << fen4 << std::endl;
+        return false;
+    }
+    return true;
+}
+
+bool Test::test48()
+{
+    // test: capture move 
+    Board b;
+    std::string fen1{ "8/3k3q/2r5/8/6PB/8/1K2Q3/8 b - - 0 1" };
+    std::string fen2{ "8/3k4/2r5/8/6Pq/8/1K2Q3/8 w - - 1 2" };
+    Fen f(fen1);
+    Utility::fen_to_board(f, b);
+    Move m(Square::h7, Square::h4, Move_flag::Capture);
+    b.make_move(m);
+    auto fen3 = Utility::board_to_fen_string(b);
+    if (fen3 != fen2)
+    {
+        std::cout << "Board is not correct after make move!" << std::endl;
+        std::cout << "Expected: " << fen2 << std::endl;
+        std::cout << "Got     : " << fen3 << std::endl;
+        return false;
+    }
+
+    b.unmake_move(m);
+    auto fen4 = Utility::board_to_fen_string(b);
+    if (fen4 != fen1)
+    {
+        std::cout << "Board is not correct after unmake move!" << std::endl;
+        std::cout << "Expected: " << fen2 << std::endl;
+        std::cout << "Got     : " << fen4 << std::endl;
+        return false;
+    }
+    return true;
+}
+
+bool Test::test49()
+{
+    // test: en passant capture move - white 
+    Board b;
+    std::string fen1{ "4k3/8/8/2PpP3/6p1/8/5P1P/4K3 w - d6 0 1" };
+    std::string fen2{ "4k3/8/3P4/4P3/6p1/8/5P1P/4K3 b - - 1 1" };
+    Fen f(fen1);
+    Utility::fen_to_board(f, b);
+    Move m(Square::c5, Square::d6, Move_flag::En_Passant_Capture);
+    b.make_move(m);
+    auto fen3 = Utility::board_to_fen_string(b);
+    if (fen3 != fen2)
+    {
+        std::cout << "Board is not correct after make move!" << std::endl;
+        std::cout << "Expected: " << fen2 << std::endl;
+        std::cout << "Got     : " << fen3 << std::endl;
+        return false;
+    }
+
+    b.unmake_move(m);
+    auto fen4 = Utility::board_to_fen_string(b);
+    if (fen4 != fen1)
+    {
+        std::cout << "Board is not correct after unmake move!" << std::endl;
+        std::cout << "Expected: " << fen2 << std::endl;
+        std::cout << "Got     : " << fen4 << std::endl;
+        return false;
+    }
+    return true;
+}
+
+bool Test::test50()
+{
+    // test: en passant capture move - white 
+    Board b;
+    std::string fen1{ "4k3/8/8/2PpP3/6p1/8/5P1P/4K3 w - d6 0 1" };
+    std::string fen2{ "4k3/8/3P4/2P5/6p1/8/5P1P/4K3 b - - 1 1" };
+    Fen f(fen1);
+    Utility::fen_to_board(f, b);
+    Move m(Square::e5, Square::d6, Move_flag::En_Passant_Capture);
+    b.make_move(m);
+    auto fen3 = Utility::board_to_fen_string(b);
+    if (fen3 != fen2)
+    {
+        std::cout << "Board is not correct after make move!" << std::endl;
+        std::cout << "Expected: " << fen2 << std::endl;
+        std::cout << "Got     : " << fen3 << std::endl;
+        return false;
+    }
+
+    b.unmake_move(m);
+    auto fen4 = Utility::board_to_fen_string(b);
+    if (fen4 != fen1)
+    {
+        std::cout << "Board is not correct after unmake move!" << std::endl;
+        std::cout << "Expected: " << fen2 << std::endl;
+        std::cout << "Got     : " << fen4 << std::endl;
+        return false;
+    }
+    return true;
+}
+
+bool Test::test51()
+{
+    // test: en passant capture move - black 
+    Board b;
+    std::string fen1{ "4k3/8/8/2PpP3/6pP/8/5P2/4K3 b - h3 0 1" };
+    std::string fen2{ "4k3/8/8/2PpP3/8/7p/5P2/4K3 w - - 1 2" };
+    Fen f(fen1);
+    Utility::fen_to_board(f, b);
+    Move m(Square::g4, Square::h3, Move_flag::En_Passant_Capture);
+    b.make_move(m);
+    auto fen3 = Utility::board_to_fen_string(b);
+    if (fen3 != fen2)
+    {
+        std::cout << "Board is not correct after make move!" << std::endl;
+        std::cout << "Expected: " << fen2 << std::endl;
+        std::cout << "Got     : " << fen3 << std::endl;
+        return false;
+    }
+
+    b.unmake_move(m);
+    auto fen4 = Utility::board_to_fen_string(b);
+    if (fen4 != fen1)
+    {
+        std::cout << "Board is not correct after unmake move!" << std::endl;
+        std::cout << "Expected: " << fen2 << std::endl;
+        std::cout << "Got     : " << fen4 << std::endl;
+        return false;
+    }
+    return true;
+}
+
+bool Test::test52()
+{
+    // test: en passant capture move - black 
+    Board b;
+    std::string fen1{ "4k3/8/8/2PpP3/5PpP/8/8/4K3 b - f3 0 1" };
+    std::string fen2{ "4k3/8/8/2PpP3/7P/5p2/8/4K3 w - - 1 2" };
+    Fen f(fen1);
+    Utility::fen_to_board(f, b);
+    Move m(Square::g4, Square::f3, Move_flag::En_Passant_Capture);
+    b.make_move(m);
+    auto fen3 = Utility::board_to_fen_string(b);
+    if (fen3 != fen2)
+    {
+        std::cout << "Board is not correct after make move!" << std::endl;
+        std::cout << "Expected: " << fen2 << std::endl;
+        std::cout << "Got     : " << fen3 << std::endl;
+        return false;
+    }
+
+    b.unmake_move(m);
+    auto fen4 = Utility::board_to_fen_string(b);
+    if (fen4 != fen1)
+    {
+        std::cout << "Board is not correct after unmake move!" << std::endl;
+        std::cout << "Expected: " << fen2 << std::endl;
+        std::cout << "Got     : " << fen4 << std::endl;
+        return false;
+    }
+    return true;
+}
+
+bool Test::test53()
+{
+    // test: king side castle white and black
+    Board b;
+    std::string fen1{ "r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1" }; 
+    std::string fen2{ "r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R4RK1 b kq - 1 1" };
+    std::string fen3{ "r4rk1/pppppppp/8/8/8/8/PPPPPPPP/R4RK1 w - - 2 2" };
+
+    Fen f(fen1);
+    Utility::fen_to_board(f, b);
+
+    // white king side castle
+    Move m1(Square::e1, Square::g1, Move_flag::King_Side_Castle);
+    b.make_move(m1);
+    auto fen4 = Utility::board_to_fen_string(b);
+    if (fen4 != fen2)
+    {
+        std::cout << "Board is not correct after make move!" << std::endl;
+        std::cout << "Expected: " << fen2 << std::endl;
+        std::cout << "Got     : " << fen4 << std::endl;
+        return false;
+    }
+
+    // black king side castle
+    Move m2(Square::e8, Square::g8, Move_flag::King_Side_Castle);
+    b.make_move(m2);
+    auto fen5 = Utility::board_to_fen_string(b);
+    if (fen5 != fen3)
+    {
+        std::cout << "Board is not correct after make move!" << std::endl;
+        std::cout << "Expected: " << fen3 << std::endl;
+        std::cout << "Got     : " << fen5 << std::endl;
+        return false;
+    }
+
+    b.unmake_move(m2);
+    auto fen6 = Utility::board_to_fen_string(b);
+    if (fen6 != fen2)
+    {
+        std::cout << "Board is not correct after unmake move!" << std::endl;
+        std::cout << "Expected: " << fen2 << std::endl;
+        std::cout << "Got     : " << fen6 << std::endl;
+        return false;
+    }
+
+    b.unmake_move(m1);
+    auto fen7 = Utility::board_to_fen_string(b);
+    if (fen7 != fen1)
+    {
+        std::cout << "Board is not correct after unmake move!" << std::endl;
+        std::cout << "Expected: " << fen1 << std::endl;
+        std::cout << "Got     : " << fen7 << std::endl;
+        return false;
+    }
+    return true;
+}
+
+/*
+bool Test::test46() 
+{
+    Engine e("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    auto res = e.perft(0);
+    if (res != 1) 
+    {
+        std::cout << "Perft error! expected: 1, got: " << res << std::endl;
+    }
+    return true;
+}
+
+bool Test::test47() 
+{
+    Engine e("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    auto res = e.perft(1);
+    if (res != 20)
+    {
+        std::cout << "Perft error! expected: 20, got: " << res << std::endl;
+    }
+    return true;
+}
+
+bool Test::test48()
+{
+    Engine e("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    auto res = e.perft(2);
+    if (res != 400)
+    {
+        std::cout << "Perft error! expected: 400, got: " << res << std::endl;
+    }
+    return true;
+}
+
+bool Test::test49() 
+{
+    Engine e("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    auto res = e.perft(3);
+    if (res != 8902)
+    {
+        std::cout << "Perft error! expected: 8902, got: " << res << std::endl;
+    }
+    return true;
+}
+
+bool Test::test50() 
+{
+    
+    Engine e("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    // auto res = e.perft(4);
+    auto res = e.perft_divide(4);
+    if (res != 197281)
+    {
+        std::cout << "Perft error! expected: 197281, got: " << res << std::endl;
+        return false;
+    }
+    return true;
+    
+    /*
+    Engine e("rnbqkbnr/pppppppp/8/8/8/5P2/PPPPP1PP/RNBQKBNR b KQkq - 0 1");
+    // auto res = e.perft(4);
+    auto res = e.perft_divide(3);
+    if (res != 8457)
+    {
+        std::cout << "Perft error! expected: 8457, got: " << res << std::endl;
+        return false;
+    }
+    return true;
+    
+}
+
+bool Test::test51()
+{
+    
+    Engine e("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    auto res = e.perft(5);
+    if (res != 4865609)
+    {
+        std::cout << "Perft error! expected: 4865609, got: " << res << std::endl;
+    }
+    
+    return true;
+}
+*/
+
 
 void Test::run_fen_tests()
 {
@@ -828,8 +1438,21 @@ void Test::run_utility_tests()
 
 void Test::run_move_generator_tests()
 {
-    std::vector<bool (*)()> tests { test30, test31, test32, test33, test34, test35, test36 };
+    std::vector<bool (*)()> tests { test30, test31, test32, test33, test34, test35, test36, test37, test38, test39, test40, test41,
+     test42, test43, test44 , test45};
     run_test("Move Generator", tests);
+}
+
+void Test::run_make_move_tests()
+{
+    std::vector<bool (*)()> tests{ test46, test47, test48, test49, test50, test51, test52, test53};
+    run_test("Make Move Tests", tests);
+}
+
+void Test::run_perft_tests()
+{
+    std::vector<bool (*)()> tests{  };
+    run_test("Perft Tests", tests);
 }
 
 void Test::run_test(std::string_view desc, const std::vector<bool (*)()>& tests)
@@ -858,4 +1481,20 @@ void Test::print_attack_and_pins(std::pair<std::vector<MoveGenerator::Attack>, s
                   << " Pinned loc: " << Square::square_to_string(it->pinned_loc)
                   << " Pin dir: " << Square::Directions::direction_to_chararray.find(it->pin_dir)->second
                   << std::endl;
+}
+
+bool Test::check_piece_locations(Board const& b, int8_t piece, std::vector<int8_t> expected_loc)
+{
+    auto r = b.piece_loc.equal_range(piece);
+    int k = 0;
+    for (auto it = r.first; it != r.second; it++)
+    {
+        if (it->second != expected_loc[k++])
+        {
+            k--;
+            std::cout << "Piece location error! expected: " << expected_loc[k] << " got: " << it->second << std::endl;
+            return false;
+        }
+    }
+    return true;
 }

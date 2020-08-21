@@ -1,20 +1,15 @@
 #ifndef BOARD_HPP
 #define BOARD_HPP
 
-/*
-
-Implements 0x88 board representation
-
-*/
+/* Implements 0x88 board representation */
 
 #include <cstdint>
 #include <unordered_map>
 #include <vector>
 #include <memory>
 
+#include "move.hpp"
 #include "../enums.hpp"
-
-class Move;
 
 class Board
 {
@@ -23,11 +18,16 @@ class Board
     int16_t half_move_counter;
     int16_t full_move_counter;
     int8_t en_passant_loc;
-    int8_t flags;
+    int8_t side_to_move;
+    int8_t castling_rights;
 
-    std::vector<int8_t> white_pieces;
-    std::vector<int8_t> black_pieces;
+    std::unordered_multimap<int8_t, int8_t> piece_loc; // keys: pieces, values: locations
 
+    // remember after make move
+    int8_t stored_captured_piece;
+    int8_t stored_en_passant_loc;
+    int8_t stored_castling_rights;
+    
     friend class Test;
 
 public:
@@ -42,8 +42,8 @@ public:
     int8_t get_side_to_move() const;
     void set_side_to_move(int8_t);
 
-    bool query_castling_availability(Castling c) const;
-    void set_castling_availability(Castling c, bool val);
+    bool query_castling_rights(Castling c) const;
+    void set_castling_rights(Castling c, bool val);
 
     int16_t get_half_move_counter() const;
     void set_half_move_counter(int16_t val);
@@ -54,15 +54,21 @@ public:
     int8_t get_en_passant_loc() const;
     void set_en_passant_loc(int8_t val);
 
-    void set_piece_locations(const std::unordered_multimap<int8_t, int8_t>& plocs);
-
-    std::vector<int8_t>& get_white_piece_locations();
-    const std::vector<int8_t>& get_white_piece_locations() const;
-
-    std::vector<int8_t>& get_black_piece_locations();
-    const std::vector<int8_t>& get_black_piece_locations() const;
+    void set_piece_locations(std::unordered_multimap<int8_t, int8_t>&& plocs);
+    std::unordered_multimap<int8_t, int8_t>& get_piece_locations();
+    std::unordered_multimap<int8_t, int8_t> const& get_piece_locations() const;
 
     void clear();
+
+    void update_castling_rights(Move m);
+    void make_move(Move m);
+    inline void make_quite_move(int8_t from, int8_t to);
+    void unmake_move(Move m);
+     
+    void update_piece_loc(int8_t old_loc, int8_t new_loc);
+    void remove_piece(int8_t loc);
+    inline void add_piece(int8_t p, int8_t loc);
+
 };
 
 #endif // BOARD_HPP

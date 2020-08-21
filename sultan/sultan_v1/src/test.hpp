@@ -64,7 +64,29 @@ public:
     static bool test38();
     static bool test39();
     static bool test40();
+    static bool test41();
+    static bool test42();
+    static bool test43();
+    static bool test44();
+    static bool test45();
 
+    // make-unmake move tests
+    static bool test46();
+    static bool test47();
+    static bool test48();
+    static bool test49();
+    static bool test50();
+    static bool test51();
+    static bool test52();
+    static bool test53();
+    static bool test54();
+    static bool test55();
+    static bool test56();
+    static bool test57();
+    static bool test58();
+
+    // perft
+   
     // test runners
     static void run_fen_tests();
     static void run_move_tests();
@@ -72,11 +94,15 @@ public:
     static void run_board_tests();
     static void run_utility_tests();
     static void run_move_generator_tests();
-
+    static void run_make_move_tests();
+    static void run_perft_tests();
+    
 private:
     static void run_test(std::string_view, const std::vector<bool (*)()>&);
     static void print_attack_and_pins(std::pair<std::vector<MoveGenerator::Attack>, std::vector<MoveGenerator::Pin>> const & ap);
 
+    // helpers
+    static bool check_piece_locations(Board const & b, int8_t piece, std::vector<int8_t> expected_loc);
 };
 
 #endif // TEST_HPP

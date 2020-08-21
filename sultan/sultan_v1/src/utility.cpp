@@ -19,7 +19,7 @@ std::unordered_map<Move_flag, char const *> const Utility::move_flag_to_chararr
     {Move_flag::Knight_Promotion, "Knight Promotion"}, {Move_flag::Knight_Promotion_Capture, "Knight Promotion Capture"},
     {Move_flag::Queen_Promotion, "Queen Promotion"}, {Move_flag::Queen_Promotion_Capture, "Queen Promotion Capture"}, 
     {Move_flag::Queen_Side_Castle, "Queen Side Castle"}, {Move_flag::Rook_Promotion, "Rook Promotion"}, 
-    {Move_flag::Rook_Promotion_Capture, " Rook Promotion Capture"}
+    {Move_flag::Rook_Promotion_Capture, "Rook Promotion Capture"}
 };
 
 bool Utility::is_equal(Move m1, Move m2) 
@@ -58,7 +58,7 @@ void Utility::fen_to_board(Fen const & f, Board& b)
             }
         }
     }
-    b.set_piece_locations(piece_loc);
+    b.set_piece_locations(std::move(piece_loc));
 
     // active color
     if (f.active_color == "w")
@@ -70,13 +70,13 @@ void Utility::fen_to_board(Fen const & f, Board& b)
 
     // castling availability
     if (f.castling_availability.find('K') != std::string::npos)
-        b.set_castling_availability(Castling::white_king_side, true);
+        b.set_castling_rights(Castling::white_king_side, true);
     if (f.castling_availability.find('Q') != std::string::npos)
-        b.set_castling_availability(Castling::white_queen_side, true);
+        b.set_castling_rights(Castling::white_queen_side, true);
     if (f.castling_availability.find('k') != std::string::npos)
-        b.set_castling_availability(Castling::black_king_side, true);
+        b.set_castling_rights(Castling::black_king_side, true);
     if (f.castling_availability.find('q') != std::string::npos)
-        b.set_castling_availability(Castling::black_queen_side, true);
+        b.set_castling_rights(Castling::black_queen_side, true);
 
     // en passant
     if (f.en_passant == "-") b.set_en_passant_loc(Piece::nN);
@@ -126,10 +126,10 @@ std::string Utility::board_to_fen_string(Board const & b)
     ss << ac;
 
     std::string castling{""};
-    if(b.query_castling_availability(Castling::white_king_side)) castling.append("K");
-    if(b.query_castling_availability(Castling::white_queen_side)) castling.append("Q");
-    if(b.query_castling_availability(Castling::black_king_side)) castling.append("k");
-    if(b.query_castling_availability(Castling::black_queen_side)) castling.append("q");
+    if(b.query_castling_rights(Castling::white_king_side)) castling.append("K");
+    if(b.query_castling_rights(Castling::white_queen_side)) castling.append("Q");
+    if(b.query_castling_rights(Castling::black_king_side)) castling.append("k");
+    if(b.query_castling_rights(Castling::black_queen_side)) castling.append("q");
     if(castling == "") ss << " -";
     else ss << " " << castling;
 
@@ -166,29 +166,21 @@ void Utility::print_board(Board const & b, bool full)
         }
     }
 
-    std::cout << "\n";
-
-    auto wp = b.get_white_piece_locations();
-    std::cout << "White piece locations: " << std::endl;
-    for(auto it = wp.begin(); it != wp.end(); it++)
-        std::cout << Piece::piece_to_char.find(board[*it])->second << ": " << static_cast<int>(*it) << " ";
-    std::cout << "\n";
-
-    auto bp = b.get_black_piece_locations();
-    std::cout << "Black piece locations: " << std::endl;
-    for(auto it = bp.begin(); it != bp.end(); it++)
-        std::cout << Piece::piece_to_char.find(board[*it])->second << ": " << static_cast<int>(*it) << " ";
-    std::cout << "\n";
+    std::cout << "\n";    
 }
 
 void Utility::print_moves(std::vector<Move> const& moves) 
 {
-    for (auto it = moves.begin(); it != moves.end(); it++) 
-    {
-        std::cout
-            << "From: " << Square::square_to_string(it->get_from())
-            << " To: " << Square::square_to_string(it->get_to())
-            << " Flag: " << Utility::move_flag_to_chararr.find(it->get_move_flag())->second
-            << std::endl;
-    }
+    for (auto it = moves.begin(); it != moves.end(); it++)
+        print_move(*it);
+}
+
+
+void Utility::print_move(Move m) 
+{
+    std::cout
+        << "From: " << Square::square_to_string(m.get_from())
+        << " To: " << Square::square_to_string(m.get_to())
+        << " Flag: " << Utility::move_flag_to_chararr.find(m.get_move_flag())->second
+        << std::endl;
 }
