@@ -1,22 +1,28 @@
 #include <iostream>
 #include "fen.hpp"
-#include "test.hpp"
 #include "board.hpp"
 #include "utility.hpp"
 
 #include "square.hpp"
 
+
+#include "test/fen_tests.hpp"
+#include "test/move_tests.hpp"
+#include "test/piece_tests.hpp"
+#include "test/board_tests.hpp"
+#include "test/utility_tests.hpp"
+#include "test/move_generator_tests.hpp"
+
 using namespace std;
 
 int main()
 {
-    Test::run_fen_tests();
-    Test::run_move_tests();
-    Test::run_piece_tests();
-    Test::run_board_tests();
-    Test::run_utility_tests();
-    Test::run_move_generator_tests();
-    Test::run_make_move_tests();
-    // Test::run_perft_tests();
+    test::FenTests::run_test();
+    test::MoveTests::run_test();
+    test::PieceTests::run_test();
+    test::BoardTests::run_test();
+    test::UtilityTests::run_test();
+    test::MoveGeneratorTests::run_test();
+
     return 0;
 }

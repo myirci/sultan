@@ -12,22 +12,30 @@
 #include <unordered_map>
 #include <sstream>
 
-std::unordered_map<Move_flag, char const *> const Utility::move_flag_to_chararr
+std::unordered_map<MoveType, char const *> const Utility::move_type_to_chararr
 {
-    {Move_flag::Quite, "Quite"}, {Move_flag::Capture, "Capture"}, {Move_flag::Double_Pawn_Push, "Double Pawn Push"},
-    {Move_flag::Bishop_Promotion, "Bishop Promotion"}, {Move_flag::Bishop_Promotion_Capture, "Bishop Promotion Capture"}, 
-    {Move_flag::En_Passant_Capture, "En-passant Capture"}, {Move_flag::King_Side_Castle, "King Side Castle"}, 
-    {Move_flag::Knight_Promotion, "Knight Promotion"}, {Move_flag::Knight_Promotion_Capture, "Knight Promotion Capture"},
-    {Move_flag::Queen_Promotion, "Queen Promotion"}, {Move_flag::Queen_Promotion_Capture, "Queen Promotion Capture"}, 
-    {Move_flag::Queen_Side_Castle, "Queen Side Castle"}, {Move_flag::Rook_Promotion, "Rook Promotion"}, 
-    {Move_flag::Rook_Promotion_Capture, "Rook Promotion Capture"}
+    {MoveType::Quite, "Quite"}, 
+    {MoveType::Capture, "Capture"}, 
+    {MoveType::Double_Pawn_Push, "Double Pawn Push"},
+    {MoveType::Bishop_Promotion, "Bishop Promotion"}, 
+    {MoveType::Bishop_Promotion_Capture, "Bishop Promotion Capture"}, 
+    {MoveType::En_Passant_Capture, "En-passant Capture"}, 
+    {MoveType::King_Side_Castle, "King Side Castle"}, 
+    {MoveType::Knight_Promotion, "Knight Promotion"}, 
+    {MoveType::Knight_Promotion_Capture, "Knight Promotion Capture"},
+    {MoveType::Queen_Promotion, "Queen Promotion"}, 
+    {MoveType::Queen_Promotion_Capture, "Queen Promotion Capture"}, 
+    {MoveType::Queen_Side_Castle, "Queen Side Castle"}, 
+    {MoveType::Rook_Promotion, "Rook Promotion"}, 
+    {MoveType::Rook_Promotion_Capture, "Rook Promotion Capture"}
 };
 
 bool Utility::is_equal(Move m1, Move m2) 
 {
     return m1.get_from() == m2.get_from() && 
            m1.get_to() == m2.get_to() && 
-           m1.get_move_flag() == m2.get_move_flag();
+           m1.get_move_type() == m2.get_move_type() &&
+           m1.get_captured_piece() == m2.get_captured_piece();
 }
 
 void Utility::fen_to_board(Fen const & f, Board& b)
@@ -176,12 +184,28 @@ void Utility::print_moves(std::vector<Move> const& moves)
         print_move(*it);
 }
 
-
 void Utility::print_move(Move m) 
 {
     std::cout
         << "From: " << square::square_to_string(m.get_from())
         << " To: " << square::square_to_string(m.get_to())
-        << " Flag: " << Utility::move_flag_to_chararr.find(m.get_move_flag())->second
+        << " Type: " << Utility::move_type_to_chararr.find(m.get_move_type())->second
+        << " Captured " << piece::piece_to_char.find(m.get_captured_piece())->second 
+        << std::endl;
+}
+
+void Utility::print_attack_and_pins(std::pair<std::vector<MoveGenerator::Attack>, std::vector<MoveGenerator::Pin>> const& ap)
+{
+    for (auto it = ap.first.begin(); it != ap.first.end(); it++)
+        std::cout << "Attacker loc: " << square::square_to_string(it->attacker_loc)
+        << " Attack dir: " << direction::direction_to_chararray.find(it->attack_dir)->second
+        << std::endl;
+
+    std::cout << "-----------------------------------------\n";
+
+    for (auto it = ap.second.begin(); it != ap.second.end(); it++)
+        std::cout << "Pinner loc: " << square::square_to_string(it->pinner_loc)
+        << " Pinned loc: " << square::square_to_string(it->pinned_loc)
+        << " Pin dir: " << direction::direction_to_chararray.find(it->pin_dir)->second
         << std::endl;
 }

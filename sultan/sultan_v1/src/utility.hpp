@@ -4,6 +4,7 @@
 #include <unordered_map>
 
 #include "move.hpp"
+#include "move_generator.hpp"
 
 class Fen;
 class Board;
@@ -14,7 +15,7 @@ class Utility
 
 public:
 
-    static const std::unordered_map<Move_flag, char const*> move_flag_to_chararr;
+    static const std::unordered_map<MoveType, char const*> move_type_to_chararr;
 
     static std::string board_to_fen_string(Board const & b);
 
@@ -27,5 +28,7 @@ public:
     static void print_move(Move m);
 
     static bool is_equal(Move m1, Move m2);
+
+    static void print_attack_and_pins(std::pair<std::vector<MoveGenerator::Attack>, std::vector<MoveGenerator::Pin>> const& ap);
 
 };

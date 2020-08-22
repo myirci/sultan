@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <unordered_map>
+#include "definitions.hpp"
 
 namespace piece
 {
@@ -43,7 +44,8 @@ namespace piece
         { piece::wN, 'N' }, { piece::bN, 'n' },
         { piece::wB, 'B' }, { piece::bB, 'b' },
         { piece::wQ, 'Q' }, { piece::bQ, 'q' },
-        { piece::wK, 'K' }, { piece::bK, 'k' }
+        { piece::wK, 'K' }, { piece::bK, 'k' }, 
+        { piece::eM, ' ' }, { def::none, 'x' }
     };
 
     inline constexpr bool is_same_sign(int8_t a, int8_t b)

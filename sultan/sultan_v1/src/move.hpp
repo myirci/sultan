@@ -1,18 +1,10 @@
 #pragma once
 
-/*
-A move is represented by a 16-bit unsigned interger.
-
-15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
-
-(15 - 10)  -> from       : 6 bits: in 0-63 range
-(9  -  4)  -> to         : 6 bits: in 0-63 range
-(3  -  0)  -> move flags : 4 bits
-*/
-
 #include <cstdint>
 
-enum class Move_flag : std::int8_t
+#include "definitions.hpp"
+
+enum class MoveType : std::int8_t
 {
     Quite = 0,                  // 0        0000
     Double_Pawn_Push,           // 1        0001
@@ -34,19 +26,19 @@ class Move
 {
 private:
 
-    std::int16_t mv;
-
-    void set_from(std::int8_t from);
-    void set_to(std::int8_t to);
-    void set_move_flag(Move_flag mflag);
+    std::int8_t from;
+    std::int8_t to;
+    MoveType mtype;
+    std::int8_t captured;
 
 public:
 
-    Move(std::int8_t from, std::int8_t to, Move_flag mflag);
+    Move(std::int8_t loc_from, std::int8_t loc_to, MoveType move_type, std::int8_t captured_piece);
 
     std::int8_t get_from() const;
     std::int8_t get_to() const;
-    Move_flag get_move_flag() const;
+    std::int8_t get_captured_piece() const;
+    MoveType get_move_type() const;
 
     bool is_promotion() const;
     bool is_capture() const;

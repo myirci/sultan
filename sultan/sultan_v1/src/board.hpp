@@ -22,13 +22,6 @@ class Board
 
     std::unordered_multimap<int8_t, int8_t> piece_loc; // keys: pieces, values: locations
 
-    // remember after make move
-    int8_t stored_captured_piece;
-    int8_t stored_en_passant_loc;
-    int8_t stored_castling_rights;
-    
-    friend class Test;
-
 public:
 
     constexpr static int BOARDSIZE = 128;
@@ -43,6 +36,7 @@ public:
 
     bool query_castling_rights(Castling c) const;
     void set_castling_rights(Castling c, bool val);
+    std::int8_t get_castling_rights() const;
 
     int16_t get_half_move_counter() const;
     void set_half_move_counter(int16_t val);

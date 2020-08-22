@@ -1,65 +1,16 @@
 #include "move.hpp"
 #include "square.hpp"
 
-Move::Move(std::int8_t from, std::int8_t to, Move_flag mflag)
-{
-    set_from(from);
-    set_to(to);
-    set_move_flag(mflag);
-}
+Move::Move(std::int8_t loc_from, std::int8_t loc_to, MoveType move_type, std::int8_t captured_piece): from{ loc_from }, to{ loc_to }, mtype{ move_type }, captured{ captured_piece } { }
 
-// from should be a valid board square: { [0-7], [16-23], [32-39], [48-55], [64-71], [80-87], [96-103], [112-119] }
-void Move::set_from(std::int8_t from)
-{
-    // clear the previous value
-    mv &= 0x03FF; 
-    
-    // map to the range 0-63 and update the value 
-    auto [r, f] = square::rank_and_file(from);
+std::int8_t Move::get_from() const { return from; }
 
-    mv |= (static_cast<std::int16_t>(r * 8 + f) << 10);
-}
+std::int8_t Move::get_to() const { return to; }
 
-// to should be a valid board square: { [0-7], [16-23], [32-39], [48-55], [64-71], [80-87], [96-103], [112-119] }
-void Move::set_to(std::int8_t to)
-{
-    // clear the previous value
-    mv &= 0xFC0F;
+MoveType Move::get_move_type() const { return mtype; }
 
-    // map to the range 0-63 and update the value 
-    auto [r, f] = square::rank_and_file(to);
-    mv |= (static_cast<std::int16_t>(r * 8 + f) << 4);
-}
+std::int8_t Move::get_captured_piece() const { return captured; }
 
-void Move::set_move_flag(Move_flag mflag)
-{
-    mv &= 0xFFF0;
-    mv |= static_cast<std::int16_t>(mflag);
-}
+bool Move::is_promotion() const { return (static_cast<std::int8_t>(mtype) & 0x08) > 0; }
 
-std::int8_t Move::get_from() const
-{
-    int8_t idx = static_cast<std::int8_t>((mv & 0xFC00) >> 10);
-    return static_cast<std::int8_t>( (idx/8) * 16 + (idx % 8));
-}
-
-std::int8_t Move::get_to() const
-{
-    int8_t idx = static_cast<std::int8_t>((mv & 0x03F0) >> 4);
-    return static_cast<std::int8_t>( (idx/8) * 16 + (idx % 8));
-}
-
-Move_flag Move::get_move_flag() const
-{
-    return static_cast<Move_flag>(mv & 0x000F);
-}
-
-bool Move::is_promotion() const
-{
-	return (mv & 0x0008) > 0;
-}
-
-bool Move::is_capture() const
-{
-	return (mv & 0x0004) > 0;
-}
+bool Move::is_capture() const { return (static_cast<std::int8_t>(mtype) & 0x04) > 0; }
