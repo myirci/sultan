@@ -10,6 +10,7 @@ namespace test
 
     public:
         static void run_test();
+        static void debug_func();
         static bool test1();
         static bool test2();
         static bool test3();
@@ -26,5 +27,9 @@ namespace test
         static bool test14();
         static bool test15();
         static bool test16();
+        static bool test17();
+        static bool test18();
+        static bool test19();
+        static bool test20();
     };
 }

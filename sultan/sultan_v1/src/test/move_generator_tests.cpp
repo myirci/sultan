@@ -13,7 +13,7 @@ namespace test
 	void MoveGeneratorTests::run_test()
 	{
 		std::vector<bool (*)()> tests{ test1, test2, test3, test4, test5, test6, test7, test8, test9, test10,
-		test11, test12, test13, test15, test16 };
+		test11, test12, test13, test14, test15, test16, test17, test18, test19, test20};
 		TestBase::run_test("Move Generator", tests);
 	}
 
@@ -391,9 +391,9 @@ namespace test
         if (!moves.empty()) return false;
 
         // King moves
-        mg.generate_king_moves(square::e1, 1, false, moves);
+        mg.generate_king_moves(square::e1, 1, wattpin.first, moves);
         if (!moves.empty()) return false;
-        mg.generate_king_moves(square::e8, -1, false, moves);
+        mg.generate_king_moves(square::e8, -1, wattpin.first, moves);
         if (!moves.empty()) return false;
 
         // Knight moves
@@ -694,4 +694,70 @@ namespace test
         moves.clear();
         return true;
     }
+
+    bool MoveGeneratorTests::test17() 
+    {
+        // moves under check - for white
+        Board b;
+        Fen f("rnbqkb1r/pppppppp/8/8/4n3/3P4/PPPKPPPP/RNBQ1BNR w kq - 0 1");
+        Utility::fen_to_board(f, b);
+        MoveGenerator mg(b);
+        auto moves = mg.generate_moves();
+
+        return
+            moves.size() == 3 &&
+            Utility::is_equal(moves[0], Move(square::d2, square::e3, MoveType::Quite, def::none)) &&
+            Utility::is_equal(moves[1], Move(square::d2, square::e1, MoveType::Quite, def::none)) &&
+            Utility::is_equal(moves[2], Move(square::d3, square::e4, MoveType::Capture, piece::bN));
+    }
+    
+    bool MoveGeneratorTests::test18()
+    {
+        // moves under check - for white
+        Board b;
+        Fen f("rnb1kbnr/pp1ppppp/2p5/q7/8/3P4/PPPKPPPP/RNBQ1BNR w kq - 0 1");
+        Utility::fen_to_board(f, b);
+        MoveGenerator mg(b);
+        auto moves = mg.generate_moves();
+
+        return
+            moves.size() == 4 &&
+            Utility::is_equal(moves[0], Move(square::d2, square::e3, MoveType::Quite, def::none)) &&
+            Utility::is_equal(moves[1], Move(square::b1, square::c3, MoveType::Quite, def::none)) &&
+            Utility::is_equal(moves[2], Move(square::c2, square::c3, MoveType::Quite, def::none)) &&
+            Utility::is_equal(moves[3], Move(square::b2, square::b4, MoveType::Double_Pawn_Push, def::none));
+    }
+
+    bool MoveGeneratorTests::test19()
+    {
+        // double check: check mate!
+        Board b;
+        Fen f("rnbqkb1r/ppp1ppp1/3N1n1p/3p4/Q7/2P5/PP1PPPPP/R1B1KBNR b KQkq - 0 1");
+        Utility::fen_to_board(f, b);
+        MoveGenerator mg(b);
+        auto moves = mg.generate_moves();
+
+        return moves.size() == 0;
+    }
+
+    bool MoveGeneratorTests::test20()
+    {
+        // double check: check mate!
+        Board b;
+        Fen f("rnbqk2r/ppp1ppp1/3N1n1p/3p4/Q7/2P5/PP1PPPPP/R1B1KBNR b KQkq - 0 1");
+        Utility::fen_to_board(f, b);
+        MoveGenerator mg(b);
+        auto moves = mg.generate_moves();
+
+        return moves.size() == 1 && Utility::is_equal(moves[0], Move(square::e8, square::f8, MoveType::Quite, def::none));
+    }
+
+    void MoveGeneratorTests::debug_func() 
+    {
+        Board b;
+        Fen f("rnb1kbnr/pp1ppppp/2p5/q7/8/3P4/PPPQPPPP/RNB1KBNR w KQkq - 0 1");
+        Utility::fen_to_board(f, b);
+        Utility::generate_and_print_moves(b);
+    }
+
 }

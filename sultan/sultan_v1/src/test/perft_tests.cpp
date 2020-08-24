@@ -1,86 +1,68 @@
 #include "perft_tests.hpp"
+#include "../engine.hpp"
 
-/*
-bool Test::test46()
+#include <iostream>
+
+namespace test 
 {
-    Engine e("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    auto res = e.perft(0);
-    if (res != 1)
+    void PerftTests::run_test()
     {
-        std::cout << "Perft error! expected: 1, got: " << res << std::endl;
+        std::vector<bool (*)()> tests{ test1 };
+        TestBase::run_test("Perft", tests);
     }
-    return true;
-}
 
-bool Test::test47()
-{
-    Engine e("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    auto res = e.perft(1);
-    if (res != 20)
+    void PerftTests::debug_func() 
     {
-        std::cout << "Perft error! expected: 20, got: " << res << std::endl;
+        perft::perft_stats stats;
+
+        Engine e("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        e.perft_with_statistics(5, stats);
+
+        std::cout << "Number of nodes                   : " << stats.num_nodes << std::endl;
+        std::cout << "Number of captures                : " << stats.num_captures << std::endl;
+        std::cout << "Number of en-passsant captures    : " << stats.num_en_passant_captures << std::endl;
+        std::cout << "Number of promotions              : " << stats.num_promotions << std::endl;
+        std::cout << "Number of castles                 : " << stats.num_castles << std::endl;
+        std::cout << "Number of checks                  : " << stats.num_checks << std::endl;
+        std::cout << "Number of double checks           : " << stats.num_double_checks << std::endl;
+        std::cout << "Number of checkmates              : " << stats.num_check_mates << std::endl;
+
+        // Engine e("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        // auto res = e.perft_divide(6);
+
+        // Engine e("rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR b KQkq a3 0 1");   // a2-a4
+        // auto res = e.perft_divide(5);
+
+        // Engine e("r1bqkbnr/pppppppp/2n5/8/P7/8/1PPPPPPP/RNBQKBNR w KQkq - 0 1"); // 
+        // auto res = e.perft_divide(4);
+
+        // Engine e("r1bqkbnr/pppppppp/2n5/8/P7/1P6/2PPPPPP/RNBQKBNR b KQkq - 0 1");
+        // auto res = e.perft_divide(3);
     }
-    return true;
-}
 
-bool Test::test48()
-{
-    Engine e("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    auto res = e.perft(2);
-    if (res != 400)
+    bool PerftTests::test1()
     {
-        std::cout << "Perft error! expected: 400, got: " << res << std::endl;
+        std::vector<int64_t> perft_results{ 20, 400, 8902, 197281, 4865609, 119060324 };
+        for (size_t i = 0; i < perft_results.size(); i++) 
+        {
+            Engine e("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+            auto res = e.perft(i+1);
+            if (res == perft_results[i])
+            {
+                std::cout << "\tPeft-" << i+1 << " computed correctly: " << res << std::endl;
+            }
+            else 
+            {
+                std::cout << "Perft error! expected: " << perft_results[i] << ", got: " << res << std::endl;
+                return false;
+            }
+        }
+        return true;
     }
-    return true;
-}
 
-bool Test::test49()
-{
-    Engine e("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    auto res = e.perft(3);
-    if (res != 8902)
+    bool PerftTests::test2() 
     {
-        std::cout << "Perft error! expected: 8902, got: " << res << std::endl;
-    }
-    return true;
-}
-
-bool Test::test50()
-{
-
-    Engine e("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    // auto res = e.perft(4);
-    auto res = e.perft_divide(4);
-    if (res != 197281)
-    {
-        std::cout << "Perft error! expected: 197281, got: " << res << std::endl;
+       
         return false;
     }
-    return true;
-
-    /*
-    Engine e("rnbqkbnr/pppppppp/8/8/8/5P2/PPPPP1PP/RNBQKBNR b KQkq - 0 1");
-    // auto res = e.perft(4);
-    auto res = e.perft_divide(3);
-    if (res != 8457)
-    {
-        std::cout << "Perft error! expected: 8457, got: " << res << std::endl;
-        return false;
-    }
-    return true;
-
 }
-
-bool Test::test51()
-{
-
-    Engine e("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    auto res = e.perft(5);
-    if (res != 4865609)
-    {
-        std::cout << "Perft error! expected: 4865609, got: " << res << std::endl;
-    }
-
-    return true;
-}
-*/

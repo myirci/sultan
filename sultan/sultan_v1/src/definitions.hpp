@@ -35,3 +35,24 @@ namespace direction
         { ND, "No Direction" }
     };
 }
+
+namespace perft
+{
+    struct perft_stats
+    {
+        perft_stats() :
+            num_nodes{ 0 }, num_captures{ 0 }, num_promotions{ 0 },
+            num_en_passant_captures{ 0 }, num_castles{ 0 }, num_checks{ 0 },
+            num_double_checks{ 0 }, num_discovery_checks{ 0 }, num_check_mates{ 0 } {}
+
+        uint64_t num_nodes;                 
+        uint64_t num_captures;              
+        uint64_t num_promotions;            
+        uint64_t num_en_passant_captures;   
+        uint64_t num_castles;               
+        uint64_t num_checks;                
+        uint64_t num_double_checks;         
+        uint64_t num_discovery_checks;      // needs the information of last moved piece    
+        uint64_t num_check_mates;           
+    };
+}

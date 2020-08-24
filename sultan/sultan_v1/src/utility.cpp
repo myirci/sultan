@@ -14,20 +14,20 @@
 
 std::unordered_map<MoveType, char const *> const Utility::move_type_to_chararr
 {
-    {MoveType::Quite, "Quite"}, 
-    {MoveType::Capture, "Capture"}, 
-    {MoveType::Double_Pawn_Push, "Double Pawn Push"},
-    {MoveType::Bishop_Promotion, "Bishop Promotion"}, 
-    {MoveType::Bishop_Promotion_Capture, "Bishop Promotion Capture"}, 
-    {MoveType::En_Passant_Capture, "En-passant Capture"}, 
-    {MoveType::King_Side_Castle, "King Side Castle"}, 
-    {MoveType::Knight_Promotion, "Knight Promotion"}, 
-    {MoveType::Knight_Promotion_Capture, "Knight Promotion Capture"},
-    {MoveType::Queen_Promotion, "Queen Promotion"}, 
-    {MoveType::Queen_Promotion_Capture, "Queen Promotion Capture"}, 
-    {MoveType::Queen_Side_Castle, "Queen Side Castle"}, 
-    {MoveType::Rook_Promotion, "Rook Promotion"}, 
-    {MoveType::Rook_Promotion_Capture, "Rook Promotion Capture"}
+    { MoveType::Quite, "Quite" }, 
+    { MoveType::Capture, "Capture" }, 
+    { MoveType::Double_Pawn_Push, "Double Pawn Push" },
+    { MoveType::Bishop_Promotion, "Bishop Promotion" }, 
+    { MoveType::Bishop_Promotion_Capture, "Bishop Promotion Capture" }, 
+    { MoveType::En_Passant_Capture, "En-passant Capture" }, 
+    { MoveType::King_Side_Castle, "King Side Castle" }, 
+    { MoveType::Knight_Promotion, "Knight Promotion" }, 
+    { MoveType::Knight_Promotion_Capture, "Knight Promotion Capture" },
+    { MoveType::Queen_Promotion, "Queen Promotion" }, 
+    { MoveType::Queen_Promotion_Capture, "Queen Promotio n Capture" }, 
+    { MoveType::Queen_Side_Castle, "Queen Side Castle" }, 
+    { MoveType::Rook_Promotion, "Rook Promotion" }, 
+    { MoveType::Rook_Promotion_Capture, "Rook Promotion Capture" }
 };
 
 bool Utility::is_equal(Move m1, Move m2) 
@@ -178,6 +178,16 @@ void Utility::print_board(Board const & b, bool full)
     std::cout << "\n";    
 }
 
+void Utility::generate_and_print_moves(Board const& board) 
+{
+    MoveGenerator mg{ board };
+    auto moves = mg.generate_moves();
+    std::cout << moves.size() << " legal moves : ";
+    for (auto it = moves.begin(); it != moves.end(); it++)
+        std::cout << *it << " ";
+    std::cout << std::endl;
+}
+
 void Utility::print_moves(std::vector<Move> const& moves) 
 {
     for (auto it = moves.begin(); it != moves.end(); it++)
@@ -186,12 +196,12 @@ void Utility::print_moves(std::vector<Move> const& moves)
 
 void Utility::print_move(Move m) 
 {
+    auto captured = m.is_capture() ? " Captured " + piece::piece_to_char.find(m.get_captured_piece())->second : "";
     std::cout
         << "From: " << square::square_to_string(m.get_from())
         << " To: " << square::square_to_string(m.get_to())
         << " Type: " << Utility::move_type_to_chararr.find(m.get_move_type())->second
-        << " Captured " << piece::piece_to_char.find(m.get_captured_piece())->second 
-        << std::endl;
+        << captured << std::endl;
 }
 
 void Utility::print_attack_and_pins(std::pair<std::vector<MoveGenerator::Attack>, std::vector<MoveGenerator::Pin>> const& ap)

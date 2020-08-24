@@ -1,10 +1,11 @@
 #pragma once
 
 #include <cstdint>
+#include <ostream>
 
 #include "definitions.hpp"
 
-enum class MoveType : std::int8_t
+enum class MoveType : int8_t
 {
     Quite = 0,                  // 0        0000
     Double_Pawn_Push,           // 1        0001
@@ -26,21 +27,24 @@ class Move
 {
 private:
 
-    std::int8_t from;
-    std::int8_t to;
+    int8_t from;
+    int8_t to;
     MoveType mtype;
-    std::int8_t captured;
+    int8_t captured;
 
 public:
 
-    Move(std::int8_t loc_from, std::int8_t loc_to, MoveType move_type, std::int8_t captured_piece);
+    Move(int8_t loc_from, int8_t loc_to, MoveType move_type, int8_t captured_piece);
 
-    std::int8_t get_from() const;
-    std::int8_t get_to() const;
-    std::int8_t get_captured_piece() const;
+    int8_t get_from() const;
+    int8_t get_to() const;
+    int8_t get_captured_piece() const;
     MoveType get_move_type() const;
 
     bool is_promotion() const;
     bool is_capture() const;
+    bool is_castle() const;
+    bool is_en_passant_capture() const;
 };
 
+std::ostream& operator << (std::ostream& os, Move m);

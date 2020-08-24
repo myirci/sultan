@@ -25,6 +25,8 @@ public:
 
     static void print_moves(std::vector<Move> const& moves);
 
+    static void generate_and_print_moves(Board const& board);
+
     static void print_move(Move m);
 
     static bool is_equal(Move m1, Move m2);

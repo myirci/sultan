@@ -31,6 +31,20 @@ bool Board::query_castling_rights(Castling c) const { return castling_rights & s
 
 void Board::set_castling_rights(Castling c, bool val) { castling_rights = val ? castling_rights | static_cast<int8_t>(c) : castling_rights & ~static_cast<int8_t>(c); }
 
+void Board::set_castling_rights(int8_t color, bool val) 
+{
+    if (color == color::white) 
+    {
+        set_castling_rights(Castling::white_king_side, val);
+        set_castling_rights(Castling::white_queen_side, val);
+    }
+    else 
+    {
+        set_castling_rights(Castling::black_king_side, val);
+        set_castling_rights(Castling::black_queen_side, val);
+    }
+}
+
 int8_t* Board::get_board() { return  board; }
 
 int8_t const * Board::get_board() const { return board; }
@@ -60,223 +74,160 @@ void Board::make_quite_move(int8_t from, int8_t to)
     board[from] = piece::eM;
 }
 
-void Board::update_castling_rights(Move m)
-{
-    /*
-    if (castling_rights == 0) return;
-
-    int8_t from{ m.get_from() };
-    if (board[from] == piece::wK)
-    {
-        if (query_castling_rights(Castling::white_king_side))
-        {
-            stored_castling_rights = castling_rights;
-            set_castling_rights(Castling::white_king_side, false);
-        }
-        if (query_castling_rights(Castling::white_queen_side))
-        {
-            stored_castling_rights = castling_rights;
-            set_castling_rights(Castling::white_queen_side, false);
-        }
-    }
-    else if (board[from] == piece::bK)
-    {
-        if (query_castling_rights(Castling::black_king_side))
-        {
-            stored_castling_rights = castling_rights;
-            set_castling_rights(Castling::black_king_side, false);
-        }
-        if (query_castling_rights(Castling::black_queen_side))
-        {
-            stored_castling_rights = castling_rights;
-            set_castling_rights(Castling::black_queen_side, false);
-        }
-    }
-    else if (board[from] == piece::wR)
-    {
-        if (from == square::a1 && query_castling_rights(Castling::white_queen_side))
-        {
-            stored_castling_rights = castling_rights;
-            set_castling_rights(Castling::white_queen_side, false);
-        }
-        else if (from == square::h1 && query_castling_rights(Castling::white_king_side))
-        {
-            stored_castling_rights = castling_rights;
-            set_castling_rights(Castling::white_king_side, false);
-        }
-    }
-    else if (board[from] == piece::bR)
-    {
-        if (from == square::a8 && query_castling_rights(Castling::black_queen_side))
-        {
-            stored_castling_rights = castling_rights;
-            set_castling_rights(Castling::black_queen_side, false);
-        }
-        else if (from == square::h8 && query_castling_rights(Castling::black_king_side))
-        {
-            stored_castling_rights = castling_rights;
-            set_castling_rights(Castling::black_king_side, false);
-        }
-    }
-
-    if (m.is_capture())
-    {
-        int8_t to{ m.get_to() };
-        if (board[to] == piece::wR && to == square::h1 && query_castling_rights(Castling::white_king_side))
-        {
-            stored_castling_rights = castling_rights;
-            set_castling_rights(Castling::white_king_side, false);
-        }
-        else if (board[to] == piece::wR && to == square::a1 && query_castling_rights(Castling::white_queen_side))
-        {
-            stored_castling_rights = castling_rights;
-            set_castling_rights(Castling::white_queen_side, false);
-        }
-        if (board[to] == piece::bR && to == square::h8 && query_castling_rights(Castling::black_king_side))
-        {
-            stored_castling_rights = castling_rights;
-            set_castling_rights(Castling::black_king_side, false);
-        }
-        else if (board[to] == piece::bR && to == square::a8 && query_castling_rights(Castling::black_queen_side))
-        {
-            stored_castling_rights = castling_rights;
-            set_castling_rights(Castling::black_queen_side, false);
-        }
-    }
-    */
-}
-
 void Board::make_move(Move m) 
 {
-    /*
-    int8_t from{m.get_from()}, to{m.get_to()}, stm{get_side_to_move()};
-    MoveType flg{m.get_move_type()};
+    int8_t from{ m.get_from() }, to{ m.get_to() };
+    MoveType mtype{ m.get_move_type() };
 
-    update_castling_rights(m);
+    // update half move counter
+    half_move_counter = (board[from] * side_to_move == piece::Pawn || m.is_capture()) ? 0 : half_move_counter + 1;
 
-    if (flg == MoveType::Quite)
+    // remove captured piece from the piece locations
+    if (m.is_capture()) 
     {
-        make_quite_move(from, to);
-    }
-    else if (flg == MoveType::Capture) 
-    {
-        stored_captured_piece = board[to];
-        remove_piece(to);
-        make_quite_move(from, to);
-    }
-    else if (flg == MoveType::King_Side_Castle)
-    {
-        make_quite_move(from, to);
-        if (stm == color::white) make_quite_move(square::h1, square::f1);
-        else make_quite_move(square::h8, square::f8);
-    }
-    else if (flg == MoveType::Queen_Side_Castle)
-    {
-        make_quite_move(from, to);
-        if (stm == color::white) make_quite_move(square::a1, square::d1);
-        else make_quite_move(square::a8, square::d8);
-    }
-    else if (flg == MoveType::En_Passant_Capture)
-    {
-        stored_en_passant_loc = en_passant_loc;
-        remove_piece(en_passant_loc + stm * direction::S);
-        make_quite_move(from, to);
-        board[en_passant_loc + stm * direction::S] = piece::eM;
-    }
+        if (mtype == MoveType::En_Passant_Capture) 
+        {
+            int8_t pawn_loc = en_passant_loc + side_to_move * direction::S;
+            remove_piece(pawn_loc);
+            board[pawn_loc] = piece::eM;
+        }
+        else 
+        {
+            remove_piece(to);
 
-    if (flg == MoveType::Double_Pawn_Push)
-    {
-        en_passant_loc = from + stm * direction::N;
-        make_quite_move(from, to);
-    }
-    else 
-    {
-        en_passant_loc = def::none;
+            if (castling_rights != 0)
+            {
+                int8_t captured{ m.get_captured_piece() };
+                if (captured == piece::wR)
+                {
+                    if (to == square::h1)       set_castling_rights(Castling::white_king_side, false);
+                    else if (to == square::a1)  set_castling_rights(Castling::white_queen_side, false);
+                }
+                else if (captured == piece::bR)
+                {
+                    if (to == square::h8)       set_castling_rights(Castling::black_king_side, false);
+                    else if (to == square::a8)  set_castling_rights(Castling::black_queen_side, false);
+                }
+            }
+        }
     }
 
+    // update en passant location
+    en_passant_loc = (mtype == MoveType::Double_Pawn_Push) ? (from + side_to_move * direction::N) : (def::none);
+    
     if (m.is_promotion())
     {
-        int8_t p = stm * piece::Bishop;
-        if (flg == MoveType::Queen_Promotion) p = stm * piece::Queen;
-        else if (flg == MoveType::Knight_Promotion) p = stm * piece::Knight;
-        else if (flg == MoveType::Rook_Promotion) p = stm * piece::Rook;
+        int8_t p = side_to_move * piece::Bishop;
+        if (mtype == MoveType::Queen_Promotion || mtype == MoveType::Queen_Promotion_Capture)           p = side_to_move * piece::Queen;
+        else if (mtype == MoveType::Knight_Promotion || mtype == MoveType::Knight_Promotion_Capture)    p = side_to_move * piece::Knight;
+        else if (mtype == MoveType::Rook_Promotion || mtype == MoveType::Rook_Promotion_Capture)        p = side_to_move * piece::Rook;
 
         remove_piece(from);
-        if (m.is_capture()) remove_piece(to);
         add_piece(p, to);
-
         board[from] = piece::eM;
         board[to] = p;
     }
-
-    if (!m.is_capture())
-        stored_captured_piece = def::none;
-
-    half_move_counter++;
-    if (side_to_move == color::black) full_move_counter++;
-    side_to_move = -side_to_move;
-    */
-}
-
-void Board::unmake_move(Move m)
-{
-    /*
-    castling_rights = stored_castling_rights;
-    en_passant_loc = stored_en_passant_loc;
-
-    int8_t from{ m.get_from() }, to{ m.get_to() }, stm{ get_side_to_move() };
-    MoveType flg{ m.get_move_type() };
-
-    if (flg == MoveType::Quite || flg == MoveType::Double_Pawn_Push)
+    else 
     {
-        make_quite_move(to, from);
-    }
-    else if (flg == MoveType::Capture)
-    {
-        make_quite_move(to, from);
-        board[to] = stored_captured_piece;
-        add_piece(stored_captured_piece, to);
-    }
-    else if (flg == MoveType::King_Side_Castle)
-    {
-        make_quite_move(to, from);
-        if (stm == color::black) make_quite_move(square::f1, square::h1);
-        else make_quite_move(square::f8, square::h8);
-    }
-    else if (flg == MoveType::Queen_Side_Castle)
-    {
-        make_quite_move(from, to);
-        if (stm == color::black) make_quite_move(square::d1, square::h1);
-        else make_quite_move(square::d8, square::a8);
-    }
-    else if (flg == MoveType::En_Passant_Capture)
-    {
-        make_quite_move(to, from);
-        int8_t loc = en_passant_loc + stm * direction::N;
-        int8_t p = stm * piece::Pawn;
-        add_piece(loc, p);
-        board[loc] = p;
-    }
-
-    if (m.is_promotion())
-    {
-        int8_t p = -stm * piece::Pawn;
-        remove_piece(to);
-        add_piece(p, from);
-        if (m.is_capture()) 
+        if (castling_rights != 0)
         {
-            board[to] = stored_captured_piece;
-            add_piece(stored_captured_piece, to);
+            if (board[from] == piece::wK)
+            {
+                set_castling_rights(color::white, false);
+            }
+            else if (board[from] == piece::bK)
+            {
+                set_castling_rights(color::black, false);
+            }
+            else if (board[from] == piece::wR)
+            {
+                if (from == square::a1)         set_castling_rights(Castling::white_queen_side, false);
+                else if (from == square::h1)    set_castling_rights(Castling::white_king_side, false);
+            }
+            else if (board[from] == piece::bR)
+            {
+                if (from == square::a8)         set_castling_rights(Castling::black_queen_side, false);
+                else if (from == square::h8)    set_castling_rights(Castling::black_king_side, false);
+            }
         }
 
-        board[from] = p;
-        board[to] = stored_captured_piece;
+        make_quite_move(from, to);
+
+        if (mtype == MoveType::King_Side_Castle)
+        {
+            if (side_to_move == color::white)   make_quite_move(square::h1, square::f1);
+            else                                make_quite_move(square::h8, square::f8);
+        }
+        else if (mtype == MoveType::Queen_Side_Castle)
+        {
+            if (side_to_move == color::white)   make_quite_move(square::a1, square::d1);
+            else                                make_quite_move(square::a8, square::d8);
+        }
     }
 
-    half_move_counter--;
-    if (side_to_move == color::white) full_move_counter--;
+    if (side_to_move == color::black) full_move_counter++;
+    
     side_to_move = -side_to_move;
-    */
+}
+
+void Board::unmake_move(Move m, KeepBeforeMakeMove const & keep)
+{
+    // restore side to move 
+    side_to_move = -side_to_move;
+
+    // restore the castling rights, en-passant location and half move counters
+    castling_rights = keep.castling_rights;
+    en_passant_loc = keep.en_passant_loc;
+    half_move_counter = keep.half_move_counter;
+
+    // restore the full move counters
+    if (side_to_move == color::black) 
+        full_move_counter--;
+
+    // restore pieces
+    int8_t from{ m.get_from() }, to{ m.get_to() };
+    MoveType mtype{ m.get_move_type() };
+
+    if (m.is_promotion()) 
+    {
+        int8_t p = side_to_move * piece::Pawn;
+        remove_piece(to);
+        add_piece(p, from);
+        board[from] = p;
+        board[to] = piece::eM;
+    }
+    else 
+    {
+        make_quite_move(to, from);
+        
+        if (mtype == MoveType::King_Side_Castle)
+        {
+            if (side_to_move == color::white)   make_quite_move(square::f1, square::h1);
+            else                                make_quite_move(square::f8, square::h8);
+        }
+        else if (mtype == MoveType::Queen_Side_Castle)
+        {
+            if (side_to_move == color::white)   make_quite_move(square::d1, square::a1);
+            else                                make_quite_move(square::d8, square::a8);
+        }
+    }
+
+    if (m.is_capture()) 
+    {
+        if (mtype == MoveType::En_Passant_Capture)
+        {
+            int8_t pawn_loc = en_passant_loc + side_to_move * direction::S;
+            int8_t p = -side_to_move * piece::Pawn;
+            add_piece(pawn_loc, p);
+            board[pawn_loc] = p;
+        }
+        else 
+        {
+            int8_t p{ m.get_captured_piece() };
+            board[to] = p;
+            add_piece(p, to);
+        }
+    }
 }
 
 void Board::update_piece_loc(int8_t old_loc, int8_t new_loc)

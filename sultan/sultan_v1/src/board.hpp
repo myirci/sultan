@@ -26,6 +26,13 @@ public:
 
     constexpr static int BOARDSIZE = 128;
 
+    struct KeepBeforeMakeMove 
+    {
+        int8_t castling_rights;
+        int8_t en_passant_loc;
+        int16_t half_move_counter;
+    };
+
     Board();
 
     int8_t* get_board();
@@ -36,7 +43,8 @@ public:
 
     bool query_castling_rights(Castling c) const;
     void set_castling_rights(Castling c, bool val);
-    std::int8_t get_castling_rights() const;
+    void set_castling_rights(int8_t color, bool val);
+    int8_t get_castling_rights() const;
 
     int16_t get_half_move_counter() const;
     void set_half_move_counter(int16_t val);
@@ -53,10 +61,9 @@ public:
 
     void clear();
 
-    void update_castling_rights(Move m);
     void make_move(Move m);
     inline void make_quite_move(int8_t from, int8_t to);
-    void unmake_move(Move m);
+    void unmake_move(Move m, KeepBeforeMakeMove const & keep);
      
     void update_piece_loc(int8_t old_loc, int8_t new_loc);
     void remove_piece(int8_t loc);
