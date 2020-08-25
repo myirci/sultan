@@ -25,12 +25,12 @@ public:
 
     static void print_moves(std::vector<Move> const& moves);
 
-    static void generate_and_print_moves(Board const& board);
+    // static void generate_and_print_moves(Board const& board);
 
     static void print_move(Move m);
 
     static bool is_equal(Move m1, Move m2);
 
-    static void print_attack_and_pins(std::pair<std::vector<MoveGenerator::Attack>, std::vector<MoveGenerator::Pin>> const& ap);
+    static void print_attacks(std::vector<attack::AttackInfo> const& attack_infos);
 
 };

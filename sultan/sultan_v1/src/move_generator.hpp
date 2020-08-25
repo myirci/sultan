@@ -2,9 +2,12 @@
 
 #include <vector>
 #include <utility>
+#include <memory>
+#include <unordered_map>
 
 #include "move.hpp"
 #include "definitions.hpp"
+#include "test/move_generator_tests.hpp"
 
 class Board;
 
@@ -12,30 +15,37 @@ class MoveGenerator
 {
     Board const& board_obj;
     int8_t const* board;
+    std::unordered_multimap<int8_t, int8_t> const& piece_loc;
+
+    std::vector<attack::AttackInfo> wattacks; // white attacks: attacks from white pieces to black king (checks and pins)
+    std::vector<attack::AttackInfo> battacks; // black attacks: attacks from black pieces to white king (checks and pins)
+
+    int8_t find_king_pos(int8_t clr) const;
+    void compute_checks_and_pins(int8_t attacking_side);
+    bool is_under_attack(int8_t attacking_side, int8_t target_sq, int8_t defender_king_pos = def::none) const;
+    int8_t MoveGenerator::get_pin_direction(int8_t clr, int8_t sq) const;
+   
+    // Move generators
+    void generate_king_moves(int8_t clr, bool under_check, std::vector<Move>& moves) const;
+    void generate_check_eliminating_moves(int8_t clr, int8_t king_pos, std::vector<Move>& moves) const;
+    void generate_to_square_moves(int8_t clr, int8_t sq, std::vector<Move>& moves) const;
+    friend class test::MoveGeneratorTests;
 
 public:
     
     MoveGenerator(Board const& b);
 
-    struct Attack { int8_t attacker_loc; int8_t attack_dir; };
-    struct Pin { int8_t pinner_loc; int8_t pinned_loc; int8_t pin_dir; };
 
     
-    
-    
-    std::vector<Move> generate_moves() const;
-    std::vector<Move> generate_moves(perft::perft_stats& stats) const;
+    // std::vector<Move> generate_moves() const;
+    // std::vector<Move> generate_moves(perft::perft_stats& stats) const;
+    // int8_t get_pin_direction(int8_t sq, std::vector<Pin> const& pins) const;
 
-    std::pair<std::vector<Attack>, std::vector<Pin>> compute_attacks_and_pins(int8_t target, int8_t stm) const;
-    bool is_under_attack(int8_t sq, int8_t stm) const;
-    int8_t get_pin_direction(int8_t sq, std::vector<Pin> const& pins) const;
-
-    // Move generators
-    void generate_king_moves(int8_t king_pos, int8_t stm, std::vector<Attack> const & attacks, std::vector<Move>& moves) const;
-    void generate_non_king_check_eliminating_moves(int8_t king_pos, int8_t stm, std::pair<std::vector<Attack>, std::vector<Pin>> const& attpin, std::vector<Move>& moves) const;
-    void generate_non_king_to_square_moves(int8_t sq, int8_t stm, std::vector<Pin> const& pins, std::vector<Move>& moves) const;
-    void generate_sliding_piece_moves(int8_t sq, int8_t ptype, int8_t stm, std::vector<Pin> const& pins, std::vector<Move>& moves) const;
-    void generate_knight_moves(int8_t sq, int8_t stm, std::vector<Pin> const& pins, std::vector<Move>& moves) const;
-    void generate_pawn_moves(int8_t sq, int8_t stm, std::vector<Pin> const& pins, std::vector<Move>& moves) const;
+    // void generate_non_king_check_eliminating_moves(int8_t king_pos, int8_t stm, std::pair<std::vector<Attack>, std::vector<Pin>> const& attpin, std::vector<Move>& moves) const;
+    // void generate_non_king_to_square_moves(int8_t sq, int8_t stm, std::vector<Pin> const& pins, std::vector<Move>& moves) const;
+    
+    // void generate_sliding_piece_moves(int8_t sq, int8_t ptype, int8_t stm, std::vector<Pin> const& pins, std::vector<Move>& moves) const;
+    // void generate_knight_moves(int8_t sq, int8_t stm, std::vector<Pin> const& pins, std::vector<Move>& moves) const;
+    // void generate_pawn_moves(int8_t sq, int8_t stm, std::vector<Pin> const& pins, std::vector<Move>& moves) const;
 
 };

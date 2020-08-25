@@ -1,12 +1,18 @@
 #pragma once
 
 #include "test_base.hpp"
+#include "../move.hpp"
+
+#include <vector>
+
 
 namespace test
 {
     class MoveGeneratorTests : public TestBase
     {
         MoveGeneratorTests() = delete;
+
+        static bool compare_moves(std::vector<Move> const& moves, std::vector<Move> const& expected_moves);
 
     public:
         static void run_test();
@@ -31,5 +37,16 @@ namespace test
         static bool test18();
         static bool test19();
         static bool test20();
+        static bool test21();
+        static bool test22();
+        static bool test23();
+        static bool test24();
+        static bool test25();
+        static bool test26();
+        static bool test27();
+        static bool test28();
+        static bool test29();
+        static bool test30();
+
     };
 }

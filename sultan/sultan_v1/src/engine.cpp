@@ -11,6 +11,7 @@ Engine::Engine(const std::string& fen_str) : board{ std::make_unique<Board>() },
 
 uint64_t Engine::perft(int depth) 
 {
+	/*
 	if (depth == 1)
 		return mg->generate_moves().size();
 
@@ -24,10 +25,13 @@ uint64_t Engine::perft(int depth)
 		board->unmake_move(*it, keep);
 	}
 	return sum;
+	*/
+	return 0;
 }
 
 uint64_t Engine::perft_divide(int depth)
 {
+	/*
 	if (depth == 1)
 		return mg->generate_moves().size();
 
@@ -45,10 +49,13 @@ uint64_t Engine::perft_divide(int depth)
 	std::cout << "Moves: " << moves.size() << std::endl;
 	std::cout << "Nodes: " << total << std::endl;
 	return total;
+	*/
+	return 0;
 }
 
 void Engine::perft_with_statistics(int depth, perft::perft_stats& stats)
 {
+	/*
 	auto moves = mg->generate_moves(stats);
 	if (moves.empty()) stats.num_check_mates++;
 
@@ -73,4 +80,5 @@ void Engine::perft_with_statistics(int depth, perft::perft_stats& stats)
 		perft_with_statistics(depth - 1, stats);
 		board->unmake_move(*it, keep);
 	}
+	*/
 }
