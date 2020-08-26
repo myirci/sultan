@@ -31,6 +31,6 @@ public:
 
     static bool is_equal(Move m1, Move m2);
 
-    static void print_attacks(std::vector<attack::AttackInfo> const& attack_infos);
+    // static void print_attacks(std::vector<attack::AttackInfo> const& attack_infos);
 
 };

@@ -29,7 +29,6 @@ int8_t MoveGenerator::find_king_pos(int8_t clr) const
 
 void MoveGenerator::compute_checks_and_pins(int8_t attacking_side)
 {
-    std::vector<attack::AttackInfo>& attacks = (attacking_side == color::white) ? wattacks : battacks;
     int8_t opponent_king_pos = find_king_pos(-attacking_side);
 
     // compute attacks to the opponent_king_position from the ranks and files
@@ -42,8 +41,8 @@ void MoveGenerator::compute_checks_and_pins(int8_t attacking_side)
 
             int8_t p = attacking_side * board[next];
             if (piece::is_same_sign(attacking_side, board[next]) && (p == piece::Rook || p == piece::Queen))
-            {
-                attacks.push_back(attack::AttackInfo{ next, direction::flat_dirs[i], target_sq }); 
+            { 
+                attack_info.emplace(std::make_pair(target_sq, std::make_pair(next, direction::flat_dirs[i])));
                 break;
             }
             else
@@ -66,7 +65,7 @@ void MoveGenerator::compute_checks_and_pins(int8_t attacking_side)
             if (p == piece::Bishop || p == piece::Queen ||
                (p == piece::Pawn && (next - target_sq) == direction::diagonal_dirs[i] && direction::diagonal_dirs[i] * attacking_side < 0))
             {
-                attacks.push_back(attack::AttackInfo{ next, direction::diagonal_dirs[i], target_sq });
+                attack_info.emplace(std::make_pair(target_sq, std::make_pair(next, direction::diagonal_dirs[i])));                
                 break;
             }
             else
@@ -81,8 +80,8 @@ void MoveGenerator::compute_checks_and_pins(int8_t attacking_side)
     for (int i{ 0 }; i < 8; i++)
     {
         int8_t next = opponent_king_pos + direction::knight_jumps[i];
-        if (!(next & square::inside) && attacking_side * board[next] == piece::Knight)
-            attacks.push_back(attack::AttackInfo{ next, direction::ND, opponent_king_pos });
+        if (!(next & square::inside) && attacking_side * board[next] == piece::Knight) 
+            attack_info.emplace(std::make_pair(opponent_king_pos, std::make_pair(next, direction::ND)));
     }
 }
 
@@ -180,28 +179,18 @@ void MoveGenerator::generate_king_moves(int8_t clr, bool under_check, std::vecto
 
 int8_t MoveGenerator::get_pin_direction(int8_t clr, int8_t sq) const
 {
-    std::vector<attack::AttackInfo> const& attacks = clr == color::white ? battacks : wattacks;
-    for (auto it = attacks.begin(); it != attacks.end(); it++)
-        if (it->target_loc == sq)
-            return it->attack_dir;
-    return direction::ND;
+    auto it = attack_info.find(sq);
+    return it == attack_info.end() ? direction::ND : it->second.second;
 }
 
 // generates non-king check eliminating moves, precondition: single check
 void MoveGenerator::generate_check_eliminating_moves(int8_t clr, int8_t king_pos, std::vector<Move>& moves) const 
 {
-    std::vector<attack::AttackInfo> const& attacks = clr == color::white ? battacks : wattacks;
-    int8_t attacker_pos{ -1 }, attack_dir{ 0 };
+    auto it = attack_info.find(king_pos);
+    if (it == attack_info.end())
+        throw std::logic_error("Checking piece could not be found!");
 
-    for (auto it = attacks.begin(); it != attacks.end(); it++) 
-    {
-        if (it->target_loc == king_pos) 
-        {
-            attacker_pos = it->attacker_loc;
-            attack_dir = it->attack_dir;
-        }
-    }
-
+    int8_t attacker_pos{ it->second.first }, attack_dir{ it->second.second };
     if (attack_dir != direction::ND)
     {
         int8_t next{ king_pos };

@@ -205,6 +205,7 @@ void Utility::print_move(Move m)
         << " Type: " << Utility::move_type_to_chararr.find(m.get_move_type())->second << " " << captured << std::endl;
 }
 
+/*
 void Utility::print_attacks(std::vector<attack::AttackInfo> const& attack_infos)
 {
     for (auto it = attack_infos.begin(); it != attack_infos.end(); it++) 
@@ -215,3 +216,4 @@ void Utility::print_attacks(std::vector<attack::AttackInfo> const& attack_infos)
                   << std::endl;
     } 
 }
+*/

@@ -15,10 +15,12 @@ class MoveGenerator
 {
     Board const& board_obj;
     int8_t const* board;
+
+    // key: piece, value: piece loc
     std::unordered_multimap<int8_t, int8_t> const& piece_loc;
 
-    std::vector<attack::AttackInfo> wattacks; // white attacks: attacks from white pieces to black king (checks and pins)
-    std::vector<attack::AttackInfo> battacks; // black attacks: attacks from black pieces to white king (checks and pins)
+    // key: target loc, value: attacker loc and attack direction, double entry is only possible in the case of double check
+    std::unordered_multimap<int8_t, std::pair<int8_t, int8_t>> attack_info;  
 
     int8_t find_king_pos(int8_t clr) const;
     void compute_checks_and_pins(int8_t attacking_side);

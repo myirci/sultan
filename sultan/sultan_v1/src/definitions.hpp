@@ -57,13 +57,3 @@ namespace perft
         uint64_t num_check_mates;           
     };
 }
-
-namespace attack 
-{
-    struct AttackInfo 
-    {
-        int8_t attacker_loc;
-        int8_t attack_dir;
-        int8_t target_loc;
-    };
-}

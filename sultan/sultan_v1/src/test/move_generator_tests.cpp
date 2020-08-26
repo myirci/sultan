@@ -62,10 +62,9 @@ namespace test
         Fen f("3qk3/pp2pppb/b6n/2n2P2/2N5/r1PKB2r/P1PRN1PP/1q1r1b1R w - - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
-        // Utility::print_attacks(mg.battacks);
         
         // expected outcome
-        std::vector<attack::AttackInfo> battacks
+        std::vector<std::vector<int8_t>> attacks
         {
             {square::d8, direction::N, square::d3},     // check
             {square::h3, direction::E, square::e3},     // pin
@@ -75,26 +74,42 @@ namespace test
             {square::f1, direction::SE, square::e2},    // pin
             {square::b1, direction::SW, square::c2},    // pin
             {square::a6, direction::NW, square::c4},    // pin
-            {square::c5, direction::ND, square::d3}    // check   
+            {square::c5, direction::ND, square::d3}     // check   
         };
-        
-        if (!mg.wattacks.empty())
+
+        if (mg.attack_info.size() != attacks.size())
         {
-            std::cout << "Number of dectected attacks for white is not correct: " << mg.wattacks.size() << "(expected:0)" << std::endl;
+            std::cout << "Number of dectected attacks is not correct: " << mg.attack_info.size() << "(expected: " << attacks.size() << ")" << std::endl;
             return false;
         }
 
-        if (mg.battacks.size() != battacks.size())
+        bool double_check_processed{ false };
+        for (size_t i = 0; i < attacks.size(); i++)
         {
-            std::cout << "Number of dectected attacks for black is not correct: " << mg.battacks.size() << "(expected: " << battacks.size() << ")" << std::endl;
-            return false;
-        }
+            if (attacks[i][2] == square::d3) 
+            {
+                if (double_check_processed)
+                    continue;
+                double_check_processed = true;
 
-        for (size_t i = 0; i < battacks.size(); i++)
-        {
-            if (battacks[i].attacker_loc != mg.battacks[i].attacker_loc)    return false;
-            if (battacks[i].attack_dir != mg.battacks[i].attack_dir)        return false;
-            if (battacks[i].target_loc != mg.battacks[i].target_loc)        return false;
+                auto r = mg.attack_info.equal_range(square::d3);
+                for (auto it = r.first; it != r.second; it++) 
+                {
+                    if (it->second.first != square::d8 && it->second.first != square::c5)  return false;
+                    if (it->second.second != direction::N && it->second.second != direction::ND) return false;
+                }
+            }
+            else 
+            {
+                auto it = mg.attack_info.find(attacks[i][2]);
+                if (it == mg.attack_info.end())
+                {
+                    std::cout << "Target location could not be found" << std::endl;
+                    return false;
+                }
+                if (attacks[i][0] != it->second.first)  return false;
+                if (attacks[i][1] != it->second.second) return false;
+            }
         }
         
         return true;
@@ -104,36 +119,34 @@ namespace test
     {
         // test: compute checks and pins for white, no black attacks, pieces: bishop, knight and pawn
         Board b;
-        Fen f("Q2R2Q1/1p1NNb2/2Ppp3/RPnk1pqR/2Pn4/1q1r1p2/B2R4/K6B b - - 0 1");
+        Fen f("Q2R2Q1/1p1N1b2/2Ppp3/RPnk1pqR/2Pn4/1q1r1p2/B2R4/K6B b - - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
         // Utility::print_attacks(mg.wattacks);
 
         // expected outcome
-        std::vector<attack::AttackInfo> wattacks
+        std::vector<std::vector<int8_t>> attacks
         {
             {square::h1, direction::SE, square::f3},
-            {square::c4, direction::SW, square::d5},
-            {square::e7, direction::ND, square::d5}
+            {square::c4, direction::SW, square::d5}
         };
 
-        if (!mg.battacks.empty())
+        if (mg.attack_info.size() != attacks.size())
         {
-            std::cout << "Number of dectected attacks for black is not correct: " << mg.battacks.size() << "(expected: 0)" << std::endl;
+            std::cout << "Number of dectected attacks is not correct: " << mg.attack_info.size() << "(expected: " << attacks.size() << ")" << std::endl;
             return false;
         }
 
-        if (mg.wattacks.size() != wattacks.size())
+        for (size_t i = 0; i < attacks.size(); i++)
         {
-            std::cout << "Number of dectected attacks for white is not correct: " << mg.wattacks.size() << "(expected: " << wattacks.size() << ")" << std::endl;
-            return false;
-        }
-
-        for (size_t i = 0; i < wattacks.size(); i++)
-        {
-            if (wattacks[i].attacker_loc != mg.wattacks[i].attacker_loc)    return false;
-            if (wattacks[i].attack_dir != mg.wattacks[i].attack_dir)        return false;
-            if (wattacks[i].target_loc != mg.wattacks[i].target_loc)        return false;
+            auto it = mg.attack_info.find(attacks[i][2]);
+            if (it == mg.attack_info.end())
+            {
+                std::cout << "Target location could not be found" << std::endl;
+                return false;
+            }
+            if (attacks[i][0] != it->second.first)  return false;
+            if (attacks[i][1] != it->second.second) return false;
         }
 
         return true;
@@ -143,51 +156,34 @@ namespace test
     {
         // test: compute checks and pins for white and black pawn attacks
         Board b;
-        Fen f("8/8/1PPP1ppp/1PkP1pKp/1PPP1ppp/8/8/8 w - - 0 1");
+        Fen f("8/8/1PPP2pp/1PkP1pKp/2PP1ppp/8/8/8 w - - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
-        // Utility::print_attacks(mg.wattacks);
-        // Utility::print_attacks(mg.battacks);
 
         // expected outcome
-        std::vector<attack::AttackInfo> wattacks
+        std::vector<std::vector<int8_t>> attacks
         {
             {square::d4, direction::SE, square::c5},
-            {square::b4, direction::SW, square::c5}
+            {square::h6, direction::NE, square::g5}
         };
 
-        std::vector<attack::AttackInfo> battacks
+        if (mg.attack_info.size() != attacks.size())
         {
-            {square::h6, direction::NE, square::g5},
-            {square::f6, direction::NW, square::g5}
-        };
-
-        if (mg.wattacks.size() != wattacks.size())
-        {
-            std::cout << "Number of dectected attacks for white is not correct: " << mg.wattacks.size() << "(expected: " << wattacks.size() << ")" << std::endl;
+            std::cout << "Number of dectected attacks is not correct: " << mg.attack_info.size() << "(expected: " << attacks.size() << ")" << std::endl;
             return false;
         }
 
-        for (size_t i = 0; i < wattacks.size(); i++)
+        for (size_t i = 0; i < attacks.size(); i++)
         {
-            if (wattacks[i].attacker_loc != mg.wattacks[i].attacker_loc)    return false;
-            if (wattacks[i].attack_dir != mg.wattacks[i].attack_dir)        return false;
-            if (wattacks[i].target_loc != mg.wattacks[i].target_loc)        return false;
+            auto it = mg.attack_info.find(attacks[i][2]);
+            if (it == mg.attack_info.end())
+            {
+                std::cout << "Target location could not be found" << std::endl;
+                return false;
+            }
+            if (attacks[i][0] != it->second.first)  return false;
+            if (attacks[i][1] != it->second.second) return false;
         }
-
-        if (mg.battacks.size() != battacks.size())
-        {
-            std::cout << "Number of dectected attacks for black is not correct: " << mg.battacks.size() << "(expected: 0)" << std::endl;
-            return false;
-        }
-
-        for (size_t i = 0; i < battacks.size(); i++)
-        {
-            if (battacks[i].attacker_loc != mg.battacks[i].attacker_loc)    return false;
-            if (battacks[i].attack_dir != mg.battacks[i].attack_dir)        return false;
-            if (battacks[i].target_loc != mg.battacks[i].target_loc)        return false;
-        }
-
         return true;
     }
 
@@ -659,7 +655,7 @@ namespace test
 
     bool MoveGeneratorTests::test23()
     {
-        
+        return false;
     }
 
     /*
