@@ -12,10 +12,26 @@ namespace test
 {
 	void BoardTests::run_test() 
 	{
-		std::vector<bool (*)()> tests{ test1, test2, test3, test4, test5, test6, test7, test8, test9, test10,
-        test11, test12, test13, test14, test15, test16, test17, test18, test19, test20, test21 };
+		std::vector<bool (*)()> tests
+        { 
+            test1, test2, test3, test4, test5, test6, test7, test8, test9, test10,
+            test11, test12, test13, test14, test15, test16, test17, test18, test19, test20, 
+            test21 
+        };
 		TestBase::run_test("Board", tests);
 	}
+
+    bool BoardTests::compare_fen(std::string const& fen, std::string const& expected_fen, int id) 
+    {
+        if (fen != expected_fen)
+        {
+            std::cout << "Board is not correct, id : " << id << std::endl;
+            std::cout << "Expected: " << expected_fen << std::endl;
+            std::cout << "Got     : " << fen << std::endl;
+            return false;
+        }
+        return true;
+    }
 
     bool BoardTests::test1()
     {
@@ -130,28 +146,11 @@ namespace test
         std::string fen2{ "8/3k4/2r5/8/8/8/1K3BP1/8 b - - 1 1" };
         Fen f(fen1);
         Utility::fen_to_board(f, b);
-        Move m(square::h4, square::f2, MoveType::Quite, def::none);
-        Board::KeepBeforeMakeMove keep{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m);
-        auto fen3 = Utility::board_to_fen_string(b);
-        if (fen3 != fen2)
-        {
-            std::cout << "Board is not correct after make move!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen3 << std::endl;
-            return false;
-        }
-
-        b.unmake_move(m, keep);
-        auto fen4 = Utility::board_to_fen_string(b);
-        if (fen4 != fen1)
-        {
-            std::cout << "Board is not correct after unmake move!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen4 << std::endl;
-            return false;
-        }
-        return true;
+        auto m = Move(square::h4, square::f2, MoveType::Quite, def::none);
+        auto st = b.make_move(m);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen2, 1)) return false;
+        b.unmake_move(m, st);
+        return compare_fen(Utility::board_to_fen_string(b), fen1, 2);
     }
 
     bool BoardTests::test9()
@@ -164,50 +163,18 @@ namespace test
         Fen f(fen1);
         Utility::fen_to_board(f, b);
         Move m1(square::g2, square::g4, MoveType::Double_Pawn_Push, def::none);
-        Board::KeepBeforeMakeMove keep1{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m1);
-        auto fen4 = Utility::board_to_fen_string(b);
-        if (fen4 != fen2)
-        {
-            std::cout << "Board is not correct after make move-1!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen4 << std::endl;
-            return false;
-        }
-
+        auto st1 = b.make_move(m1);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen2, 1)) return false;
+        
         Move m2(square::f7, square::f5, MoveType::Double_Pawn_Push, def::none);
-        Board::KeepBeforeMakeMove keep2{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m2);
-        auto fen5 = Utility::board_to_fen_string(b);
-        if (fen5 != fen3)
-        {
-            std::cout << "Board is not correct after make move-2!" << std::endl;
-            std::cout << "Expected: " << fen3 << std::endl;
-            std::cout << "Got     : " << fen5 << std::endl;
-            return false;
-        }
+        auto st2 = b.make_move(m2);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen3, 2)) return false;
 
-        b.unmake_move(m2, keep2);
-        auto fen6 = Utility::board_to_fen_string(b);
-        if (fen6 != fen2)
-        {
-            std::cout << "Board is not correct after unmake move-2!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen6 << std::endl;
-            return false;
-        }
+        b.unmake_move(m2, st2);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen2, 3)) return false;
 
-        b.unmake_move(m1, keep1);
-        auto fen7 = Utility::board_to_fen_string(b);
-        if (fen7 != fen1)
-        {
-            std::cout << "Board is not correct after unmake move-1!" << std::endl;
-            std::cout << "Expected: " << fen1 << std::endl;
-            std::cout << "Got     : " << fen7 << std::endl;
-            return false;
-        }
-
-        return true;
+        b.unmake_move(m1, st1);
+        return compare_fen(Utility::board_to_fen_string(b), fen1, 4);
     }
 
     bool BoardTests::test10()
@@ -219,27 +186,11 @@ namespace test
         Fen f(fen1);
         Utility::fen_to_board(f, b);
         Move m(square::h7, square::h4, MoveType::Capture, piece::wB);
-        Board::KeepBeforeMakeMove keep{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m);
-        auto fen3 = Utility::board_to_fen_string(b);
-        if (fen3 != fen2)
-        {
-            std::cout << "Board is not correct after make move!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen3 << std::endl;
-            return false;
-        }
+        auto st = b.make_move(m);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen2, 1)) return false;
 
-        b.unmake_move(m, keep);
-        auto fen4 = Utility::board_to_fen_string(b);
-        if (fen4 != fen1)
-        {
-            std::cout << "Board is not correct after unmake move!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen4 << std::endl;
-            return false;
-        }
-        return true;
+        b.unmake_move(m, st);
+        return compare_fen(Utility::board_to_fen_string(b), fen1, 2);
     }
 
     bool BoardTests::test11()
@@ -251,27 +202,11 @@ namespace test
         Fen f(fen1);
         Utility::fen_to_board(f, b);
         Move m(square::c5, square::d6, MoveType::En_Passant_Capture, piece::bP);
-        Board::KeepBeforeMakeMove keep{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m);
-        auto fen3 = Utility::board_to_fen_string(b);
-        if (fen3 != fen2)
-        {
-            std::cout << "Board is not correct after make move!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen3 << std::endl;
-            return false;
-        }
+        auto st = b.make_move(m);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen2, 1)) return false;
 
-        b.unmake_move(m, keep);
-        auto fen4 = Utility::board_to_fen_string(b);
-        if (fen4 != fen1)
-        {
-            std::cout << "Board is not correct after unmake move!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen4 << std::endl;
-            return false;
-        }
-        return true;
+        b.unmake_move(m, st);
+        return compare_fen(Utility::board_to_fen_string(b), fen1, 2);
     }
 
     bool BoardTests::test12()
@@ -283,27 +218,11 @@ namespace test
         Fen f(fen1);
         Utility::fen_to_board(f, b);
         Move m(square::e5, square::d6, MoveType::En_Passant_Capture, piece::bP);
-        Board::KeepBeforeMakeMove keep{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m);
-        auto fen3 = Utility::board_to_fen_string(b);
-        if (fen3 != fen2)
-        {
-            std::cout << "Board is not correct after make move!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen3 << std::endl;
-            return false;
-        }
+        auto st = b.make_move(m);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen2, 1)) return false;
 
-        b.unmake_move(m, keep);
-        auto fen4 = Utility::board_to_fen_string(b);
-        if (fen4 != fen1)
-        {
-            std::cout << "Board is not correct after unmake move!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen4 << std::endl;
-            return false;
-        }
-        return true;
+        b.unmake_move(m, st);
+        return compare_fen(Utility::board_to_fen_string(b), fen1, 2);
     }
 
     bool BoardTests::test13()
@@ -315,27 +234,12 @@ namespace test
         Fen f(fen1);
         Utility::fen_to_board(f, b);
         Move m(square::g4, square::h3, MoveType::En_Passant_Capture, piece::wP);
-        Board::KeepBeforeMakeMove keep{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m);
-        auto fen3 = Utility::board_to_fen_string(b);
-        if (fen3 != fen2)
-        {
-            std::cout << "Board is not correct after make move!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen3 << std::endl;
-            return false;
-        }
+        auto st = b.make_move(m);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen2, 1)) return false;
 
-        b.unmake_move(m, keep);
+        b.unmake_move(m, st);
         auto fen4 = Utility::board_to_fen_string(b);
-        if (fen4 != fen1)
-        {
-            std::cout << "Board is not correct after unmake move!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen4 << std::endl;
-            return false;
-        }
-        return true;
+        return compare_fen(Utility::board_to_fen_string(b), fen1, 2);
     }
 
     bool BoardTests::test14()
@@ -347,27 +251,11 @@ namespace test
         Fen f(fen1);
         Utility::fen_to_board(f, b);
         Move m(square::g4, square::f3, MoveType::En_Passant_Capture, piece::wP);
-        Board::KeepBeforeMakeMove keep{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m);
-        auto fen3 = Utility::board_to_fen_string(b);
-        if (fen3 != fen2)
-        {
-            std::cout << "Board is not correct after make move!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen3 << std::endl;
-            return false;
-        }
+        auto st = b.make_move(m);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen2, 1)) return false;
 
-        b.unmake_move(m, keep);
-        auto fen4 = Utility::board_to_fen_string(b);
-        if (fen4 != fen1)
-        {
-            std::cout << "Board is not correct after unmake move!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen4 << std::endl;
-            return false;
-        }
-        return true;
+        b.unmake_move(m, st);
+        return compare_fen(Utility::board_to_fen_string(b), fen1, 2);
     }
 
     bool BoardTests::test15()
@@ -383,50 +271,19 @@ namespace test
 
         // white king side castle
         Move m1(square::e1, square::g1, MoveType::King_Side_Castle, def::none);
-        Board::KeepBeforeMakeMove keep1{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m1);
-        auto fen4 = Utility::board_to_fen_string(b);
-        if (fen4 != fen2)
-        {
-            std::cout << "Board is not correct after make move!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen4 << std::endl;
-            return false;
-        }
+        auto st1 = b.make_move(m1);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen2, 1)) return false;
 
         // black king side castle
         Move m2(square::e8, square::g8, MoveType::King_Side_Castle, def::none);
-        Board::KeepBeforeMakeMove keep2{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m2);
-        auto fen5 = Utility::board_to_fen_string(b);
-        if (fen5 != fen3)
-        {
-            std::cout << "Board is not correct after make move!" << std::endl;
-            std::cout << "Expected: " << fen3 << std::endl;
-            std::cout << "Got     : " << fen5 << std::endl;
-            return false;
-        }
+        auto st2 = b.make_move(m2);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen3, 2)) return false;
 
-        b.unmake_move(m2, keep2);
-        auto fen6 = Utility::board_to_fen_string(b);
-        if (fen6 != fen2)
-        {
-            std::cout << "Board is not correct after unmake move!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen6 << std::endl;
-            return false;
-        }
+        b.unmake_move(m2, st2);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen2, 3)) return false;
 
-        b.unmake_move(m1, keep1);
-        auto fen7 = Utility::board_to_fen_string(b);
-        if (fen7 != fen1)
-        {
-            std::cout << "Board is not correct after unmake move!" << std::endl;
-            std::cout << "Expected: " << fen1 << std::endl;
-            std::cout << "Got     : " << fen7 << std::endl;
-            return false;
-        }
-        return true;
+        b.unmake_move(m1, st1);
+        return compare_fen(Utility::board_to_fen_string(b), fen1, 4);
     }
 
     bool BoardTests::test16()
@@ -442,50 +299,20 @@ namespace test
 
         // white king side castle
         Move m1(square::e1, square::c1, MoveType::Queen_Side_Castle, def::none);
-        Board::KeepBeforeMakeMove keep1{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m1);
-        auto fen4 = Utility::board_to_fen_string(b);
-        if (fen4 != fen2)
-        {
-            std::cout << "Board is not correct after make move!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen4 << std::endl;
-            return false;
-        }
+        auto st1 = b.make_move(m1);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen2, 1)) return false;
 
         // black king side castle
         Move m2(square::e8, square::c8, MoveType::Queen_Side_Castle, def::none);
-        Board::KeepBeforeMakeMove keep2{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m2);
-        auto fen5 = Utility::board_to_fen_string(b);
-        if (fen5 != fen3)
-        {
-            std::cout << "Board is not correct after make move!" << std::endl;
-            std::cout << "Expected: " << fen3 << std::endl;
-            std::cout << "Got     : " << fen5 << std::endl;
-            return false;
-        }
+        auto st2 = b.make_move(m2);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen3, 2)) return false;
 
-        b.unmake_move(m2, keep2);
-        auto fen6 = Utility::board_to_fen_string(b);
-        if (fen6 != fen2)
-        {
-            std::cout << "Board is not correct after unmake move!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen6 << std::endl;
-            return false;
-        }
+        b.unmake_move(m2, st2);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen2, 3)) return false;
 
-        b.unmake_move(m1, keep1);
+        b.unmake_move(m1, st1);
         auto fen7 = Utility::board_to_fen_string(b);
-        if (fen7 != fen1)
-        {
-            std::cout << "Board is not correct after unmake move!" << std::endl;
-            std::cout << "Expected: " << fen1 << std::endl;
-            std::cout << "Got     : " << fen7 << std::endl;
-            return false;
-        }
-        return true;
+        return compare_fen(Utility::board_to_fen_string(b), fen1, 4);
     }
 
     bool BoardTests::test17()
@@ -503,100 +330,40 @@ namespace test
 
         // white promotes to knight
         Move m1(square::b7, square::b8, MoveType::Knight_Promotion, def::none);
-        Board::KeepBeforeMakeMove keep1{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m1);
+        auto st1 = b.make_move(m1);
         auto fen_2 = Utility::board_to_fen_string(b);
-        if (fen_2 != fen2)
-        {
-            std::cout << "Board is not correct after make move-1!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen_2 << std::endl;
-            return false;
-        }
+        if (!compare_fen(Utility::board_to_fen_string(b), fen2, 1)) return false;
 
         // black promotes to rook
         Move m2(square::a2, square::a1, MoveType::Rook_Promotion, def::none);
-        Board::KeepBeforeMakeMove keep2{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m2);
-        auto fen_3 = Utility::board_to_fen_string(b);
-        if (fen_3 != fen3)
-        {
-            std::cout << "Board is not correct after make move-2!" << std::endl;
-            std::cout << "Expected: " << fen3 << std::endl;
-            std::cout << "Got     : " << fen_3 << std::endl;
-            return false;
-        }
+        auto st2 = b.make_move(m2);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen3, 2)) return false;
 
         // white promotes to queen
         Move m3(square::g7, square::g8, MoveType::Queen_Promotion, def::none);
-        Board::KeepBeforeMakeMove keep3{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m3);
-        auto fen_4 = Utility::board_to_fen_string(b);
-        if (fen_4 != fen4)
-        {
-            std::cout << "Board is not correct after make move-3!" << std::endl;
-            std::cout << "Expected: " << fen4 << std::endl;
-            std::cout << "Got     : " << fen_4 << std::endl;
-            return false;
-        }
+        auto st3 = b.make_move(m3);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen4, 3)) return false;
 
         // black promotes to bishop
-        Move m4(square::f2, square::f1, MoveType::Bishop_Promotion, def::none);
-        Board::KeepBeforeMakeMove keep4{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m4);
-        auto fen_5 = Utility::board_to_fen_string(b);
-        if (fen_5 != fen5)
-        {
-            std::cout << "Board is not correct after make move-4!" << std::endl;
-            std::cout << "Expected: " << fen5 << std::endl;
-            std::cout << "Got     : " << fen_5 << std::endl;
-            return false;
-        }
+        Move m4(square::f2, square::f1, MoveType::Bishop_Promotion, def::none);        
+        auto st4 = b.make_move(m4);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen5, 4)) return false;
 
         // unmake move 4
-        b.unmake_move(m4, keep4);
-        auto fen6 = Utility::board_to_fen_string(b);
-        if (fen6 != fen4)
-        {
-            std::cout << "Board is not correct after unmake move-4!" << std::endl;
-            std::cout << "Expected: " << fen4 << std::endl;
-            std::cout << "Got     : " << fen6 << std::endl;
-            return false;
-        }
+        b.unmake_move(m4, st4);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen4, 5)) return false;
 
         // unnmake move 3
-        b.unmake_move(m3, keep3);
-        auto fen7 = Utility::board_to_fen_string(b);
-        if (fen7 != fen3)
-        {
-            std::cout << "Board is not correct after unmake move-3!" << std::endl;
-            std::cout << "Expected: " << fen3 << std::endl;
-            std::cout << "Got     : " << fen7 << std::endl;
-            return false;
-        }
+        b.unmake_move(m3, st3);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen3, 6)) return false;
 
         // unmake move 2
-        b.unmake_move(m2, keep2);
-        auto fen8 = Utility::board_to_fen_string(b);
-        if (fen8 != fen2)
-        {
-            std::cout << "Board is not correct after unmake move-2!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen8 << std::endl;
-            return false;
-        }
+        b.unmake_move(m2, st2);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen2, 7)) return false;
 
         // unmake move 1
-        b.unmake_move(m1, keep1);
-        auto fen9 = Utility::board_to_fen_string(b);
-        if (fen9 != fen1)
-        {
-            std::cout << "Board is not correct after unmake move-1!" << std::endl;
-            std::cout << "Expected: " << fen1 << std::endl;
-            std::cout << "Got     : " << fen9 << std::endl;
-            return false;
-        }
-        return true;
+        b.unmake_move(m1, st1);
+        return compare_fen(Utility::board_to_fen_string(b), fen1, 8);
     }
 
     bool BoardTests::test18()
@@ -614,100 +381,39 @@ namespace test
 
         // white captures black bishop and promotes to queen
         Move m1(square::e7, square::d8, MoveType::Queen_Promotion_Capture, piece::bB);
-        Board::KeepBeforeMakeMove keep1{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m1);
-        auto fen_2 = Utility::board_to_fen_string(b);
-        if (fen_2 != fen2)
-        {
-            std::cout << "Board is not correct after make move-1!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen_2 << std::endl;
-            return false;
-        }
+        auto st1 = b.make_move(m1);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen2, 1)) return false;
 
         // black caputes white bishop and promotes to rook
         Move m2(square::g2, square::h1, MoveType::Rook_Promotion_Capture, piece::wB);
-        Board::KeepBeforeMakeMove keep2{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m2);
-        auto fen_3 = Utility::board_to_fen_string(b);
-        if (fen_3 != fen3)
-        {
-            std::cout << "Board is not correct after make move-2!" << std::endl;
-            std::cout << "Expected: " << fen3 << std::endl;
-            std::cout << "Got     : " << fen_3 << std::endl;
-            return false;
-        }
+        auto st2 = b.make_move(m2);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen3, 2)) return false;
 
         // white captures black knight and promotes to knight
         Move m3(square::c7, square::b8, MoveType::Knight_Promotion_Capture, piece::bN);
-        Board::KeepBeforeMakeMove keep3{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m3);
-        auto fen_4 = Utility::board_to_fen_string(b);
-        if (fen_4 != fen4)
-        {
-            std::cout << "Board is not correct after make move-3!" << std::endl;
-            std::cout << "Expected: " << fen4 << std::endl;
-            std::cout << "Got     : " << fen_4 << std::endl;
-            return false;
-        }
+        auto st3 = b.make_move(m3);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen4, 3)) return false;
 
         // black captures white knight and promotes to bishop
         Move m4(square::e2, square::f1, MoveType::Bishop_Promotion_Capture, piece::wN);
-        Board::KeepBeforeMakeMove keep4{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m4);
-        auto fen_5 = Utility::board_to_fen_string(b);
-        if (fen_5 != fen5)
-        {
-            std::cout << "Board is not correct after make move-4!" << std::endl;
-            std::cout << "Expected: " << fen5 << std::endl;
-            std::cout << "Got     : " << fen_5 << std::endl;
-            return false;
-        }
+        auto st4 = b.make_move(m4);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen5, 4)) return false;
 
         // unmake move 4
-        b.unmake_move(m4, keep4);
-        auto fen6 = Utility::board_to_fen_string(b);
-        if (fen6 != fen4)
-        {
-            std::cout << "Board is not correct after unmake move-4!" << std::endl;
-            std::cout << "Expected: " << fen4 << std::endl;
-            std::cout << "Got     : " << fen6 << std::endl;
-            return false;
-        }
+        b.unmake_move(m4, st4);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen4, 5)) return false;
 
         // unnmake move 3
-        b.unmake_move(m3, keep3);
-        auto fen7 = Utility::board_to_fen_string(b);
-        if (fen7 != fen3)
-        {
-            std::cout << "Board is not correct after unmake move-3!" << std::endl;
-            std::cout << "Expected: " << fen3 << std::endl;
-            std::cout << "Got     : " << fen7 << std::endl;
-            return false;
-        }
+        b.unmake_move(m3, st3);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen3, 6)) return false;
 
         // unmake move 2
-        b.unmake_move(m2, keep2);
-        auto fen8 = Utility::board_to_fen_string(b);
-        if (fen8 != fen2)
-        {
-            std::cout << "Board is not correct after unmake move-2!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen8 << std::endl;
-            return false;
-        }
+        b.unmake_move(m2, st2);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen2, 7)) return false;
 
         // unmake move 1
-        b.unmake_move(m1, keep1);
-        auto fen9 = Utility::board_to_fen_string(b);
-        if (fen9 != fen1)
-        {
-            std::cout << "Board is not correct after unmake move-1!" << std::endl;
-            std::cout << "Expected: " << fen1 << std::endl;
-            std::cout << "Got     : " << fen9 << std::endl;
-            return false;
-        }
-        return true;
+        b.unmake_move(m1, st1);
+        return compare_fen(Utility::board_to_fen_string(b), fen1, 8);
     }
 
     bool BoardTests::test19() 
@@ -721,49 +427,18 @@ namespace test
         Fen f(fen1);
         Utility::fen_to_board(f, b);
         Move m1(square::e1, square::d1, MoveType::Quite, def::none);
-        Board::KeepBeforeMakeMove keep1{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m1);
-        auto fen4 = Utility::board_to_fen_string(b);
-        if (fen4 != fen2)
-        {
-            std::cout << "Board is not correct after make move-1!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen4 << std::endl;
-            return false;
-        }
+        auto st1 = b.make_move(m1);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen2, 1)) return false;
 
         Move m2(square::e8, square::f8, MoveType::Quite, def::none);
-        Board::KeepBeforeMakeMove keep2{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m2);
-        auto fen5 = Utility::board_to_fen_string(b);
-        if (fen5 != fen3)
-        {
-            std::cout << "Board is not correct after make move-2!" << std::endl;
-            std::cout << "Expected: " << fen3 << std::endl;
-            std::cout << "Got     : " << fen5 << std::endl;
-            return false;
-        }
+        auto st2 = b.make_move(m2);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen3, 2)) return false;
 
-        b.unmake_move(m2, keep2);
-        auto fen6 = Utility::board_to_fen_string(b);
-        if (fen6 != fen2)
-        {
-            std::cout << "Board is not correct after unmake move-1!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen6 << std::endl;
-            return false;
-        }
+        b.unmake_move(m2, st2);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen2, 3)) return false;
 
-        b.unmake_move(m1, keep1);
-        auto fen7 = Utility::board_to_fen_string(b);
-        if (fen7 != fen1)
-        {
-            std::cout << "Board is not correct after unmake move-2!" << std::endl;
-            std::cout << "Expected: " << fen1 << std::endl;
-            std::cout << "Got     : " << fen7 << std::endl;
-            return false;
-        }
-        return true;
+        b.unmake_move(m1, st1);
+        return compare_fen(Utility::board_to_fen_string(b), fen1, 1);
     }
 
     bool BoardTests::test20()
@@ -779,94 +454,35 @@ namespace test
         Fen f(fen1);
         Utility::fen_to_board(f, b);
         Move m1(square::a1, square::b1, MoveType::Quite, def::none);
-        Board::KeepBeforeMakeMove keep1{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m1);
-        auto fen_2 = Utility::board_to_fen_string(b);
-        if (fen_2 != fen2)
-        {
-            std::cout << "Board is not correct after make move-1!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen_2 << std::endl;
-            return false;
-        }
+        auto st1 = b.make_move(m1);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen2, 1)) return false;
 
         Move m2(square::a8, square::c8, MoveType::Quite, def::none);
-        Board::KeepBeforeMakeMove keep2{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m2);
-        auto fen_3 = Utility::board_to_fen_string(b);
-        if (fen_3 != fen3)
-        {
-            std::cout << "Board is not correct after make move-2!" << std::endl;
-            std::cout << "Expected: " << fen3 << std::endl;
-            std::cout << "Got     : " << fen_3 << std::endl;
-            return false;
-        }
+        auto st2 =  b.make_move(m2);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen3, 2)) return false;
 
         Move m3(square::h1, square::f1, MoveType::Quite, def::none);
-        Board::KeepBeforeMakeMove keep3{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m3);
-        auto fen_4 = Utility::board_to_fen_string(b);
-        if (fen_4 != fen4)
-        {
-            std::cout << "Board is not correct after make move-3!" << std::endl;
-            std::cout << "Expected: " << fen4 << std::endl;
-            std::cout << "Got     : " << fen_4 << std::endl;
-            return false;
-        }
+        auto st3 = b.make_move(m3);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen4, 3)) return false;
 
         Move m4(square::h8, square::g8, MoveType::Quite, def::none);
-        Board::KeepBeforeMakeMove keep4{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m4);
-        auto fen_5 = Utility::board_to_fen_string(b);
-        if (fen_5 != fen5)
-        {
-            std::cout << "Board is not correct after make move-4!" << std::endl;
-            std::cout << "Expected: " << fen5 << std::endl;
-            std::cout << "Got     : " << fen_5 << std::endl;
-            return false;
-        }
+        auto st4 = b.make_move(m4);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen5, 4)) return false;
 
-        b.unmake_move(m4, keep4);
-        auto fen6 = Utility::board_to_fen_string(b);
-        if (fen6 != fen4)
-        {
-            std::cout << "Board is not correct after unmake move-4!" << std::endl;
-            std::cout << "Expected: " << fen4 << std::endl;
-            std::cout << "Got     : " << fen6 << std::endl;
-            return false;
-        }
+        b.unmake_move(m4, st4);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen4, 5)) return false;
 
-        b.unmake_move(m3, keep3);
+        b.unmake_move(m3, st3);
         auto fen7 = Utility::board_to_fen_string(b);
-        if (fen7 != fen3)
-        {
-            std::cout << "Board is not correct after unmake move-3!" << std::endl;
-            std::cout << "Expected: " << fen3 << std::endl;
-            std::cout << "Got     : " << fen7 << std::endl;
-            return false;
-        }
+        if (!compare_fen(Utility::board_to_fen_string(b), fen3, 6)) return false;
 
-        b.unmake_move(m2, keep2);
+        b.unmake_move(m2, st2);
         auto fen8 = Utility::board_to_fen_string(b);
-        if (fen8 != fen2)
-        {
-            std::cout << "Board is not correct after unmake move-2!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen8 << std::endl;
-            return false;
-        }
+        if (!compare_fen(Utility::board_to_fen_string(b), fen2, 7)) return false;
 
-        b.unmake_move(m1, keep1);
+        b.unmake_move(m1, st1);
         auto fen9 = Utility::board_to_fen_string(b);
-        if (fen9 != fen1)
-        {
-            std::cout << "Board is not correct after unmake move-1!" << std::endl;
-            std::cout << "Expected: " << fen1 << std::endl;
-            std::cout << "Got     : " << fen9 << std::endl;
-            return false;
-        }
-
-        return true;
+        return compare_fen(Utility::board_to_fen_string(b), fen1, 8);
     }
 
     bool BoardTests::test21() 
@@ -882,93 +498,31 @@ namespace test
         Fen f(fen1);
         Utility::fen_to_board(f, b);
         Move m1(square::d5, square::a8, MoveType::Capture, piece::bR);
-        Board::KeepBeforeMakeMove keep1{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m1);
-        auto fen_2 = Utility::board_to_fen_string(b);
-        if (fen_2 != fen2)
-        {
-            std::cout << "Board is not correct after make move-1!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen_2 << std::endl;
-            return false;
-        }
+        auto st1 = b.make_move(m1);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen2, 1)) return false;
 
         Move m2(square::e4, square::h1, MoveType::Capture, piece::wR);
-        Board::KeepBeforeMakeMove keep2{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m2);
-        auto fen_3 = Utility::board_to_fen_string(b);
-        if (fen_3 != fen3)
-        {
-            std::cout << "Board is not correct after make move-2!" << std::endl;
-            std::cout << "Expected: " << fen3 << std::endl;
-            std::cout << "Got     : " << fen_3 << std::endl;
-            return false;
-        }
+        auto st2 = b.make_move(m2);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen3, 2)) return false;
 
         Move m3(square::e5, square::h8, MoveType::Capture, piece::bR);
-        Board::KeepBeforeMakeMove keep3{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m3);
-        auto fen_4 = Utility::board_to_fen_string(b);
-        if (fen_4 != fen4)
-        {
-            std::cout << "Board is not correct after make move-3!" << std::endl;
-            std::cout << "Expected: " << fen4 << std::endl;
-            std::cout << "Got     : " << fen_4 << std::endl;
-            return false;
-        }
+        auto st3 = b.make_move(m3);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen4, 3)) return false;
 
         Move m4(square::d4, square::a1, MoveType::Capture, piece::wR);
-        Board::KeepBeforeMakeMove keep4{ b.get_castling_rights(), b.get_en_passant_loc(), b.get_half_move_counter() };
-        b.make_move(m4);
-        auto fen_5 = Utility::board_to_fen_string(b);
-        if (fen_5 != fen5)
-        {
-            std::cout << "Board is not correct after make move-4!" << std::endl;
-            std::cout << "Expected: " << fen5 << std::endl;
-            std::cout << "Got     : " << fen_5 << std::endl;
-            return false;
-        }
+        auto st4 = b.make_move(m4);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen5, 4)) return false;
 
-        b.unmake_move(m4, keep4);
-        auto fen6 = Utility::board_to_fen_string(b);
-        if (fen6 != fen4)
-        {
-            std::cout << "Board is not correct after unmake move-4!" << std::endl;
-            std::cout << "Expected: " << fen4 << std::endl;
-            std::cout << "Got     : " << fen6 << std::endl;
-            return false;
-        }
+        b.unmake_move(m4, st4);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen4, 5)) return false;
 
-        b.unmake_move(m3, keep3);
-        auto fen7 = Utility::board_to_fen_string(b);
-        if (fen7 != fen3)
-        {
-            std::cout << "Board is not correct after unmake move-3!" << std::endl;
-            std::cout << "Expected: " << fen3 << std::endl;
-            std::cout << "Got     : " << fen7 << std::endl;
-            return false;
-        }
+        b.unmake_move(m3, st3);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen3, 6)) return false;
 
-        b.unmake_move(m2, keep2);
-        auto fen8 = Utility::board_to_fen_string(b);
-        if (fen8 != fen2)
-        {
-            std::cout << "Board is not correct after unmake move-2!" << std::endl;
-            std::cout << "Expected: " << fen2 << std::endl;
-            std::cout << "Got     : " << fen8 << std::endl;
-            return false;
-        }
+        b.unmake_move(m2, st2);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen2, 7)) return false;
 
-        b.unmake_move(m1, keep1);
-        auto fen9 = Utility::board_to_fen_string(b);
-        if (fen9 != fen1)
-        {
-            std::cout << "Board is not correct after unmake move-1!" << std::endl;
-            std::cout << "Expected: " << fen1 << std::endl;
-            std::cout << "Got     : " << fen9 << std::endl;
-            return false;
-        }
-
-        return true;
+        b.unmake_move(m1, st1);
+        return compare_fen(Utility::board_to_fen_string(b), fen1, 8);
     }
 }

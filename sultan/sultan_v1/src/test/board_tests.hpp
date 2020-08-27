@@ -10,6 +10,7 @@ namespace test
 
 	public:
 		static void run_test();
+		static bool compare_fen(std::string const& fen, std::string const & expected_fen, int id);
 		static bool test1();
 		static bool test2();
 		static bool test3();

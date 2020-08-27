@@ -9,6 +9,7 @@
 
 #include "move.hpp"
 #include "enums.hpp"
+#include "test/board_tests.hpp"
 
 class Board
 {
@@ -21,18 +22,18 @@ class Board
     int8_t castling_rights;
 
     std::unordered_multimap<int8_t, int8_t> piece_loc; // keys: pieces, values: locations
+    
+    void clear();
+    inline void make_quite_move(int8_t from, int8_t to);
+    void update_piece_loc(int8_t old_loc, int8_t new_loc);
+    void remove_piece(int8_t loc);
+    inline void add_piece(int8_t p, int8_t loc);
+
+    friend class test::BoardTests;
 
 public:
 
     constexpr static int BOARDSIZE = 128;
-
-    struct KeepBeforeMakeMove 
-    {
-        int8_t castling_rights;
-        int8_t en_passant_loc;
-        int16_t half_move_counter;
-    };
-
     Board();
 
     int8_t* get_board();
@@ -59,13 +60,6 @@ public:
     std::unordered_multimap<int8_t, int8_t>& get_piece_locations();
     std::unordered_multimap<int8_t, int8_t> const& get_piece_locations() const;
 
-    void clear();
-
-    void make_move(Move m);
-    inline void make_quite_move(int8_t from, int8_t to);
-    void unmake_move(Move m, KeepBeforeMakeMove const & keep);
-     
-    void update_piece_loc(int8_t old_loc, int8_t new_loc);
-    void remove_piece(int8_t loc);
-    inline void add_piece(int8_t p, int8_t loc);
+    state::BoardState make_move(Move const& mv);
+    void unmake_move(Move const& mv, state::BoardState const& st);
 };

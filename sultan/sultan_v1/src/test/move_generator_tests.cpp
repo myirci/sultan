@@ -16,7 +16,9 @@ namespace test
 		std::vector<bool (*)()> tests{ 
             test1, test2, test3, test4, test5, test6, test7, test8, test9, test10,
             test11, test12, test13, test14, test15, test16, test17, test18, test19, test20,
-		    test21, test22, // , test13  test16,  test19, test20
+		    test21, test22, test23, test24, test25, test26, test27, test28, test29, test30,
+            test31, test32, test33, test34, test35, test36, test37, test38, test39, test40,
+            test41
         };
 		TestBase::run_test("Move Generator", tests);
 	}
@@ -380,7 +382,7 @@ namespace test
             Move(square::e1, square::c1, MoveType::Queen_Side_Castle, def::none),
         };
 
-        mg.generate_king_moves(color::white, false, moves);
+        mg.generate_king_moves(color::white, moves);
         // Utility::print_moves(moves);
 
         return compare_moves(moves, expected_moves);
@@ -405,7 +407,7 @@ namespace test
         };
 
         std::vector<Move> moves;
-        mg.generate_king_moves(color::black, false, moves);
+        mg.generate_king_moves(color::black, moves);
         // Utility::print_moves(moves);
 
         return compare_moves(moves, expected_moves);
@@ -429,7 +431,7 @@ namespace test
             Move(square::e1, square::c1, MoveType::Queen_Side_Castle, def::none),
         };
 
-        mg.generate_king_moves(color::white, false, moves);
+        mg.generate_king_moves(color::white, moves);
         // Utility::print_moves(moves);
 
         return compare_moves(moves, expected_moves);
@@ -450,7 +452,7 @@ namespace test
             Move(square::e4, square::e3, MoveType::Quite, def::none)
         };
 
-        mg.generate_king_moves(color::white, false, moves);
+        mg.generate_king_moves(color::white, moves);
         // Utility::print_moves(moves);
 
         return compare_moves(moves, expected_moves);
@@ -465,14 +467,14 @@ namespace test
         MoveGenerator mg{ b };
         
         return 
-            mg.get_pin_direction(color::white, square::d4) == direction::NW &&
-            mg.get_pin_direction(color::white, square::e4) == direction::N &&
-            mg.get_pin_direction(color::white, square::f4) == direction::NE &&
-            mg.get_pin_direction(color::white, square::d3) == direction::W &&
-            mg.get_pin_direction(color::white, square::f3) == direction::E &&
-            mg.get_pin_direction(color::white, square::d2) == direction::SW &&
-            mg.get_pin_direction(color::white, square::e2) == direction::S &&
-            mg.get_pin_direction(color::white, square::f2) == direction::SE;
+            mg.get_pin_direction(square::d4) == direction::NW &&
+            mg.get_pin_direction(square::e4) == direction::N &&
+            mg.get_pin_direction(square::f4) == direction::NE &&
+            mg.get_pin_direction(square::d3) == direction::W &&
+            mg.get_pin_direction(square::f3) == direction::E &&
+            mg.get_pin_direction(square::d2) == direction::SW &&
+            mg.get_pin_direction(square::e2) == direction::S &&
+            mg.get_pin_direction(square::f2) == direction::SE;
     }
 
     bool MoveGeneratorTests::test16()
@@ -484,12 +486,12 @@ namespace test
         MoveGenerator mg{ b };
 
         return
-            mg.get_pin_direction(color::black, square::c5) == direction::SW &&
-            mg.get_pin_direction(color::black, square::d4) == direction::S &&
-            mg.get_pin_direction(color::black, square::d7) == direction::N &&
-            mg.get_pin_direction(color::black, square::c6) == direction::ND &&
-            mg.get_pin_direction(color::black, square::e6) == direction::ND &&
-            mg.get_pin_direction(color::white, square::e7) == direction::ND;
+            mg.get_pin_direction(square::c5) == direction::SW &&
+            mg.get_pin_direction(square::d4) == direction::S &&
+            mg.get_pin_direction(square::d7) == direction::N &&
+            mg.get_pin_direction(square::c6) == direction::ND &&
+            mg.get_pin_direction(square::e6) == direction::ND &&
+            mg.get_pin_direction(square::e7) == direction::ND;
     }
 
     bool MoveGeneratorTests::test17() 
@@ -655,245 +657,257 @@ namespace test
 
     bool MoveGeneratorTests::test23()
     {
-        return false;
-    }
-
-    /*
-    bool MoveGeneratorTests::test6()
-    {
-        // test: moves for black and white at the initial position
+        // test: knight moves - white
         Board b;
-        Fen f;
+        Fen f("n3k2N/2R2R2/4p3/1n5P/5N2/1pp5/2p1K3/n6N w - - 0 1");
         Utility::fen_to_board(f, b);
-        MoveGenerator mg(b);
+        MoveGenerator mg{ b };
+
+        std::vector<Move> expected_moves
+        {
+            Move(square::h8, square::g6, MoveType::Quite, def::none),
+            Move(square::f4, square::e6, MoveType::Capture, piece::bP),
+            Move(square::f4, square::g6, MoveType::Quite, def::none),
+            Move(square::f4, square::h3, MoveType::Quite, def::none),
+            Move(square::f4, square::g2, MoveType::Quite, def::none),
+            Move(square::f4, square::d3, MoveType::Quite, def::none),
+            Move(square::f4, square::d5, MoveType::Quite, def::none),
+            Move(square::h1, square::g3, MoveType::Quite, def::none),
+            Move(square::h1, square::f2, MoveType::Quite, def::none)
+        };
 
         std::vector<Move> moves;
-
-        auto wattpin = mg.compute_attacks_and_pins(square::e1, 1);
-        auto battpin = mg.compute_attacks_and_pins(square::e8, -1);
-
-        // white pawn moves
-        std::vector<int8_t> wsq
-        {
-            square::a2, square::a3, square::a4,
-            square::b2, square::b3, square::b4,
-            square::c2, square::c3, square::c4,
-            square::d2, square::d3, square::d4,
-            square::e2, square::e3, square::e4,
-            square::f2, square::f3, square::f4,
-            square::g2, square::g3, square::g4,
-            square::h2, square::h3, square::h4
-        };
-
-        for (size_t i = 0; i < 24; i += 3)
-        {
-            mg.generate_pawn_moves(wsq[i], 1, wattpin.second, moves);
-            // Utility::print_moves(moves);
-            if (moves.size() != 2 ||
-                !Utility::is_equal(moves[0], Move(wsq[i], wsq[i + 1], MoveType::Quite, def::none)) ||
-                !Utility::is_equal(moves[1], Move(wsq[i], wsq[i + 2], MoveType::Double_Pawn_Push, def::none)))
-                return false;
-            moves.clear();
-        }
-
-        // black pawn moves
-        std::vector<int8_t> bsq
-        {
-            square::a7, square::a6, square::a5,
-            square::b7, square::b6, square::b5,
-            square::c7, square::c6, square::c5,
-            square::d7, square::d6, square::d5,
-            square::e7, square::e6, square::e5,
-            square::f7, square::f6, square::f5,
-            square::g7, square::g6, square::g5,
-            square::h7, square::h6, square::h5
-        };
-
-        for (size_t i = 0; i < 24; i += 3)
-        {
-            mg.generate_pawn_moves(bsq[i], -1, battpin.second, moves);
-            // Utility::print_moves(moves);
-            if (moves.size() != 2 ||
-                !Utility::is_equal(moves[0], Move(bsq[i], bsq[i + 1], MoveType::Quite, def::none)) ||
-                !Utility::is_equal(moves[1], Move(bsq[i], bsq[i + 2], MoveType::Double_Pawn_Push, def::none)))
-                return false;
-            moves.clear();
-        }
-
-        // Rook moves:
-        mg.generate_sliding_piece_moves(square::a1, piece::Rook, 1, wattpin.second, moves);
-        if (!moves.empty()) return false;
-        mg.generate_sliding_piece_moves(square::h1, piece::Rook, 1, wattpin.second, moves);
-        if (!moves.empty()) return false;
-        mg.generate_sliding_piece_moves(square::a8, piece::Rook, -1, battpin.second, moves);
-        if (!moves.empty()) return false;
-        mg.generate_sliding_piece_moves(square::h8, piece::Rook, -1, battpin.second, moves);
-        if (!moves.empty()) return false;
-
-        // Bishop moves
-        mg.generate_sliding_piece_moves(square::c1, piece::Bishop, 1, wattpin.second, moves);
-        if (!moves.empty()) return false;
-        mg.generate_sliding_piece_moves(square::f1, piece::Bishop, 1, wattpin.second, moves);
-        if (!moves.empty()) return false;
-        mg.generate_sliding_piece_moves(square::c8, piece::Bishop, -1, battpin.second, moves);
-        if (!moves.empty()) return false;
-        mg.generate_sliding_piece_moves(square::f8, piece::Bishop, -1, battpin.second, moves);
-        if (!moves.empty()) return false;
-
-        // Queen moves
-        mg.generate_sliding_piece_moves(square::d1, piece::Queen, 1, wattpin.second, moves);
-        if (!moves.empty()) return false;
-        mg.generate_sliding_piece_moves(square::d8, piece::Queen, -1, battpin.second, moves);
-        if (!moves.empty()) return false;
-
-        // King moves
-        mg.generate_king_moves(square::e1, 1, wattpin.first, moves);
-        if (!moves.empty()) return false;
-        mg.generate_king_moves(square::e8, -1, wattpin.first, moves);
-        if (!moves.empty()) return false;
-
-        // Knight moves
-        mg.generate_knight_moves(square::b1, 1, wattpin.second, moves);
+        mg.generate_knight_moves(color::white, moves);
         // Utility::print_moves(moves);
-        if (moves.size() != 2 ||
-            !Utility::is_equal(moves[0], Move(square::b1, square::c3, MoveType::Quite, def::none)) ||
-            !Utility::is_equal(moves[1], Move(square::b1, square::a3, MoveType::Quite, def::none)))
-            return false;
 
-        moves.clear();
-        mg.generate_knight_moves(square::g1, 1, wattpin.second, moves);
-        // Utility::print_moves(moves);
-        if (moves.size() != 2 ||
-            !Utility::is_equal(moves[0], Move(square::g1, square::h3, MoveType::Quite, def::none)) ||
-            !Utility::is_equal(moves[1], Move(square::g1, square::f3, MoveType::Quite, def::none)))
-            return false;
-
-        moves.clear();
-        mg.generate_knight_moves(square::b8, -1, battpin.second, moves);
-        // Utility::print_moves(moves);
-        if (moves.size() != 2 ||
-            !Utility::is_equal(moves[0], Move(square::b8, square::c6, MoveType::Quite, def::none)) ||
-            !Utility::is_equal(moves[1], Move(square::b8, square::a6, MoveType::Quite, def::none)))
-            return false;
-
-        moves.clear();
-        mg.generate_knight_moves(square::g8, -1, battpin.second, moves);
-        // Utility::print_moves(moves);
-        if (moves.size() != 2 ||
-            !Utility::is_equal(moves[0], Move(square::g8, square::h6, MoveType::Quite, def::none)) ||
-            !Utility::is_equal(moves[1], Move(square::g8, square::f6, MoveType::Quite, def::none)))
-            return false;
-
-        return true;
+        return compare_moves(moves, expected_moves);
     }
 
-    bool MoveGeneratorTests::test7()
+    bool MoveGeneratorTests::test24()
+    {
+        // test: knight moves - white
+        Board b;
+        Fen f("n3k2N/2R2R2/4p3/1n5P/5N2/1pp5/2p1K3/n6N w - - 0 1");
+        Utility::fen_to_board(f, b);
+        MoveGenerator mg{ b };
+
+        std::vector<Move> expected_moves
+        {
+            Move(square::a8, square::c7, MoveType::Capture, piece::wR),
+            Move(square::a8, square::b6, MoveType::Quite, def::none),
+            Move(square::b5, square::a7, MoveType::Quite, def::none),
+            Move(square::b5, square::c7, MoveType::Capture, piece::wR),
+            Move(square::b5, square::d6, MoveType::Quite, def::none),
+            Move(square::b5, square::d4, MoveType::Quite, def::none),
+            Move(square::b5, square::a3, MoveType::Quite, def::none)        
+        };
+
+        std::vector<Move> moves;
+        mg.generate_knight_moves(color::black, moves);
+        // Utility::print_moves(moves);
+
+        return compare_moves(moves, expected_moves);
+    }
+    
+    bool MoveGeneratorTests::test25()
+    {
+        // test: sliding piece moves - white
+        Board b;
+        Fen f("6kB/1B3ppp/1n1P4/2qQ4/1Q3p2/PP2Pn2/R1PR1B2/nRK1N3 w - - 0 1");
+        Utility::fen_to_board(f, b);
+        MoveGenerator mg{ b };
+
+        std::vector<Move> expected_moves
+        {
+            Move(square::d5, square::e5, MoveType::Quite, def::none),
+            Move(square::d5, square::f5, MoveType::Quite, def::none),
+            Move(square::d5, square::g5, MoveType::Quite, def::none),
+            Move(square::d5, square::h5, MoveType::Quite, def::none),
+            Move(square::d5, square::d4, MoveType::Quite, def::none),
+            Move(square::d5, square::d3, MoveType::Quite, def::none),
+            Move(square::d5, square::c5, MoveType::Capture, piece::bQ),
+            Move(square::d5, square::e6, MoveType::Quite, def::none),
+            Move(square::d5, square::f7, MoveType::Capture, piece::bP),
+            Move(square::d5, square::e4, MoveType::Quite, def::none),
+            Move(square::d5, square::f3, MoveType::Capture, piece::bN),
+            Move(square::d5, square::c4, MoveType::Quite, def::none),
+            Move(square::d5, square::c6, MoveType::Quite, def::none),
+            Move(square::b4, square::b5, MoveType::Quite, def::none),
+            Move(square::b4, square::b6, MoveType::Capture, piece::bN),
+            Move(square::b4, square::c4, MoveType::Quite, def::none),
+            Move(square::b4, square::d4, MoveType::Quite, def::none),
+            Move(square::b4, square::e4, MoveType::Quite, def::none),
+            Move(square::b4, square::f4, MoveType::Capture, piece::bP),
+            Move(square::b4, square::a4, MoveType::Quite, def::none),
+            Move(square::b4, square::c5, MoveType::Capture, piece::bQ),
+            Move(square::b4, square::c3, MoveType::Quite, def::none),
+            Move(square::b4, square::a5, MoveType::Quite, def::none),
+            Move(square::a2, square::b2, MoveType::Quite, def::none),
+            Move(square::a2, square::a1, MoveType::Capture, piece::bN),
+            Move(square::d2, square::d3, MoveType::Quite, def::none),
+            Move(square::d2, square::d4, MoveType::Quite, def::none),
+            Move(square::d2, square::e2, MoveType::Quite, def::none),
+            Move(square::d2, square::d1, MoveType::Quite, def::none),
+            Move(square::b1, square::b2, MoveType::Quite, def::none),
+            Move(square::b1, square::a1, MoveType::Capture, piece::bN),
+            Move(square::h8, square::g7, MoveType::Capture, piece::bP),
+            Move(square::b7, square::c8, MoveType::Quite, def::none),
+            Move(square::b7, square::c6, MoveType::Quite, def::none),
+            Move(square::b7, square::a6, MoveType::Quite, def::none),
+            Move(square::b7, square::a8, MoveType::Quite, def::none),
+            Move(square::f2, square::g3, MoveType::Quite, def::none),
+            Move(square::f2, square::h4, MoveType::Quite, def::none),
+            Move(square::f2, square::g1, MoveType::Quite, def::none),
+        };
+
+        std::vector<Move> moves;
+        mg.generate_sliding_piece_moves(color::white, piece::Queen, moves);
+        mg.generate_sliding_piece_moves(color::white, piece::Rook, moves);
+        mg.generate_sliding_piece_moves(color::white, piece::Bishop, moves);
+        // Utility::print_moves(moves);
+        return compare_moves(moves, expected_moves);
+    }
+
+    bool MoveGeneratorTests::test26()
+    {
+        // test: sliding piece moves - black
+        Board b;
+        Fen f("brbrbbbb/bbrbpppp/kN2p3/1ppp4/2p5/8/8/4K3 b - - 0 1");
+        Utility::fen_to_board(f, b);
+        MoveGenerator mg{ b };
+
+        std::vector<Move> expected_moves
+        {
+            Move(square::c7, square::c6, MoveType::Quite, def::none),
+            Move(square::a7, square::b6, MoveType::Capture, piece::wN),
+            Move(square::b7, square::c6, MoveType::Quite, def::none),
+            Move(square::d7, square::c6, MoveType::Quite, def::none),
+        };
+
+        std::vector<Move> moves;
+        mg.generate_sliding_piece_moves(color::black, piece::Queen, moves);
+        mg.generate_sliding_piece_moves(color::black, piece::Rook, moves);
+        mg.generate_sliding_piece_moves(color::black, piece::Bishop, moves);
+        // Utility::print_moves(moves);
+        return compare_moves(moves, expected_moves);
+    }
+    
+    bool MoveGeneratorTests::test27()
     {
         // test en-passant capture: white
         Board b;
         Fen f("4k3/8/8/1pP5/8/8/8/4K3 w - b6 0 1");
         Utility::fen_to_board(f, b);
-        MoveGenerator mg(b);
+        MoveGenerator mg{ b };
+        
+        std::vector<Move> expected_moves
+        {
+            Move(square::c5, square::c6, MoveType::Quite, def::none),
+            Move(square::c5, square::b6, MoveType::En_Passant_Capture, piece::bP)
+        };
+        
         std::vector<Move> moves;
-        auto wattpin = mg.compute_attacks_and_pins(square::e1, 1);
-        mg.generate_pawn_moves(square::c5, 1, wattpin.second, moves);
+        mg.generate_pawn_moves(color::white, moves);
+        
         // Utility::print_moves(moves);
-        if (moves.size() != 2 ||
-            !Utility::is_equal(moves[0], Move(square::c5, square::c6, MoveType::Quite, def::none)) ||
-            !Utility::is_equal(moves[1], Move(square::c5, square::b6, MoveType::En_Passant_Capture, piece::bP)))
-            return false;
-        return true;
+        return compare_moves(moves, expected_moves);
     }
 
-    bool MoveGeneratorTests::test8()
+    bool MoveGeneratorTests::test28()
     {
         // test en-passant capture: white
         Board b;
         Fen f1("4k3/8/8/2Pp4/8/8/8/4K3 w - d6 0 1");
         Utility::fen_to_board(f1, b);
-        MoveGenerator mg(b);
+        MoveGenerator mg{ b };
+
+        std::vector<Move> expected_moves
+        {
+            Move(square::c5, square::c6, MoveType::Quite, def::none),
+            Move(square::c5, square::d6, MoveType::En_Passant_Capture, piece::bP)
+        };
+
         std::vector<Move> moves;
-        auto wattpin = mg.compute_attacks_and_pins(square::e1, 1);
-        mg.generate_pawn_moves(square::c5, 1, wattpin.second, moves);
+        mg.generate_pawn_moves(color::white, moves);
         // Utility::print_moves(moves);
-        if (moves.size() != 2 ||
-            !Utility::is_equal(moves[0], Move(square::c5, square::c6, MoveType::Quite, def::none)) ||
-            !Utility::is_equal(moves[1], Move(square::c5, square::d6, MoveType::En_Passant_Capture, piece::bP)))
-            return false;
-        return true;
+        
+        return compare_moves(moves, expected_moves);
     }
 
-    bool MoveGeneratorTests::test9()
+    bool MoveGeneratorTests::test29()
     {
         // test en-passant capture: black
         Board b;
         Fen f("4k3/8/8/8/4pP2/8/8/4K3 b - f3 0 1");
         Utility::fen_to_board(f, b);
-        MoveGenerator mg(b);
+        MoveGenerator mg{ b };
+
+        std::vector<Move> expected_moves
+        {
+            Move(square::e4, square::e3, MoveType::Quite, def::none),
+            Move(square::e4, square::f3, MoveType::En_Passant_Capture, piece::wP)
+        };
+
         std::vector<Move> moves;
-        auto wattpin = mg.compute_attacks_and_pins(square::e8, -1);
-        mg.generate_pawn_moves(square::e4, -1, wattpin.second, moves);
+        mg.generate_pawn_moves(color::black, moves);
         // Utility::print_moves(moves);
-        if (moves.size() != 2 ||
-            !Utility::is_equal(moves[0], Move(square::e4, square::e3, MoveType::Quite, def::none)) ||
-            !Utility::is_equal(moves[1], Move(square::e4, square::f3, MoveType::En_Passant_Capture, piece::wP)))
-            return false;
-        return true;
+        
+        return compare_moves(moves, expected_moves);
     }
 
-    bool MoveGeneratorTests::test10()
+    bool MoveGeneratorTests::test30()
     {
         // test en-passant capture: black
         Board b;
         Fen f1("4k3/8/8/8/3Pp3/8/8/4K3 b - d3 0 1");
         Utility::fen_to_board(f1, b);
-        MoveGenerator mg(b);
+        MoveGenerator mg{ b };
+        
+        std::vector<Move> expected_moves
+        {
+            Move(square::e4, square::e3, MoveType::Quite, def::none),
+            Move(square::e4, square::d3, MoveType::En_Passant_Capture, piece::wP)
+        };
+
         std::vector<Move> moves;
-        auto wattpin = mg.compute_attacks_and_pins(square::e8, -1);
-        mg.generate_pawn_moves(square::e4, -1, wattpin.second, moves);
+        mg.generate_pawn_moves(color::black, moves);
         // Utility::print_moves(moves);
-        if (moves.size() != 2 ||
-            !Utility::is_equal(moves[0], Move(square::e4, square::e3, MoveType::Quite, def::none)) ||
-            !Utility::is_equal(moves[1], Move(square::e4, square::d3, MoveType::En_Passant_Capture, piece::wP)))
-            return false;
-        return true;
+
+        return compare_moves(moves, expected_moves);
     }
 
-    bool MoveGeneratorTests::test11()
+    bool MoveGeneratorTests::test31()
     {
         // test: en-passant capture in the pinned direction: white
         Board b;
-        Fen f("8/q7/8/1pP5/3K4/8/8/8 w - b6 0 1");
+        Fen f("7k/q7/8/1pP5/3K4/8/8/8 w - b6 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg(b);
 
+        std::vector<Move> expected_moves{ Move(square::c5, square::b6, MoveType::En_Passant_Capture, piece::bP) };
+
         std::vector<Move> moves;
-        auto wattpin = mg.compute_attacks_and_pins(square::d4, 1);
-        mg.generate_pawn_moves(square::c5, 1, wattpin.second, moves);
+        mg.generate_pawn_moves(color::white, moves);
         // Utility::print_moves(moves);
-        if (moves.size() != 1 || !Utility::is_equal(moves[0], Move(square::c5, square::b6, MoveType::En_Passant_Capture, piece::bP)))
-            return false;
-        return true;
+
+        return compare_moves(moves, expected_moves);
     }
 
-    bool MoveGeneratorTests::test12()
+    bool MoveGeneratorTests::test32()
     {
         // test: prevented en-passant capture due to pin: white
         Board b;
-        Fen f("8/q7/8/2Pp4/3K4/8/8/8 w - d6 0 1");
+        Fen f("7k/q7/8/2Pp4/3K4/8/8/8 w - d6 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg(b);
 
         std::vector<Move> moves;
-        auto wattpin = mg.compute_attacks_and_pins(square::d4, 1);
-        mg.generate_pawn_moves(square::c5, 1, wattpin.second, moves);
-        Utility::print_moves(moves);
-        if (!moves.empty())
-            return false;
-        return true;
+        mg.generate_pawn_moves(color::white, moves);
+        // Utility::print_moves(moves);
+        return moves.empty();
     }
 
-    bool MoveGeneratorTests::test13()
+    bool MoveGeneratorTests::test33()
     {
         // test: en-passant capture in the pinned direction: black
         Board b;
@@ -901,16 +915,16 @@ namespace test
         Utility::fen_to_board(f, b);
         MoveGenerator mg(b);
 
+        std::vector<Move> expected_moves{ Move(square::e4, square::d3, MoveType::En_Passant_Capture, piece::wP) };
+
         std::vector<Move> moves;
-        auto battpin = mg.compute_attacks_and_pins(square::h7, -1);
-        mg.generate_pawn_moves(square::e4, -1, battpin.second, moves);
+        mg.generate_pawn_moves(color::black, moves);
         // Utility::print_moves(moves);
-        if (moves.size() != 1 || !Utility::is_equal(moves[0], Move(square::e4, square::d3, MoveType::En_Passant_Capture, piece::wP)))
-            return false;
-        return true;
+
+        return compare_moves(moves, expected_moves);
     }
 
-    bool MoveGeneratorTests::test14()
+    bool MoveGeneratorTests::test34()
     {
         // test: prevented en-passant capture due to pin: black
         Board b;
@@ -919,196 +933,189 @@ namespace test
         MoveGenerator mg(b);
 
         std::vector<Move> moves;
-        auto battpin = mg.compute_attacks_and_pins(square::b7, -1);
-        mg.generate_pawn_moves(square::e4, -1, battpin.second, moves);
-        Utility::print_moves(moves);
-        if (!moves.empty())
-            return false;
-        return true;
+        mg.generate_pawn_moves(color::black, moves);
+        // Utility::print_moves(moves);
+        return moves.empty();
     }
 
-    bool MoveGeneratorTests::test15()
+    bool MoveGeneratorTests::test35()
     {
-        // test: pawn promotions with and without capture: white
+        // test: pawn moves, white
         Board b;
-        Fen f("1r1n1n2/P1P1PP1P/4r3/2k4b/2b5/3PPP2/4K3/8 w - - 0 1");
+        Fen f("1r1n1n2/P1P2P1P/4r3/2k4b/2b5/3PPP2/1P2K3/8 w - - 0 1");
         Utility::fen_to_board(f, b);
-        MoveGenerator mg(b);
-        auto wattpin = mg.compute_attacks_and_pins(square::e2, 1);
-        std::vector<Move> moves;
-
-        mg.generate_pawn_moves(square::a7, 1, wattpin.second, moves);
-        // Utility::print_moves(moves);
-        if (moves.size() != 8 ||
-            !Utility::is_equal(moves[0], Move(square::a7, square::a8, MoveType::Queen_Promotion, def::none)) ||
-            !Utility::is_equal(moves[1], Move(square::a7, square::a8, MoveType::Knight_Promotion, def::none)) ||
-            !Utility::is_equal(moves[2], Move(square::a7, square::a8, MoveType::Bishop_Promotion, def::none)) ||
-            !Utility::is_equal(moves[3], Move(square::a7, square::a8, MoveType::Rook_Promotion, def::none)) ||
-            !Utility::is_equal(moves[4], Move(square::a7, square::b8, MoveType::Queen_Promotion_Capture, piece::bR)) ||
-            !Utility::is_equal(moves[5], Move(square::a7, square::b8, MoveType::Knight_Promotion_Capture, piece::bR)) ||
-            !Utility::is_equal(moves[6], Move(square::a7, square::b8, MoveType::Bishop_Promotion_Capture, piece::bR)) ||
-            !Utility::is_equal(moves[7], Move(square::a7, square::b8, MoveType::Rook_Promotion_Capture, piece::bR)))
-            return false;
-        moves.clear();
-
-        mg.generate_pawn_moves(square::c7, 1, wattpin.second, moves);
-        // Utility::print_moves(moves);
-        if (moves.size() != 12 ||
-            !Utility::is_equal(moves[0], Move(square::c7, square::c8, MoveType::Queen_Promotion, def::none)) ||
-            !Utility::is_equal(moves[1], Move(square::c7, square::c8, MoveType::Knight_Promotion, def::none)) ||
-            !Utility::is_equal(moves[2], Move(square::c7, square::c8, MoveType::Bishop_Promotion, def::none)) ||
-            !Utility::is_equal(moves[3], Move(square::c7, square::c8, MoveType::Rook_Promotion, def::none)) ||
-            !Utility::is_equal(moves[4], Move(square::c7, square::d8, MoveType::Queen_Promotion_Capture, piece::bN)) ||
-            !Utility::is_equal(moves[5], Move(square::c7, square::d8, MoveType::Knight_Promotion_Capture, piece::bN)) ||
-            !Utility::is_equal(moves[6], Move(square::c7, square::d8, MoveType::Bishop_Promotion_Capture, piece::bN)) ||
-            !Utility::is_equal(moves[7], Move(square::c7, square::d8, MoveType::Rook_Promotion_Capture, piece::bN)) ||
-            !Utility::is_equal(moves[8], Move(square::c7, square::b8, MoveType::Queen_Promotion_Capture, piece::bR)) ||
-            !Utility::is_equal(moves[9], Move(square::c7, square::b8, MoveType::Knight_Promotion_Capture, piece::bR)) ||
-            !Utility::is_equal(moves[10], Move(square::c7, square::b8, MoveType::Bishop_Promotion_Capture, piece::bR)) ||
-            !Utility::is_equal(moves[11], Move(square::c7, square::b8, MoveType::Rook_Promotion_Capture, piece::bR)))
-            return false;
-        moves.clear();
-
-        mg.generate_pawn_moves(square::h7, 1, wattpin.second, moves);
-        // Utility::print_moves(moves);
-        if (moves.size() != 4 ||
-            !Utility::is_equal(moves[0], Move(square::h7, square::h8, MoveType::Queen_Promotion, def::none)) ||
-            !Utility::is_equal(moves[1], Move(square::h7, square::h8, MoveType::Knight_Promotion, def::none)) ||
-            !Utility::is_equal(moves[2], Move(square::h7, square::h8, MoveType::Bishop_Promotion, def::none)) ||
-            !Utility::is_equal(moves[3], Move(square::h7, square::h8, MoveType::Rook_Promotion, def::none)))
-            return false;
-        moves.clear();
-
-        mg.generate_pawn_moves(square::f7, 1, wattpin.second, moves);
-        if (!moves.empty())
-            return false;
-
-        mg.generate_pawn_moves(square::f3, 1, wattpin.second, moves);
-        if (!moves.empty())
-            return false;
-
-        mg.generate_pawn_moves(square::d3, 1, wattpin.second, moves);
-        // Utility::print_moves(moves);
-        if (moves.size() != 1 ||
-            !Utility::is_equal(moves[0], Move(square::d3, square::c4, MoveType::Capture, piece::bB)))
-            return false;
-        moves.clear();
-
-        mg.generate_pawn_moves(square::e3, 1, wattpin.second, moves);
-        // Utility::print_moves(moves);
-        if (moves.size() != 1 ||
-            !Utility::is_equal(moves[0], Move(square::e3, square::e4, MoveType::Quite, def::none)))
-            return false;
-        moves.clear();
-        return true;
-    }
-
-    bool MoveGeneratorTests::test16()
-    {
-        // test: prevented en-passant capture due to pin: black
-        Board b;
-        Fen f("1k6/8/8/4p3/3PPP2/8/pK1p3p/NNQ1B1R1 b - - 0 1");
-        Utility::fen_to_board(f, b);
-        MoveGenerator mg(b);
+        MoveGenerator mg{ b };
+       
+        std::vector<Move> expected_moves
+        {
+            Move(square::a7, square::a8, MoveType::Queen_Promotion, def::none),
+            Move(square::a7, square::a8, MoveType::Knight_Promotion, def::none),
+            Move(square::a7, square::a8, MoveType::Bishop_Promotion, def::none),
+            Move(square::a7, square::a8, MoveType::Rook_Promotion, def::none),
+            Move(square::a7, square::b8, MoveType::Queen_Promotion_Capture, piece::bR),
+            Move(square::a7, square::b8, MoveType::Knight_Promotion_Capture, piece::bR),
+            Move(square::a7, square::b8, MoveType::Bishop_Promotion_Capture, piece::bR),
+            Move(square::a7, square::b8, MoveType::Rook_Promotion_Capture, piece::bR),
+            Move(square::c7, square::c8, MoveType::Queen_Promotion, def::none),
+            Move(square::c7, square::c8, MoveType::Knight_Promotion, def::none),
+            Move(square::c7, square::c8, MoveType::Bishop_Promotion, def::none),
+            Move(square::c7, square::c8, MoveType::Rook_Promotion, def::none),
+            Move(square::c7, square::d8, MoveType::Queen_Promotion_Capture, piece::bN),
+            Move(square::c7, square::d8, MoveType::Knight_Promotion_Capture, piece::bN),
+            Move(square::c7, square::d8, MoveType::Bishop_Promotion_Capture, piece::bN),
+            Move(square::c7, square::d8, MoveType::Rook_Promotion_Capture, piece::bN),
+            Move(square::c7, square::b8, MoveType::Queen_Promotion_Capture, piece::bR),
+            Move(square::c7, square::b8, MoveType::Knight_Promotion_Capture, piece::bR),
+            Move(square::c7, square::b8, MoveType::Bishop_Promotion_Capture, piece::bR),
+            Move(square::c7, square::b8, MoveType::Rook_Promotion_Capture, piece::bR),
+            Move(square::h7, square::h8, MoveType::Queen_Promotion, def::none),
+            Move(square::h7, square::h8, MoveType::Knight_Promotion, def::none),
+            Move(square::h7, square::h8, MoveType::Bishop_Promotion, def::none),
+            Move(square::h7, square::h8, MoveType::Rook_Promotion, def::none),
+            Move(square::d3, square::c4, MoveType::Capture, piece::bB),
+            Move(square::e3, square::e4, MoveType::Quite, def::none),
+            Move(square::b2, square::b3, MoveType::Quite, def::none),
+            Move(square::b2, square::b4, MoveType::Double_Pawn_Push, def::none),
+        };
 
         std::vector<Move> moves;
-        auto battpin = mg.compute_attacks_and_pins(square::b8, -1);
-        mg.generate_pawn_moves(square::a2, -1, battpin.second, moves);
+        mg.generate_pawn_moves(color::white, moves);
         // Utility::print_moves(moves);
-        if (moves.size() != 4 ||
-            !Utility::is_equal(moves[0], Move(square::a2, square::b1, MoveType::Queen_Promotion_Capture, piece::wN)) ||
-            !Utility::is_equal(moves[1], Move(square::a2, square::b1, MoveType::Knight_Promotion_Capture, piece::wN)) ||
-            !Utility::is_equal(moves[2], Move(square::a2, square::b1, MoveType::Bishop_Promotion_Capture, piece::wN)) ||
-            !Utility::is_equal(moves[3], Move(square::a2, square::b1, MoveType::Rook_Promotion_Capture, piece::wN)))
-            return false;
-        moves.clear();
-
-        mg.generate_pawn_moves(square::d2, -1, battpin.second, moves);
-        // Utility::print_moves(moves);
-        if (moves.size() != 12 ||
-            !Utility::is_equal(moves[0], Move(square::d2, square::d1, MoveType::Queen_Promotion, def::none)) ||
-            !Utility::is_equal(moves[1], Move(square::d2, square::d1, MoveType::Knight_Promotion, def::none)) ||
-            !Utility::is_equal(moves[2], Move(square::d2, square::d1, MoveType::Bishop_Promotion, def::none)) ||
-            !Utility::is_equal(moves[3], Move(square::d2, square::d1, MoveType::Rook_Promotion, def::none)) ||
-            !Utility::is_equal(moves[4], Move(square::d2, square::c1, MoveType::Queen_Promotion_Capture, piece::wQ)) ||
-            !Utility::is_equal(moves[5], Move(square::d2, square::c1, MoveType::Knight_Promotion_Capture, piece::wQ)) ||
-            !Utility::is_equal(moves[6], Move(square::d2, square::c1, MoveType::Bishop_Promotion_Capture, piece::wQ)) ||
-            !Utility::is_equal(moves[7], Move(square::d2, square::c1, MoveType::Rook_Promotion_Capture, piece::wQ)) ||
-            !Utility::is_equal(moves[8], Move(square::d2, square::e1, MoveType::Queen_Promotion_Capture, piece::wB)) ||
-            !Utility::is_equal(moves[9], Move(square::d2, square::e1, MoveType::Knight_Promotion_Capture, piece::wB)) ||
-            !Utility::is_equal(moves[10], Move(square::d2, square::e1, MoveType::Bishop_Promotion_Capture, piece::wB)) ||
-            !Utility::is_equal(moves[11], Move(square::d2, square::e1, MoveType::Rook_Promotion_Capture, piece::wB)))
-            return false;
-        moves.clear();
-
-        mg.generate_pawn_moves(square::e5, -1, battpin.second, moves);
-        // Utility::print_moves(moves);
-        if (moves.size() != 2 ||
-            !Utility::is_equal(moves[0], Move(square::e5, square::d4, MoveType::Capture, piece::wP)) ||
-            !Utility::is_equal(moves[1], Move(square::e5, square::f4, MoveType::Capture, piece::wP)))
-            return false;
-        moves.clear();
-        return true;
+        
+        return compare_moves(moves, expected_moves);
     }
 
-    bool MoveGeneratorTests::test17() 
+    bool MoveGeneratorTests::test36()
+    {
+        // test: pawn moves, black
+        Board b;
+        Fen f("2k5/2p5/8/4p3/3PPP2/8/pK1p4/NNQ1B1R1 b - - 0 1");
+        Utility::fen_to_board(f, b);
+        MoveGenerator mg{ b };
+
+        std::vector<Move> expected_moves
+        {
+            Move(square::c7, square::c6, MoveType::Quite, def::none),
+            Move(square::c7, square::c5, MoveType::Double_Pawn_Push, def::none),
+            Move(square::e5, square::d4, MoveType::Capture, piece::wP),
+            Move(square::e5, square::f4, MoveType::Capture, piece::wP),
+            Move(square::a2, square::b1, MoveType::Queen_Promotion_Capture, piece::wN),
+            Move(square::a2, square::b1, MoveType::Knight_Promotion_Capture, piece::wN),
+            Move(square::a2, square::b1, MoveType::Bishop_Promotion_Capture, piece::wN),
+            Move(square::a2, square::b1, MoveType::Rook_Promotion_Capture, piece::wN),
+            Move(square::d2, square::d1, MoveType::Queen_Promotion, def::none),
+            Move(square::d2, square::d1, MoveType::Knight_Promotion, def::none),
+            Move(square::d2, square::d1, MoveType::Bishop_Promotion, def::none),
+            Move(square::d2, square::d1, MoveType::Rook_Promotion, def::none),
+            Move(square::d2, square::c1, MoveType::Queen_Promotion_Capture, piece::wQ),
+            Move(square::d2, square::c1, MoveType::Knight_Promotion_Capture, piece::wQ),
+            Move(square::d2, square::c1, MoveType::Bishop_Promotion_Capture, piece::wQ),
+            Move(square::d2, square::c1, MoveType::Rook_Promotion_Capture, piece::wQ),
+            Move(square::d2, square::e1, MoveType::Queen_Promotion_Capture, piece::wB),
+            Move(square::d2, square::e1, MoveType::Knight_Promotion_Capture, piece::wB),
+            Move(square::d2, square::e1, MoveType::Bishop_Promotion_Capture, piece::wB),
+            Move(square::d2, square::e1, MoveType::Rook_Promotion_Capture, piece::wB)
+        };
+
+        std::vector<Move> moves;
+        mg.generate_pawn_moves(color::black, moves);
+        // Utility::print_moves(moves);
+        
+        return compare_moves(moves, expected_moves);
+    }
+
+    bool MoveGeneratorTests::test37()
+    {
+        // test: sliding piece moves under pins
+        Board b;
+        Fen f("2r2nk1/5ppb/8/2R5/4Q3/8/2K1Q1r1/8 w - - 0 1");
+        Utility::fen_to_board(f, b);
+        MoveGenerator mg{ b };
+
+        std::vector<Move> expected_moves
+        {
+            Move(square::c5, square::c6, MoveType::Quite, def::none),
+            Move(square::c5, square::c7, MoveType::Quite, def::none),
+            Move(square::c5, square::c8, MoveType::Capture, piece::bR),
+            Move(square::c5, square::c4, MoveType::Quite, def::none),
+            Move(square::c5, square::c3, MoveType::Quite, def::none),
+            Move(square::e4, square::f5, MoveType::Quite, def::none),
+            Move(square::e4, square::g6, MoveType::Quite, def::none),
+            Move(square::e4, square::h7, MoveType::Capture, piece::bB),
+            Move(square::e4, square::d3, MoveType::Quite, def::none),
+            Move(square::e2, square::f2, MoveType::Quite, def::none),
+            Move(square::e2, square::g2, MoveType::Capture, piece::bR),
+            Move(square::e2, square::d2, MoveType::Quite, def::none),
+        };
+
+        std::vector<Move> moves;
+        mg.generate_sliding_piece_moves(color::white, piece::Rook, moves);
+        mg.generate_sliding_piece_moves(color::white, piece::Queen, moves);
+        // Utility::print_moves(moves);
+
+        return compare_moves(moves, expected_moves);
+    }
+
+    bool MoveGeneratorTests::test38()
     {
         // moves under check - for white
         Board b;
         Fen f("rnbqkb1r/pppppppp/8/8/4n3/3P4/PPPKPPPP/RNBQ1BNR w kq - 0 1");
         Utility::fen_to_board(f, b);
-        MoveGenerator mg(b);
-        auto moves = mg.generate_moves();
+        MoveGenerator mg{ b };
+        
+        std::vector<Move> expected_moves
+        {
+            Move(square::d2, square::e3, MoveType::Quite, def::none),
+            Move(square::d2, square::e1, MoveType::Quite, def::none),
+            Move(square::d3, square::e4, MoveType::Capture, piece::bN)
+        };
 
-        return
-            moves.size() == 3 &&
-            Utility::is_equal(moves[0], Move(square::d2, square::e3, MoveType::Quite, def::none)) &&
-            Utility::is_equal(moves[1], Move(square::d2, square::e1, MoveType::Quite, def::none)) &&
-            Utility::is_equal(moves[2], Move(square::d3, square::e4, MoveType::Capture, piece::bN));
+        auto moves = mg.generate_moves();
+        return compare_moves(moves, expected_moves);
     }
-    
-    bool MoveGeneratorTests::test18()
+
+    bool MoveGeneratorTests::test39()
     {
         // moves under check - for white
         Board b;
         Fen f("rnb1kbnr/pp1ppppp/2p5/q7/8/3P4/PPPKPPPP/RNBQ1BNR w kq - 0 1");
         Utility::fen_to_board(f, b);
-        MoveGenerator mg(b);
+        MoveGenerator mg{ b };
+        
+        std::vector<Move> expected_moves
+        {
+            Move(square::d2, square::e3, MoveType::Quite, def::none),
+            Move(square::b1, square::c3, MoveType::Quite, def::none),
+            Move(square::c2, square::c3, MoveType::Quite, def::none),
+            Move(square::b2, square::b4, MoveType::Double_Pawn_Push, def::none)
+        };
         auto moves = mg.generate_moves();
-
-        return
-            moves.size() == 4 &&
-            Utility::is_equal(moves[0], Move(square::d2, square::e3, MoveType::Quite, def::none)) &&
-            Utility::is_equal(moves[1], Move(square::b1, square::c3, MoveType::Quite, def::none)) &&
-            Utility::is_equal(moves[2], Move(square::c2, square::c3, MoveType::Quite, def::none)) &&
-            Utility::is_equal(moves[3], Move(square::b2, square::b4, MoveType::Double_Pawn_Push, def::none));
+        // Utility::print_moves(moves);
+        return compare_moves(moves, expected_moves);
     }
 
-    bool MoveGeneratorTests::test19()
+    bool MoveGeneratorTests::test40()
     {
         // double check: check mate!
         Board b;
         Fen f("rnbqkb1r/ppp1ppp1/3N1n1p/3p4/Q7/2P5/PP1PPPPP/R1B1KBNR b KQkq - 0 1");
         Utility::fen_to_board(f, b);
-        MoveGenerator mg(b);
+        MoveGenerator mg { b };
         auto moves = mg.generate_moves();
-
         return moves.size() == 0;
     }
 
-    bool MoveGeneratorTests::test20()
+    bool MoveGeneratorTests::test41()
     {
-        // double check: check mate!
+        // double check!
         Board b;
         Fen f("rnbqk2r/ppp1ppp1/3N1n1p/3p4/Q7/2P5/PP1PPPPP/R1B1KBNR b KQkq - 0 1");
         Utility::fen_to_board(f, b);
-        MoveGenerator mg(b);
+        std::vector<Move> expected_moves { Move(square::e8, square::f8, MoveType::Quite, def::none) };
+        MoveGenerator mg{ b };
         auto moves = mg.generate_moves();
-
-        return moves.size() == 1 && Utility::is_equal(moves[0], Move(square::e8, square::f8, MoveType::Quite, def::none));
+        return compare_moves(moves, expected_moves);
     }
 
-    
-
-    */
 }

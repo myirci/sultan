@@ -1,5 +1,5 @@
 #include "perft_tests.hpp"
-#include "../engine.hpp"
+#include "../perft.hpp"
 
 #include <iostream>
 
@@ -13,6 +13,10 @@ namespace test
 
     void PerftTests::debug_func() 
     {
+        Perft p("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        // std::cout << p.perft(1) << std::endl;
+
+        /*
         perft::perft_stats stats;
 
         Engine e("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
@@ -38,10 +42,12 @@ namespace test
 
         // Engine e("r1bqkbnr/pppppppp/2n5/8/P7/1P6/2PPPPPP/RNBQKBNR b KQkq - 0 1");
         // auto res = e.perft_divide(3);
+        */
     }
 
     bool PerftTests::test1()
     {
+        /*
         std::vector<int64_t> perft_results{ 20, 400, 8902, 197281, 4865609, 119060324 };
         for (size_t i = 0; i < perft_results.size(); i++) 
         {
@@ -57,6 +63,7 @@ namespace test
                 return false;
             }
         }
+        */
         return true;
     }
 
