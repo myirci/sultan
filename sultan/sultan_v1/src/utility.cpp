@@ -178,6 +178,7 @@ void Utility::print_board(Board const & b, bool full)
     std::cout << "\n";    
 }
 
+/*
 void Utility::generate_and_print_moves(Board const& board) 
 {
     MoveGenerator mg{ board };
@@ -187,6 +188,7 @@ void Utility::generate_and_print_moves(Board const& board)
         std::cout << *it << " ";
     std::cout << std::endl;
 }
+*/
 
 void Utility::print_moves(std::vector<Move> const& moves) 
 {
@@ -196,26 +198,22 @@ void Utility::print_moves(std::vector<Move> const& moves)
 
 void Utility::print_move(Move m) 
 {
-    auto captured = m.is_capture() ? " Captured " + piece::piece_to_char.find(m.get_captured_piece())->second : "";
+    auto captured = m.is_capture() ? piece::piece_to_char.find(m.get_captured_piece())->second : ' ';
     std::cout
         << "From: " << square::square_to_string(m.get_from())
         << " To: " << square::square_to_string(m.get_to())
-        << " Type: " << Utility::move_type_to_chararr.find(m.get_move_type())->second
-        << captured << std::endl;
+        << " Type: " << Utility::move_type_to_chararr.find(m.get_move_type())->second << " " << captured << std::endl;
 }
 
-void Utility::print_attack_and_pins(std::pair<std::vector<MoveGenerator::Attack>, std::vector<MoveGenerator::Pin>> const& ap)
+/*
+void Utility::print_attacks(std::vector<attack::AttackInfo> const& attack_infos)
 {
-    for (auto it = ap.first.begin(); it != ap.first.end(); it++)
-        std::cout << "Attacker loc: " << square::square_to_string(it->attacker_loc)
-        << " Attack dir: " << direction::direction_to_chararray.find(it->attack_dir)->second
-        << std::endl;
-
-    std::cout << "-----------------------------------------\n";
-
-    for (auto it = ap.second.begin(); it != ap.second.end(); it++)
-        std::cout << "Pinner loc: " << square::square_to_string(it->pinner_loc)
-        << " Pinned loc: " << square::square_to_string(it->pinned_loc)
-        << " Pin dir: " << direction::direction_to_chararray.find(it->pin_dir)->second
-        << std::endl;
+    for (auto it = attack_infos.begin(); it != attack_infos.end(); it++) 
+    {
+        std::cout << "attacker loc:\t" << square::square_to_string(it->attacker_loc)
+                  << ", \tattack dir:\t" << direction::direction_to_chararray.find(it->attack_dir)->second
+                  << ", \ttarget square:\t" << square::square_to_string(it->target_loc)
+                  << std::endl;
+    } 
 }
+*/

@@ -23,11 +23,10 @@ int main()
     test::PieceTests::run_test();
     test::BoardTests::run_test();
     test::UtilityTests::run_test();
+    test::MoveGeneratorTests::run_test();
     */
-    // test::MoveGeneratorTests::run_test();
+
     // test::PerftTests::run_test();
-
-
     // test::MoveGeneratorTests::debug_func();
     test::PerftTests::debug_func();
     

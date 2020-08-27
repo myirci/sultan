@@ -74,16 +74,18 @@ void Board::make_quite_move(int8_t from, int8_t to)
     board[from] = piece::eM;
 }
 
-void Board::make_move(Move m) 
+state::BoardState Board::make_move(Move const& mv)
 {
-    int8_t from{ m.get_from() }, to{ m.get_to() };
-    MoveType mtype{ m.get_move_type() };
+    state::BoardState st{ castling_rights, en_passant_loc, half_move_counter };
+
+    int8_t from{ mv.get_from() }, to{ mv.get_to() };
+    MoveType mtype{ mv.get_move_type() };
 
     // update half move counter
-    half_move_counter = (board[from] * side_to_move == piece::Pawn || m.is_capture()) ? 0 : half_move_counter + 1;
+    half_move_counter = (board[from] * side_to_move == piece::Pawn || mv.is_capture()) ? 0 : half_move_counter + 1;
 
     // remove captured piece from the piece locations
-    if (m.is_capture()) 
+    if (mv.is_capture()) 
     {
         if (mtype == MoveType::En_Passant_Capture) 
         {
@@ -97,7 +99,7 @@ void Board::make_move(Move m)
 
             if (castling_rights != 0)
             {
-                int8_t captured{ m.get_captured_piece() };
+                int8_t captured{ mv.get_captured_piece() };
                 if (captured == piece::wR)
                 {
                     if (to == square::h1)       set_castling_rights(Castling::white_king_side, false);
@@ -115,7 +117,7 @@ void Board::make_move(Move m)
     // update en passant location
     en_passant_loc = (mtype == MoveType::Double_Pawn_Push) ? (from + side_to_move * direction::N) : (def::none);
     
-    if (m.is_promotion())
+    if (mv.is_promotion())
     {
         int8_t p = side_to_move * piece::Bishop;
         if (mtype == MoveType::Queen_Promotion || mtype == MoveType::Queen_Promotion_Capture)           p = side_to_move * piece::Queen;
@@ -168,27 +170,29 @@ void Board::make_move(Move m)
     if (side_to_move == color::black) full_move_counter++;
     
     side_to_move = -side_to_move;
+
+    return std::move(st);
 }
 
-void Board::unmake_move(Move m, KeepBeforeMakeMove const & keep)
+void Board::unmake_move(Move const& mv, state::BoardState const& st)
 {
     // restore side to move 
     side_to_move = -side_to_move;
 
     // restore the castling rights, en-passant location and half move counters
-    castling_rights = keep.castling_rights;
-    en_passant_loc = keep.en_passant_loc;
-    half_move_counter = keep.half_move_counter;
+    castling_rights = st.castling_rights;
+    en_passant_loc = st.en_passant_loc;
+    half_move_counter = st.half_move_counter;
 
     // restore the full move counters
     if (side_to_move == color::black) 
         full_move_counter--;
 
     // restore pieces
-    int8_t from{ m.get_from() }, to{ m.get_to() };
-    MoveType mtype{ m.get_move_type() };
+    int8_t from{ mv.get_from() }, to{ mv.get_to() };
+    MoveType mtype{ mv.get_move_type() };
 
-    if (m.is_promotion()) 
+    if (mv.is_promotion())
     {
         int8_t p = side_to_move * piece::Pawn;
         remove_piece(to);
@@ -212,7 +216,7 @@ void Board::unmake_move(Move m, KeepBeforeMakeMove const & keep)
         }
     }
 
-    if (m.is_capture()) 
+    if (mv.is_capture())
     {
         if (mtype == MoveType::En_Passant_Capture)
         {
@@ -223,7 +227,7 @@ void Board::unmake_move(Move m, KeepBeforeMakeMove const & keep)
         }
         else 
         {
-            int8_t p{ m.get_captured_piece() };
+            int8_t p{ mv.get_captured_piece() };
             board[to] = p;
             add_piece(p, to);
         }
