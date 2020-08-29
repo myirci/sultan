@@ -20,7 +20,6 @@ class MoveGenerator
     // key: target loc, value: attacker loc and attack direction, double entry is only possible in the case of double check
     std::unordered_multimap<int8_t, std::pair<int8_t, int8_t>> attack_info;  
 
-    int8_t find_king_pos(int8_t clr) const;
     void compute_checks_and_pins(int8_t attacking_side);
     bool is_under_attack(int8_t attacking_side, int8_t target_sq, int8_t defender_king_pos = def::none) const;
     int8_t MoveGenerator::get_pin_direction(int8_t sq) const;
@@ -41,4 +40,6 @@ public:
     MoveGenerator(Board const& b);
     std::vector<Move> generate_moves() const;
     void compute_attacks();
+    int8_t find_king_pos(int8_t clr) const;
+    std::unordered_multimap<int8_t, std::pair<int8_t, int8_t>> const & get_attack_info() const;
 };

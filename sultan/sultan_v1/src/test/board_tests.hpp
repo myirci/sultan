@@ -32,5 +32,7 @@ namespace test
 		static bool test19();
 		static bool test20();
 		static bool test21();
+		static bool test22();
+		static bool test23();
 	};
 }

@@ -1,75 +1,96 @@
 #include "perft_tests.hpp"
 #include "../perft.hpp"
+#include "../utility.hpp"
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 namespace test 
 {
     void PerftTests::run_test()
     {
-        std::vector<bool (*)()> tests{ test1 };
+        std::vector<bool (*)()> tests{ initial_pos_test };
         TestBase::run_test("Perft", tests);
+    }
+
+    bool PerftTests::perft(std::string const& fen, std::vector<uint64_t> const& perft_results) 
+    {
+        std::cout << "Position: " << fen << std::endl;
+        for (size_t i = 0; i < perft_results.size(); i++)
+        {
+            Perft p(fen);
+            auto res = p.perft(i + 1);
+            if (res == perft_results[i])
+            {
+                std::cout << "\tPeft-" << i + 1 << " computed correctly: " << res << std::endl;
+            }
+            else
+            {
+                std::cout << "\tPerft error! expected: " << perft_results[i] << ", got: " << res << std::endl;
+                return false;
+            }
+        }
+        return true;
     }
 
     void PerftTests::debug_func() 
     {
-        Perft p("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-        // std::cout << p.perft(1) << std::endl;
+        // Perft p("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1");
+        //p.perft_divide(2);
 
-        /*
-        perft::perft_stats stats;
+        // Perft p("rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq d3 0 1");
+        // p.perft_divide(6);
 
-        Engine e("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-        e.perft_with_statistics(5, stats);
+        // Perft p("r1bqkbnr/pppppppp/2n5/8/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 1");
+        // p.perft_divide(5);
 
-        std::cout << "Number of nodes                   : " << stats.num_nodes << std::endl;
-        std::cout << "Number of captures                : " << stats.num_captures << std::endl;
-        std::cout << "Number of en-passsant captures    : " << stats.num_en_passant_captures << std::endl;
-        std::cout << "Number of promotions              : " << stats.num_promotions << std::endl;
-        std::cout << "Number of castles                 : " << stats.num_castles << std::endl;
-        std::cout << "Number of checks                  : " << stats.num_checks << std::endl;
-        std::cout << "Number of double checks           : " << stats.num_double_checks << std::endl;
-        std::cout << "Number of checkmates              : " << stats.num_check_mates << std::endl;
+        // Perft p("r1bqkbnr/pppppppp/2n5/8/3P4/3Q4/PPP1PPPP/RNB1KBNR b KQkq - 0 1");
+        // p.perft_divide(4);
 
-        // Engine e("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-        // auto res = e.perft_divide(6);
+        // Perft p("1rbqkbnr/pppppppp/2n5/8/3P4/3Q4/PPP1PPPP/RNB1KBNR w KQk - 0 1");
+        // p.perft_divide(3);
 
-        // Engine e("rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR b KQkq a3 0 1");   // a2-a4
-        // auto res = e.perft_divide(5);
+        // Perft p("1rbqkbnr/pppppppp/2n5/8/3P4/3Q4/PPPBPPPP/RN2KBNR b KQk - 0 1");
+        // p.perft_divide(2);
 
-        // Engine e("r1bqkbnr/pppppppp/2n5/8/P7/8/1PPPPPPP/RNBQKBNR w KQkq - 0 1"); // 
-        // auto res = e.perft_divide(4);
+        Utility::generate_and_print_moves("8/2p5/3p4/KP5r/1R3pPk/8/4P3/8 b - g3 0 1");
 
-        // Engine e("r1bqkbnr/pppppppp/2n5/8/P7/1P6/2PPPPPP/RNBQKBNR b KQkq - 0 1");
-        // auto res = e.perft_divide(3);
-        */
     }
 
-    bool PerftTests::test1()
+    bool PerftTests::initial_pos_test()
     {
-        /*
-        std::vector<int64_t> perft_results{ 20, 400, 8902, 197281, 4865609, 119060324 };
-        for (size_t i = 0; i < perft_results.size(); i++) 
+        std::vector<uint64_t> perft_results{ 20, 400, 8902, 197281, 4865609, 119060324, 3195901860 };
+        return perft("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", perft_results);
+    }
+
+    bool PerftTests::batch_test(std::string const& fen_positions_file_path)
+    {
+        auto file = std::ifstream(fen_positions_file_path, std::ios::out);
+        if (!file.is_open()) 
         {
-            Engine e("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-            auto res = e.perft(i+1);
-            if (res == perft_results[i])
-            {
-                std::cout << "\tPeft-" << i+1 << " computed correctly: " << res << std::endl;
-            }
-            else 
-            {
-                std::cout << "Perft error! expected: " << perft_results[i] << ", got: " << res << std::endl;
-                return false;
-            }
+            throw std::exception("File could not be opened!");
         }
-        */
-        return true;
-    }
 
-    bool PerftTests::test2() 
-    {
-       
-        return false;
+        std::string line, token, fen;
+        while (std::getline(file, line)) 
+        {
+            std::vector<uint64_t> perft_results;
+            std::stringstream ss{ line };
+            int i{ 0 };
+            while (std::getline(ss, token,';')) 
+            {
+                if (i++ == 0) 
+                {
+                    fen = token;
+                    continue;
+                }
+                perft_results.push_back(std::stoull(token));
+            }
+
+            if (!perft(fen, perft_results))
+                return false;
+        }
+        return true;
     }
 }

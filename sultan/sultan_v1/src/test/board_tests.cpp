@@ -16,7 +16,7 @@ namespace test
         { 
             test1, test2, test3, test4, test5, test6, test7, test8, test9, test10,
             test11, test12, test13, test14, test15, test16, test17, test18, test19, test20, 
-            test21 
+            test21, test22, test23 
         };
 		TestBase::run_test("Board", tests);
 	}
@@ -524,5 +524,62 @@ namespace test
 
         b.unmake_move(m1, st1);
         return compare_fen(Utility::board_to_fen_string(b), fen1, 8);
+    }
+
+    bool BoardTests::test22() 
+    {
+        Board b;
+        Fen f{ "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" };
+        Utility::fen_to_board(f, b);
+        Move m(square::a2, square::a4, MoveType::Double_Pawn_Push, def::none);
+
+        auto s1 = b.get_piece_locations().size();
+        auto st = b.make_move(m);
+        auto s2 = b.get_piece_locations().size();
+        b.unmake_move(m, st);
+        auto s3 = b.get_piece_locations().size();
+        return (s1 == 32) && (s2 == 32) && (s3 == 32);
+    }
+
+    bool BoardTests::test23()
+    {
+        Board b;
+        std::string fen1{ "r1bqkbnr/pppppppp/2n5/P7/8/8/1PPPPPPP/RNBQKBNR b KQkq - 0 1" };      
+        std::string fen2{ "r1bqkbnr/p1pppppp/2n5/Pp6/8/8/1PPPPPPP/RNBQKBNR w KQkq b6 0 2" };    // b7-b5
+        std::string fen3{ "r1bqkbnr/p1pppppp/1Pn5/8/8/8/1PPPPPPP/RNBQKBNR b KQkq - 0 2" };      // a5xb6
+
+        Fen f(fen1);
+        Utility::fen_to_board(f, b);
+        Move m1(square::b7, square::b5, MoveType::Double_Pawn_Push, def::none);
+        auto st1 = b.make_move(m1);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen2, 1)) return false;
+
+        Move m2(square::a5, square::b6, MoveType::En_Passant_Capture, piece::bP);
+        auto st2 = b.make_move(m2);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen3, 2)) return false;
+
+        b.unmake_move(m2, st2);
+        if (!compare_fen(Utility::board_to_fen_string(b), fen2, 7)) return false;
+
+        b.unmake_move(m1, st1);
+        return compare_fen(Utility::board_to_fen_string(b), fen1, 8);
+
+/*
+        Board b;
+        Fen f{ "rn1qkbnr/pbpppppp/1p6/P7/8/8/1PPPPPPP/RNBQKBNR w KQkq - 0 1" };
+        Utility::fen_to_board(f, b);
+        Move m(square::a5, square::b6, MoveType::Capture, piece::bP);
+        auto s1 = b.get_piece_locations().size();
+        Utility::print_board(b, true);
+        auto st = b.make_move(m);
+        std::cout << "-----------------------------------------\n";
+        Utility::print_board(b, true);
+        auto s2 = b.get_piece_locations().size();
+        b.unmake_move(m, st);
+        std::cout << "-----------------------------------------\n";
+        Utility::print_board(b, true);
+        auto s3 = b.get_piece_locations().size();
+        return (s1 == 32) && (s2 == 31) && (s3 == 32);
+        */
     }
 }

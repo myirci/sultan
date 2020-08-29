@@ -6,11 +6,9 @@
 
 #include "piece.hpp"
 #include "definitions.hpp"
+#include <iostream>
 
-MoveGenerator::MoveGenerator(Board const& b) : board_obj{ b }, board{ b.get_board() }, piece_loc{b.get_piece_locations()}
-{
-    compute_attacks();
-}
+MoveGenerator::MoveGenerator(Board const& b) : board_obj{ b }, board{ b.get_board() }, piece_loc{b.get_piece_locations()} { }
 
 void MoveGenerator::compute_attacks() 
 {
@@ -18,6 +16,8 @@ void MoveGenerator::compute_attacks()
     compute_checks_and_pins(color::white);
     compute_checks_and_pins(color::black);
 }
+
+std::unordered_multimap<int8_t, std::pair<int8_t, int8_t>> const& MoveGenerator::get_attack_info() const { return attack_info; }
 
 int8_t MoveGenerator::find_king_pos(int8_t clr) const 
 {
@@ -44,11 +44,12 @@ void MoveGenerator::compute_checks_and_pins(int8_t attacking_side)
         while (!((next = next + direction::flat_dirs[i]) & square::inside))
         {
             if (board[next] == piece::eM) continue;
-
-            int8_t p = attacking_side * board[next];
-            if (piece::is_same_sign(attacking_side, board[next]) && (p == piece::Rook || p == piece::Queen))
-            { 
-                attack_info.emplace(std::make_pair(target_sq, std::make_pair(next, direction::flat_dirs[i])));
+            
+            if (piece::is_same_sign(attacking_side, board[next]))
+            {
+                int8_t p = attacking_side * board[next];
+                if (p == piece::Rook || p == piece::Queen)
+                    attack_info.emplace(std::make_pair(target_sq, std::make_pair(next, direction::flat_dirs[i])));
                 break;
             }
             else
@@ -67,11 +68,12 @@ void MoveGenerator::compute_checks_and_pins(int8_t attacking_side)
         {
             if (board[next] == piece::eM) continue;
 
-            int8_t p = attacking_side * board[next];
-            if (p == piece::Bishop || p == piece::Queen ||
-               (p == piece::Pawn && (next - target_sq) == direction::diagonal_dirs[i] && direction::diagonal_dirs[i] * attacking_side < 0))
+            if (piece::is_same_sign(attacking_side, board[next])) 
             {
-                attack_info.emplace(std::make_pair(target_sq, std::make_pair(next, direction::diagonal_dirs[i])));                
+                int8_t p = attacking_side * board[next];
+                if (p == piece::Bishop || p == piece::Queen ||
+                   (p == piece::Pawn && (next - target_sq) == direction::diagonal_dirs[i] && direction::diagonal_dirs[i] * attacking_side < 0) &&  target_sq == opponent_king_pos)
+                    attack_info.emplace(std::make_pair(target_sq, std::make_pair(next, direction::diagonal_dirs[i])));
                 break;
             }
             else
@@ -166,7 +168,7 @@ void MoveGenerator::generate_king_moves(int8_t clr, std::vector<Move>& moves) co
             moves.emplace_back(Move(king_pos, square::g1, MoveType::King_Side_Castle, def::none));
 
         if (board_obj.query_castling_rights(Castling::white_queen_side) && 
-            board[square::d1] == piece::eM && board[square::c1] == piece::eM && 
+            board[square::b1] == piece::eM && board[square::c1] == piece::eM && board[square::d1] == piece::eM &&
             !is_under_attack(color::black, square::d1) && !is_under_attack(color::black, square::c1))
             moves.emplace_back(Move(king_pos, square::c1, MoveType::Queen_Side_Castle, def::none));
     }
@@ -178,7 +180,7 @@ void MoveGenerator::generate_king_moves(int8_t clr, std::vector<Move>& moves) co
             moves.emplace_back(Move(king_pos, square::g8, MoveType::King_Side_Castle, def::none));
 
         if (board_obj.query_castling_rights(Castling::black_queen_side) && 
-            board[square::d8] == piece::eM && board[square::c8] == piece::eM && 
+            board[square::b8] == piece::eM && board[square::c8] == piece::eM && board[square::d8] == piece::eM &&
             !is_under_attack(color::white, square::d8) && !is_under_attack(color::white, square::c8))
             moves.emplace_back(Move(king_pos, square::c8, MoveType::Queen_Side_Castle, def::none));
     }
@@ -316,7 +318,7 @@ void MoveGenerator::generate_knight_moves(int8_t clr, std::vector<Move>& moves) 
     auto r = piece_loc.equal_range(clr * piece::Knight);
     for (auto it = r.first; it != r.second; it++) 
     {
-        if (get_pin_direction(it->second) != direction::ND) return;
+        if (get_pin_direction(it->second) != direction::ND) continue;
 
         for (int i = 0; i < 8; i++)
         {

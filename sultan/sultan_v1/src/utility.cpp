@@ -175,10 +175,15 @@ void Utility::print_board(Board const & b, bool full)
         }
     }
 
-    std::cout << "\n";    
+    std::cout << "\n";
+
+    std::cout << "\nPiece Locations" << std::endl;
+    auto ploc = b.get_piece_locations();
+    for (auto it = ploc.begin(); it != ploc.end(); it++) 
+        std::cout << piece::piece_to_char.find(it->first)->second << " at " << square::square_to_string(it->second) << ", ";
+    std::cout << std::endl;
 }
 
-/*
 void Utility::generate_and_print_moves(Board const& board) 
 {
     MoveGenerator mg{ board };
@@ -188,7 +193,15 @@ void Utility::generate_and_print_moves(Board const& board)
         std::cout << *it << " ";
     std::cout << std::endl;
 }
-*/
+
+void Utility::generate_and_print_moves(std::string const& fen_str) 
+{
+    Fen f{ fen_str };
+    Board b;
+    fen_to_board(f, b);
+    generate_and_print_moves(b);
+}
+
 
 void Utility::print_moves(std::vector<Move> const& moves) 
 {
