@@ -20,7 +20,7 @@ namespace test
         for (size_t i = 0; i < perft_results.size(); i++)
         {
             Perft p(fen);
-            auto res = p.perft(i + 1);
+            auto res = p.perft(static_cast<int>(i + 1));
             if (res == perft_results[i])
             {
                 std::cout << "\tPeft-" << i + 1 << " computed correctly: " << res << std::endl;
