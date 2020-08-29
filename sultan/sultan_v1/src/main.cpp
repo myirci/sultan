@@ -17,6 +17,7 @@ using namespace std;
 
 int main()
 {
+
     /*
     test::FenTests::run_test();
     test::MoveTests::run_test();
@@ -25,10 +26,19 @@ int main()
     test::UtilityTests::run_test();
     test::MoveGeneratorTests::run_test();
     */
-
-    // test::PerftTests::run_test();
-    // test::MoveGeneratorTests::debug_func();
-    test::PerftTests::debug_func();
     
+    // test::BoardTests::run_test();
+
+    test::MoveGeneratorTests::run_test();
+    // test::PerftTests::batch_test(R"(C:\Users\myirci\Documents\dev\bitbucket\chess\sultan\sultan_v1\src\test\data\perft_positions1.txt)");
+    // test::PerftTests::batch_test(R"(C:\Users\myirci\Documents\dev\bitbucket\chess\sultan\sultan_v1\src\test\data\perft_positions2.txt)");
+    // test::MoveGeneratorTests::debug_func();
+    // test::PerftTests::debug_func();
+
+    // std::unique_ptr<Board> b = std::make_unique<Board>();
+    // Fen f("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    // Utility::fen_to_board(f, *b);
+    // Utility::print_board(*b, true);
+
     return 0;
 }

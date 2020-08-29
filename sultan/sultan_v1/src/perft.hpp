@@ -33,6 +33,8 @@ public:
     uint64_t perft(int depth);
     uint64_t perft_divide(int depth);
     void perft_with_statistics(int depth);
+    void perft_debug(int depth);
+    void print_stats();
 
 private:
 

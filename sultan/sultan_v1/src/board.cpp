@@ -222,7 +222,7 @@ void Board::unmake_move(Move const& mv, state::BoardState const& st)
         {
             int8_t pawn_loc = en_passant_loc + side_to_move * direction::S;
             int8_t p = -side_to_move * piece::Pawn;
-            add_piece(pawn_loc, p);
+            add_piece(p, pawn_loc);
             board[pawn_loc] = p;
         }
         else 
@@ -238,8 +238,16 @@ void Board::update_piece_loc(int8_t old_loc, int8_t new_loc)
 {
     auto r = piece_loc.equal_range(board[old_loc]);
     for (auto it = r.first; it != r.second; it++) 
+    {
         if (it->second == old_loc)
+        {
             it->second = new_loc;
+            return;
+        }
+    }
+
+    throw std::logic_error("UPDATE_PIECE_LOC FAILURE!");
+    
 }
 
 void Board::remove_piece(int8_t loc)
@@ -253,8 +261,14 @@ void Board::remove_piece(int8_t loc)
             return;
         }
     }
+    throw std::logic_error("REMOVE_PIECE FAILURE!");
 }
 
-void Board::add_piece(int8_t p, int8_t loc) { piece_loc.insert(std::make_pair(p, loc)); }
+void Board::add_piece(int8_t p, int8_t loc) 
+{
+    piece_loc.insert(std::make_pair(p, loc));
+    if (piece_loc.size() > 32 || piece_loc.size() < 2)
+        throw std::logic_error("ADD_PIECE FAILURE!");
+}
 
 

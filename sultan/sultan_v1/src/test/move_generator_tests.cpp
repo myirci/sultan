@@ -13,12 +13,13 @@ namespace test
 {
 	void MoveGeneratorTests::run_test()
 	{
-		std::vector<bool (*)()> tests{ 
+		std::vector<bool (*)()> tests
+        { 
             test1, test2, test3, test4, test5, test6, test7, test8, test9, test10,
             test11, test12, test13, test14, test15, test16, test17, test18, test19, test20,
 		    test21, test22, test23, test24, test25, test26, test27, test28, test29, test30,
             test31, test32, test33, test34, test35, test36, test37, test38, test39, test40,
-            test41
+            test41, test42, test43, test44, test45
         };
 		TestBase::run_test("Move Generator", tests);
 	}
@@ -26,14 +27,27 @@ namespace test
     void MoveGeneratorTests::debug_func()
     {
         Board b;
-        Fen f("7q/8/2r5/1p4n1/8/3K1p2/5k2/4b3 w - - 0 1");
+        Fen f("r1bqkbnr/ppp1pppp/2np4/8/4P3/5Q2/PPPP1PPP/RNB1KBNR w KQkq - 0 1");
         Utility::fen_to_board(f, b);
+        Utility::generate_and_print_moves(b);
+        /*
         MoveGenerator mg{ b };
-        std::vector<int8_t> target_squares{ square::c4, square::d4, square::e4, square::c3, square::e3, square::c2, square::d2, square::e2 };
-        for (size_t i{ 0 }; i < target_squares.size(); i++) 
+        // std::cout << mg.attack_info.size() << std::endl;
+        
+        auto moves = mg.generate_moves();
+        Utility::print_moves(moves);
+        
+        for (auto it = moves.begin(); it != moves.end(); it++) 
         {
-            std::cout << mg.is_under_attack(color::black, target_squares[i], square::d3) << std::endl;
+            Utility::print_move(*it);
+            auto st = b.make_move(*it);
+            mg.compute_attacks();
+            // std::cout << mg.attack_info.size() << std::endl;
+            b.unmake_move(*it, st);
+            mg.compute_attacks();
+            // std::cout << mg.attack_info.size() << std::endl;
         }
+        */
     }
 
     bool MoveGeneratorTests::compare_moves(std::vector<Move> const& moves, std::vector<Move> const& expected_moves)
@@ -64,6 +78,7 @@ namespace test
         Fen f("3qk3/pp2pppb/b6n/2n2P2/2N5/r1PKB2r/P1PRN1PP/1q1r1b1R w - - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
+        mg.compute_attacks();
         
         // expected outcome
         std::vector<std::vector<int8_t>> attacks
@@ -124,7 +139,7 @@ namespace test
         Fen f("Q2R2Q1/1p1N1b2/2Ppp3/RPnk1pqR/2Pn4/1q1r1p2/B2R4/K6B b - - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
-        // Utility::print_attacks(mg.wattacks);
+        mg.compute_attacks();
 
         // expected outcome
         std::vector<std::vector<int8_t>> attacks
@@ -161,6 +176,7 @@ namespace test
         Fen f("8/8/1PPP2pp/1PkP1pKp/2PP1ppp/8/8/8 w - - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
+        mg.compute_attacks();
 
         // expected outcome
         std::vector<std::vector<int8_t>> attacks
@@ -196,6 +212,7 @@ namespace test
         Fen f("7q/8/2r5/1p4n1/8/3K1p2/5k2/4b3 w - - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
+        mg.compute_attacks();
         std::vector<int8_t> target_squares{square::c4, square::d4, square::e4, square::c3, square::e3, square::c2, square::d2, square::e2};
         return std::all_of(target_squares.begin(), target_squares.end(), [&](int8_t ts) {return mg.is_under_attack(color::black, ts, square::d3); });
     }
@@ -207,6 +224,7 @@ namespace test
         Fen f("8/8/N6R/1P1k4/5P2/3K3B/8/8 w - - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
+        mg.compute_attacks();
         std::vector<int8_t> target_squares{ square::c6, square::d6, square::e6, square::c5, square::e5, square::c4, square::d4, square::e4 };
         return std::all_of(target_squares.begin(), target_squares.end(), [&](int8_t ts) {return mg.is_under_attack(color::white, ts, square::d5); });
     }
@@ -218,6 +236,7 @@ namespace test
         Fen f("4q3/1b6/8/8/1k2K2r/8/8/8 w - - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
+        mg.compute_attacks();
         std::vector<int8_t> safe_target_squares{ square::d3, square::f5 };
         std::vector<int8_t> unsafe_target_squares{ square::d5, square::e5, square::d4, square::f4, square::e3, square::f3 };
         return 
@@ -232,6 +251,7 @@ namespace test
         Fen f("2R5/8/2k1P3/5N2/8/8/8/K6Q w - - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
+        mg.compute_attacks();
         std::vector<int8_t> safe_target_squares{ square::b5, square::b6 };
         std::vector<int8_t> unsafe_target_squares{ square::b7, square::c7, square::d7, square::d6, square::c5, square::d5 };
         return
@@ -246,7 +266,7 @@ namespace test
         Fen f("8/1k2p1p1/6P1/p7/8/8/2P1K2P/8 w - - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
-
+        mg.compute_attacks();
         std::unordered_set<int8_t> black_attacked_squares 
         {
             square::a8, square::b8, square::c8, square::a7, square::c7, square::b4, square::a6, square::b6, square::c6, square::d6, square::f6, square::h6
@@ -305,7 +325,8 @@ namespace test
         Board b;
         Fen f("3k2nq/3b1rp1/3N3n/2B5/4N2b/PPR5/Q2PB3/6K1 w - - 0 1");
         Utility::fen_to_board(f, b);
-        MoveGenerator mg(b);
+        MoveGenerator mg{ b };
+        mg.compute_attacks();
 
         std::unordered_set<int8_t> black_attacked_squares
         {
@@ -370,6 +391,7 @@ namespace test
         Fen f("r3k2r/p3p3/8/8/1q6/8/P2P3P/R3K2R w KQkq - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
+        mg.compute_attacks();
         std::vector<Move> moves;
 
         std::vector<Move> expected_moves
@@ -395,7 +417,7 @@ namespace test
         Fen f("r3k2r/1P6/8/8/8/8/3n4/R3K2R w KQkq - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
-      
+        mg.compute_attacks();
         std::vector<Move> expected_moves
         {
             Move(square::e8, square::f8, MoveType::Quite, def::none),
@@ -420,6 +442,7 @@ namespace test
         Fen f("r3k2r/1P6/8/8/8/8/3n4/R3K2R w KQkq - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
+        mg.compute_attacks();
         std::vector<Move> moves;
 
         std::vector<Move> expected_moves
@@ -444,6 +467,7 @@ namespace test
         Fen f("8/b7/4k3/8/3nKn2/8/8/8 w - - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
+        mg.compute_attacks();
         std::vector<Move> moves;
 
         std::vector<Move> expected_moves
@@ -465,7 +489,7 @@ namespace test
         Fen f("4r3/q1k5/7b/8/3PPP2/r2NKN1r/3QRN2/2b1q1b1 w - - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
-        
+        mg.compute_attacks();
         return 
             mg.get_pin_direction(square::d4) == direction::NW &&
             mg.get_pin_direction(square::e4) == direction::N &&
@@ -484,7 +508,7 @@ namespace test
         Fen f("3R4/3n4/2rkn3/2p1p3/3p4/Q7/6K1/3R4 w - - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
-
+        mg.compute_attacks();
         return
             mg.get_pin_direction(square::c5) == direction::SW &&
             mg.get_pin_direction(square::d4) == direction::S &&
@@ -501,7 +525,7 @@ namespace test
         Fen f("rnb1kbnr/ppp1qppp/2pP1p2/8/1P1P2P1/2N2P2/PPP4R/R1BQKBN1 w Qkq - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
-
+        mg.compute_attacks();
         std::vector<Move> expected_moves
         {
             Move(square::h2, square::e2, MoveType::Quite, def::none),
@@ -525,7 +549,7 @@ namespace test
         Fen f("3q4/4pk2/2p2n2/7r/8/8/B7/KN1r1R1b w - - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
-
+        mg.compute_attacks();
         std::vector<Move> expected_moves
         {
             Move(square::d8, square::d5, MoveType::Quite, def::none),
@@ -548,7 +572,7 @@ namespace test
         Fen f("2q3K1/1P6/1N6/8/2R5/7B/8/k7 w - - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
-
+        mg.compute_attacks();
         std::vector<Move> expected_moves
         {
             Move(square::c4, square::c8, MoveType::Capture, piece::bQ),
@@ -574,7 +598,7 @@ namespace test
         Fen f("2R4K/8/8/q7/7b/2bn4/4p3/2k4R w - - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
-
+        mg.compute_attacks();
         std::vector<Move> expected_moves
         {
             Move(square::h4, square::e1, MoveType::Quite, def::none),
@@ -599,7 +623,7 @@ namespace test
         Fen f("k3B3/8/p7/1q3B2/P6R/N7/2PPK3/1R6 w - - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
-
+        mg.compute_attacks();
         std::vector<Move> expected_moves
         {
             Move(square::f5, square::d3, MoveType::Quite, def::none),
@@ -628,7 +652,7 @@ namespace test
         Fen f("3K4/8/8/8/8/8/n2bp1p1/1k5R b - - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
-
+        mg.compute_attacks();
         std::vector<Move> expected_moves
         {
             Move(square::d2, square::c1, MoveType::Quite, def::none),
@@ -662,7 +686,7 @@ namespace test
         Fen f("n3k2N/2R2R2/4p3/1n5P/5N2/1pp5/2p1K3/n6N w - - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
-
+        mg.compute_attacks();
         std::vector<Move> expected_moves
         {
             Move(square::h8, square::g6, MoveType::Quite, def::none),
@@ -690,7 +714,7 @@ namespace test
         Fen f("n3k2N/2R2R2/4p3/1n5P/5N2/1pp5/2p1K3/n6N w - - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
-
+        mg.compute_attacks();
         std::vector<Move> expected_moves
         {
             Move(square::a8, square::c7, MoveType::Capture, piece::wR),
@@ -716,7 +740,7 @@ namespace test
         Fen f("6kB/1B3ppp/1n1P4/2qQ4/1Q3p2/PP2Pn2/R1PR1B2/nRK1N3 w - - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
-
+        mg.compute_attacks();
         std::vector<Move> expected_moves
         {
             Move(square::d5, square::e5, MoveType::Quite, def::none),
@@ -775,7 +799,7 @@ namespace test
         Fen f("brbrbbbb/bbrbpppp/kN2p3/1ppp4/2p5/8/8/4K3 b - - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
-
+        mg.compute_attacks();
         std::vector<Move> expected_moves
         {
             Move(square::c7, square::c6, MoveType::Quite, def::none),
@@ -799,7 +823,7 @@ namespace test
         Fen f("4k3/8/8/1pP5/8/8/8/4K3 w - b6 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
-        
+        mg.compute_attacks();
         std::vector<Move> expected_moves
         {
             Move(square::c5, square::c6, MoveType::Quite, def::none),
@@ -820,7 +844,7 @@ namespace test
         Fen f1("4k3/8/8/2Pp4/8/8/8/4K3 w - d6 0 1");
         Utility::fen_to_board(f1, b);
         MoveGenerator mg{ b };
-
+        mg.compute_attacks();
         std::vector<Move> expected_moves
         {
             Move(square::c5, square::c6, MoveType::Quite, def::none),
@@ -841,7 +865,7 @@ namespace test
         Fen f("4k3/8/8/8/4pP2/8/8/4K3 b - f3 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
-
+        mg.compute_attacks();
         std::vector<Move> expected_moves
         {
             Move(square::e4, square::e3, MoveType::Quite, def::none),
@@ -862,7 +886,7 @@ namespace test
         Fen f1("4k3/8/8/8/3Pp3/8/8/4K3 b - d3 0 1");
         Utility::fen_to_board(f1, b);
         MoveGenerator mg{ b };
-        
+        mg.compute_attacks();
         std::vector<Move> expected_moves
         {
             Move(square::e4, square::e3, MoveType::Quite, def::none),
@@ -882,8 +906,8 @@ namespace test
         Board b;
         Fen f("7k/q7/8/1pP5/3K4/8/8/8 w - b6 0 1");
         Utility::fen_to_board(f, b);
-        MoveGenerator mg(b);
-
+        MoveGenerator mg{ b };
+        mg.compute_attacks();
         std::vector<Move> expected_moves{ Move(square::c5, square::b6, MoveType::En_Passant_Capture, piece::bP) };
 
         std::vector<Move> moves;
@@ -900,6 +924,7 @@ namespace test
         Fen f("7k/q7/8/2Pp4/3K4/8/8/8 w - d6 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg(b);
+        mg.compute_attacks();
 
         std::vector<Move> moves;
         mg.generate_pawn_moves(color::white, moves);
@@ -914,7 +939,7 @@ namespace test
         Fen f("8/7k/8/8/3Pp3/8/8/1B2K3 b - d3 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg(b);
-
+        mg.compute_attacks();
         std::vector<Move> expected_moves{ Move(square::e4, square::d3, MoveType::En_Passant_Capture, piece::wP) };
 
         std::vector<Move> moves;
@@ -931,7 +956,7 @@ namespace test
         Fen f("8/1k6/8/8/3Pp3/8/8/4K2B b - d3 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg(b);
-
+        mg.compute_attacks();
         std::vector<Move> moves;
         mg.generate_pawn_moves(color::black, moves);
         // Utility::print_moves(moves);
@@ -945,7 +970,7 @@ namespace test
         Fen f("1r1n1n2/P1P2P1P/4r3/2k4b/2b5/3PPP2/1P2K3/8 w - - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
-       
+        mg.compute_attacks();
         std::vector<Move> expected_moves
         {
             Move(square::a7, square::a8, MoveType::Queen_Promotion, def::none),
@@ -992,7 +1017,7 @@ namespace test
         Fen f("2k5/2p5/8/4p3/3PPP2/8/pK1p4/NNQ1B1R1 b - - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
-
+        mg.compute_attacks();
         std::vector<Move> expected_moves
         {
             Move(square::c7, square::c6, MoveType::Quite, def::none),
@@ -1031,7 +1056,7 @@ namespace test
         Fen f("2r2nk1/5ppb/8/2R5/4Q3/8/2K1Q1r1/8 w - - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
-
+        mg.compute_attacks();
         std::vector<Move> expected_moves
         {
             Move(square::c5, square::c6, MoveType::Quite, def::none),
@@ -1063,7 +1088,7 @@ namespace test
         Fen f("rnbqkb1r/pppppppp/8/8/4n3/3P4/PPPKPPPP/RNBQ1BNR w kq - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
-        
+        mg.compute_attacks();
         std::vector<Move> expected_moves
         {
             Move(square::d2, square::e3, MoveType::Quite, def::none),
@@ -1082,7 +1107,7 @@ namespace test
         Fen f("rnb1kbnr/pp1ppppp/2p5/q7/8/3P4/PPPKPPPP/RNBQ1BNR w kq - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg{ b };
-        
+        mg.compute_attacks();
         std::vector<Move> expected_moves
         {
             Move(square::d2, square::e3, MoveType::Quite, def::none),
@@ -1102,6 +1127,7 @@ namespace test
         Fen f("rnbqkb1r/ppp1ppp1/3N1n1p/3p4/Q7/2P5/PP1PPPPP/R1B1KBNR b KQkq - 0 1");
         Utility::fen_to_board(f, b);
         MoveGenerator mg { b };
+        mg.compute_attacks();
         auto moves = mg.generate_moves();
         return moves.size() == 0;
     }
@@ -1114,8 +1140,53 @@ namespace test
         Utility::fen_to_board(f, b);
         std::vector<Move> expected_moves { Move(square::e8, square::f8, MoveType::Quite, def::none) };
         MoveGenerator mg{ b };
+        mg.compute_attacks();
         auto moves = mg.generate_moves();
         return compare_moves(moves, expected_moves);
+    }
+
+    bool MoveGeneratorTests::test42()
+    {
+        // test: no attacks
+        Board b;
+        Fen f("rnbqkbnr/p1pppppp/1p6/8/8/5P2/PPPPPKPP/RNBQ1BNR b kq - 0 1");
+        Utility::fen_to_board(f, b);
+        MoveGenerator mg{ b };
+        mg.compute_attacks();
+        return mg.attack_info.size() == 0;
+    }
+
+    bool MoveGeneratorTests::test43()
+    {
+        // test: no attacks
+        Board b;
+        Fen f("rnbqkbnr/p1pppppp/8/8/1p6/2NP4/PPP1PPPP/R1BQKBNR w KQkq - 0 1");
+        Utility::fen_to_board(f, b);
+        MoveGenerator mg{ b };
+        mg.compute_attacks();
+        return mg.attack_info.size() == 0;
+    }
+
+    bool MoveGeneratorTests::test44()
+    {
+        // test: no attacks
+        Board b;
+        Fen f("r1bqkbnr/pppppppp/8/8/3n4/8/PPPKPPPP/RNBQ1BNR w kq - 0 1");
+        Utility::fen_to_board(f, b);
+        MoveGenerator mg{ b };
+        mg.compute_attacks();
+        return mg.attack_info.size() == 0;
+    }
+
+    bool MoveGeneratorTests::test45() 
+    {
+        // test: en-passant pin
+        Board b;
+        Fen f("8/2p5/3p4/KP5r/1R3pPk/8/4P3/8 b - g3 0 1");
+        Utility::fen_to_board(f, b);
+        MoveGenerator mg{ b };
+        mg.compute_attacks();
+        return mg.generate_moves().size() == 17;
     }
 
 }

@@ -25,7 +25,9 @@ public:
 
     static void print_moves(std::vector<Move> const& moves);
 
-    // static void generate_and_print_moves(Board const& board);
+    static void generate_and_print_moves(Board const& board);
+
+    static void generate_and_print_moves(std::string const& fen_str);
 
     static void print_move(Move m);
 
