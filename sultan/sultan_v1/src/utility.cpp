@@ -187,6 +187,7 @@ void Utility::print_board(Board const & b, bool full)
 void Utility::generate_and_print_moves(Board const& board) 
 {
     MoveGenerator mg{ board };
+    mg.compute_attacks();
     auto moves = mg.generate_moves();
     std::cout << moves.size() << " legal moves : ";
     for (auto it = moves.begin(); it != moves.end(); it++)

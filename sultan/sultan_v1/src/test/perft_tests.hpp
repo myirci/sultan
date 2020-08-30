@@ -1,18 +1,17 @@
 #pragma once
 
-#include "test_base.hpp"
+#include <string>
+#include <vector>
 
 namespace test
 {
-	class PerftTests : public TestBase
+	class PerftTests
 	{
 		PerftTests() = delete;
-
+		static bool perft(int id, std::string const& fen, std::vector<std::pair<int,uint64_t>> const& perft_results);
 	public:
 		static void run_test();
-		static void debug_func();
-		static bool perft(std::string const& fen, std::vector<uint64_t> const& perft_results);
 		static bool initial_pos_test();
-		static bool batch_test(std::string const& fen_positions_file_path);
+		static void debug_func();
 	};
 }

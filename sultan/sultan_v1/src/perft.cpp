@@ -22,7 +22,7 @@ uint64_t Perft::perft(int depth)
 
 	uint64_t sum{ 0 };
 	auto moves = mg->generate_moves();
-	for (auto & const mv : moves)
+	for (auto const & mv : moves)
 	{
 		auto st = board->make_move(mv);
 		mg->compute_attacks();
@@ -67,7 +67,7 @@ void Perft::perft_with_statistics(int depth)
 
 	auto moves = mg->generate_moves();
 	
-	for (auto& const mv : moves)
+	for (auto const & mv : moves)
 	{
 		auto st = board->make_move(mv);
 		mg->compute_attacks();
@@ -124,7 +124,7 @@ void Perft::perft_debug(int depth)
 
 	auto moves = mg->generate_moves();
 
-	for (auto& const mv : moves)
+	for (auto const&  mv : moves)
 	{
 		if (depth == 3)
 		{
