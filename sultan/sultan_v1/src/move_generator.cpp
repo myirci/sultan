@@ -93,8 +93,8 @@ void MoveGenerator::compute_checks_and_pins(int8_t attacking_side)
     }
 }
 
-// behaves as if defender king does not exist in the board when defending_side_king_pos is given different than def::none
-bool MoveGenerator::is_under_attack(int8_t attacking_side, int8_t target_sq, int8_t defender_king_pos) const
+// behaves as if board[exclude_pos1] and board[exclude_pos2] are empty if they are different than def::none
+bool MoveGenerator::is_under_attack(int8_t attacking_side, int8_t target_sq, int8_t exclude_pos1, int8_t exclude_pos2) const
 {
     // check attacks from the ranks and files
     for (int i{ 0 }; i < 4; i++)
@@ -102,7 +102,7 @@ bool MoveGenerator::is_under_attack(int8_t attacking_side, int8_t target_sq, int
         int8_t next{ target_sq };
         while (!((next = next + direction::flat_dirs[i]) & square::inside))
         {
-            if (board[next] == piece::eM || next == defender_king_pos) continue;
+            if (board[next] == piece::eM || next == exclude_pos1 || next == exclude_pos2) continue;
             
             if (piece::is_same_sign(attacking_side, board[next])) 
             {
@@ -120,7 +120,7 @@ bool MoveGenerator::is_under_attack(int8_t attacking_side, int8_t target_sq, int
         int8_t next{ target_sq };
         while (!((next = next + direction::diagonal_dirs[i]) & square::inside))
         {
-            if (board[next] == piece::eM || next == defender_king_pos) continue;
+            if (board[next] == piece::eM || next == exclude_pos1 || next == exclude_pos2) continue;
 
             if (piece::is_same_sign(attacking_side, board[next])) 
             {
@@ -310,6 +310,27 @@ void MoveGenerator::generate_to_square_moves(int8_t clr, int8_t sq, std::vector<
                 }
             }
         }
+
+        int8_t ep = board_obj.get_en_passant_loc();
+        if (ep != def::none && sq == ep + clr * direction::S) 
+        {
+
+            int8_t pawn_pos[2] = 
+            {
+                static_cast<int8_t>(ep + clr * direction::SW),
+                static_cast<int8_t>(ep + clr * direction::SE)
+            };
+
+            for (int i = 0; i < 2; i++) 
+            {
+                if (board[pawn_pos[i]] == clr * piece::Pawn)
+                {
+                    int8_t pin_dir = get_pin_direction(pawn_pos[i]);
+                    if (pin_dir == (ep - pawn_pos[i]) || (pin_dir == direction::ND && !is_under_attack(-clr, find_king_pos(clr), pawn_pos[i], sq)))
+                        moves.emplace_back(Move(pawn_pos[i], ep, MoveType::En_Passant_Capture, -clr * piece::Pawn)); 
+                }
+            }
+        }
     }
 }
 
@@ -389,7 +410,7 @@ void MoveGenerator::generate_pawn_moves(int8_t clr, std::vector<Move>& moves) co
 
         // single push, double push and single push-promotion moves
         int8_t next = it->second + clr * direction::N;
-        if (board[next] == piece::eM && (pin_dir == direction::ND || pin_dir == clr * direction::N))
+        if (board[next] == piece::eM && (pin_dir == direction::ND || pin_dir == direction::N || pin_dir == direction::S))
         {
             int8_t rank = square::rank(it->second);
             if ((clr == color::white && rank == 6) || (clr == color::black && rank == 1))
@@ -432,8 +453,7 @@ void MoveGenerator::generate_pawn_moves(int8_t clr, std::vector<Move>& moves) co
         }
 
         next = it->second + clr * direction::NW;
-        if (!(next & square::inside) && piece::is_different_sign(board[next], clr) &&
-            (pin_dir == direction::ND || pin_dir == clr * direction::NW))
+        if (!(next & square::inside) && piece::is_different_sign(board[next], clr) && (pin_dir == direction::ND || pin_dir == clr * direction::NW))
         {
             int8_t rank = square::rank(it->second);
             if ((clr == color::white && rank == 6) || (clr == color::black && rank == 1))
@@ -451,8 +471,21 @@ void MoveGenerator::generate_pawn_moves(int8_t clr, std::vector<Move>& moves) co
 
         // en-passant captures
         int8_t ep = board_obj.get_en_passant_loc();
-        if (ep != def::none && (it->second == (ep + clr * direction::SW) || it->second == (ep + clr * direction::SE)) &&
-            (pin_dir == direction::ND || pin_dir == (ep - it->second)))
+        if (
+                ep != def::none && 
+                (it->second == (ep + clr * direction::SW) || it->second == (ep + clr * direction::SE)) &&
+                (
+                    pin_dir == (ep - it->second) || 
+                    (
+                        pin_dir == direction::ND && 
+                        (
+                            !is_under_attack(-clr, find_king_pos(clr), it->second, ep + clr * direction::S) ||
+                            square::rank(find_king_pos(clr)) != square::rank(it->second)
+                        )
+                    )
+                )
+            )
+
             moves.emplace_back(Move(it->second, ep, MoveType::En_Passant_Capture, -clr * piece::Pawn));
     }
 }

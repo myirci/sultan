@@ -21,7 +21,7 @@ class MoveGenerator
     std::unordered_multimap<int8_t, std::pair<int8_t, int8_t>> attack_info;  
 
     void compute_checks_and_pins(int8_t attacking_side);
-    bool is_under_attack(int8_t attacking_side, int8_t target_sq, int8_t defender_king_pos = def::none) const;
+    bool is_under_attack(int8_t attacking_side, int8_t target_sq, int8_t exclude_pos1 = def::none, int8_t exclude_pos2 = def::none) const;
     int8_t MoveGenerator::get_pin_direction(int8_t sq) const;
    
     // Move generators

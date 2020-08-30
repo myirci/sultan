@@ -19,7 +19,7 @@ namespace test
             test11, test12, test13, test14, test15, test16, test17, test18, test19, test20,
 		    test21, test22, test23, test24, test25, test26, test27, test28, test29, test30,
             test31, test32, test33, test34, test35, test36, test37, test38, test39, test40,
-            test41, test42, test43, test44, test45
+            test41, test42, test43, test44, test45, test46, test47, test48
         };
 		TestBase::run_test("Move Generator", tests);
 	}
@@ -1189,4 +1189,36 @@ namespace test
         return mg.generate_moves().size() == 17;
     }
 
+    bool MoveGeneratorTests::test46()
+    {
+        // test: en-passant pin
+        Board b;
+        Fen f("8/8/3p4/1Pp4r/1KR2pk1/8/4P1P1/8 w - c6 0 1");
+        Utility::fen_to_board(f, b);
+        MoveGenerator mg{ b };
+        mg.compute_attacks();
+        return mg.generate_moves().size() == 7;
+    }
+    
+    bool MoveGeneratorTests::test47()
+    {
+        // test: moving in the direction of pin
+        Board b;
+        Fen f("8/2p5/3p4/KP3R1r/5p2/8/4PkP1/8 b - - 0 1");
+        Utility::fen_to_board(f, b);
+        MoveGenerator mg{ b };
+        mg.compute_attacks();
+        return mg.generate_moves().size() == 20;
+    }
+
+    bool MoveGeneratorTests::test48()
+    {
+        // test: en passant capture under pin
+        Board b;
+        Fen f("8/2p5/3p4/KP4kr/5pP1/8/4P3/6R1 b - g3 0 1");
+        Utility::fen_to_board(f, b);
+        MoveGenerator mg{ b };
+        mg.compute_attacks();
+        return mg.generate_moves().size() == 16;
+    }
 }

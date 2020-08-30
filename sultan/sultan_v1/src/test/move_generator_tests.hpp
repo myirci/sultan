@@ -62,5 +62,8 @@ namespace test
         static bool test43();
         static bool test44();
         static bool test45();
+        static bool test46();
+        static bool test47();
+        static bool test48();
     };
 }
