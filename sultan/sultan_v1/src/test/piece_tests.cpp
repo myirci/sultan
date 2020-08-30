@@ -7,7 +7,7 @@ namespace test
     void PieceTests::run_test()
     {
         std::vector<bool (*)()> tests{ test1 };
-        TestBase::run_test("Fen", tests);
+        TestBase::run_test("Piece", tests);
     }
 
     bool PieceTests::test1()

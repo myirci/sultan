@@ -16,7 +16,7 @@ public:
         PerftStats() :
             num_nodes{ 0 }, num_captures{ 0 }, num_promotions{ 0 },
             num_en_passant_captures{ 0 }, num_castles{ 0 }, num_checks{ 0 },
-            num_double_checks{ 0 }, num_discovery_checks{ 0 }, num_check_mates{ 0 } { }
+            num_double_checks{ 0 }, num_discovery_checks{ 0 }, num_check_mates{ 0 }, num_stale_mates{ 0 } { }
 
         uint64_t num_nodes;
         uint64_t num_captures;
@@ -27,6 +27,7 @@ public:
         uint64_t num_double_checks;
         uint64_t num_discovery_checks;
         uint64_t num_check_mates;
+        uint64_t num_stale_mates;
     };
 
     Perft(std::string const& fen_string);

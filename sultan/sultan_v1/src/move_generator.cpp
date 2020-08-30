@@ -231,7 +231,7 @@ void MoveGenerator::generate_to_square_moves(int8_t clr, int8_t sq, std::vector<
             if (piece::is_same_sign(clr, board[next]))
             {
                 int8_t p = clr * board[next];
-                if ((p == piece::Rook || p == piece::Queen) && get_pin_direction(next) == direction::ND)
+                if ((p == piece::Rook || p == piece::Queen) && get_pin_direction(next) == direction::ND) 
                     moves.emplace_back(Move(next, sq, mtype, captured));
             }
             break;
@@ -248,7 +248,7 @@ void MoveGenerator::generate_to_square_moves(int8_t clr, int8_t sq, std::vector<
             if (piece::is_same_sign(clr, board[next]))
             {
                 int8_t p = clr * board[next];
-                if ((p == piece::Bishop || p == piece::Queen) && get_pin_direction(next) == direction::ND)
+                if ((p == piece::Bishop || p == piece::Queen) && get_pin_direction(next) == direction::ND) 
                     moves.emplace_back(next, sq, mtype, captured);
             }
             break;
@@ -258,76 +258,79 @@ void MoveGenerator::generate_to_square_moves(int8_t clr, int8_t sq, std::vector<
     for (int i{ 0 }; i < 8; i++)
     {
         int8_t next = sq + direction::knight_jumps[i];
-        if (!(next & square::inside) && clr * board[next] == piece::Knight && get_pin_direction(next) == direction::ND)
-            moves.emplace_back(next, sq, mtype, captured);
+        if (!(next & square::inside) && clr * board[next] == piece::Knight && get_pin_direction(next) == direction::ND) 
+            moves.emplace_back(next, sq, mtype, captured);  
     }
 
-    if (mtype == MoveType::Quite)
+    if((clr == color::white && sq >= square::a3 && sq <= square::h8) || (clr == color::black && sq >= square::a1 && sq <= square::h6))
     {
-        int8_t next = sq + clr * direction::S;
-        if (clr * board[next] == piece::Pawn && get_pin_direction(next) == direction::ND)
+        if (mtype == MoveType::Quite)
         {
-            int8_t rank = square::rank(sq);
-            if ((clr == color::white && rank == 7) || (clr == color::black && rank == 0))
-            {
-                moves.emplace_back(next, sq, MoveType::Queen_Promotion, def::none);
-                moves.emplace_back(next, sq, MoveType::Rook_Promotion, def::none);
-                moves.emplace_back(next, sq, MoveType::Bishop_Promotion, def::none);
-                moves.emplace_back(next, sq, MoveType::Knight_Promotion, def::none);
-            }
-            else
-            {
-                moves.emplace_back(next, sq, MoveType::Quite, def::none);
-            }
-        }
-
-        int8_t pos = next + clr * direction::S;
-        if (clr * board[pos] == piece::Pawn && board[next] == piece::eM && get_pin_direction(pos) == direction::ND &&
-            ((clr == color::white && square::rank(pos) == 1) || (clr == color::black && square::rank(pos) == 6)))
-            moves.emplace_back(pos, sq, MoveType::Double_Pawn_Push, def::none);
-    }
-    else if (mtype == MoveType::Capture)
-    {
-        int8_t pos[2] = {
-            static_cast<int8_t>(sq + clr * direction::SE),
-            static_cast<int8_t>(sq + clr * direction::SW) };
-
-        for (auto i = 0; i < 2; i++)
-        {
-            if (!(pos[i] & square::inside) && clr * board[pos[i]] == piece::Pawn && get_pin_direction(pos[i]) == direction::ND)
+            int8_t next = sq + clr * direction::S;
+            if (clr * board[next] == piece::Pawn && get_pin_direction(next) == direction::ND)
             {
                 int8_t rank = square::rank(sq);
-                if ((clr == color::white && rank == 7) || ( clr == color::black && rank == 0))
+                if ((clr == color::white && rank == 7) || (clr == color::black && rank == 0))
                 {
-                    moves.emplace_back(pos[i], sq, MoveType::Queen_Promotion_Capture, captured);
-                    moves.emplace_back(pos[i], sq, MoveType::Rook_Promotion_Capture, captured);
-                    moves.emplace_back(pos[i], sq, MoveType::Bishop_Promotion_Capture, captured);
-                    moves.emplace_back(pos[i], sq, MoveType::Knight_Promotion_Capture, captured);
+                    moves.emplace_back(next, sq, MoveType::Queen_Promotion, def::none);
+                    moves.emplace_back(next, sq, MoveType::Rook_Promotion, def::none);
+                    moves.emplace_back(next, sq, MoveType::Bishop_Promotion, def::none);
+                    moves.emplace_back(next, sq, MoveType::Knight_Promotion, def::none);
                 }
                 else
                 {
-                    moves.emplace_back(pos[i], sq, MoveType::Capture, captured);
+                    moves.emplace_back(next, sq, MoveType::Quite, def::none);
                 }
             }
+
+            int8_t pos = next + clr * direction::S;
+
+            if (clr * board[pos] == piece::Pawn && board[next] == piece::eM && get_pin_direction(pos) == direction::ND &&
+                ((clr == color::white && square::rank(pos) == 1) || (clr == color::black && square::rank(pos) == 6)))
+                moves.emplace_back(pos, sq, MoveType::Double_Pawn_Push, def::none);
         }
-
-        int8_t ep = board_obj.get_en_passant_loc();
-        if (ep != def::none && sq == ep + clr * direction::S) 
+        else if (mtype == MoveType::Capture)
         {
+            int8_t pos[2] = {
+                static_cast<int8_t>(sq + clr * direction::SE),
+                static_cast<int8_t>(sq + clr * direction::SW) };
 
-            int8_t pawn_pos[2] = 
+            for (auto i = 0; i < 2; i++)
             {
-                static_cast<int8_t>(ep + clr * direction::SW),
-                static_cast<int8_t>(ep + clr * direction::SE)
-            };
-
-            for (int i = 0; i < 2; i++) 
-            {
-                if (board[pawn_pos[i]] == clr * piece::Pawn)
+                if (!(pos[i] & square::inside) && clr * board[pos[i]] == piece::Pawn && get_pin_direction(pos[i]) == direction::ND)
                 {
-                    int8_t pin_dir = get_pin_direction(pawn_pos[i]);
-                    if (pin_dir == (ep - pawn_pos[i]) || (pin_dir == direction::ND && !is_under_attack(-clr, find_king_pos(clr), pawn_pos[i], sq)))
-                        moves.emplace_back(Move(pawn_pos[i], ep, MoveType::En_Passant_Capture, -clr * piece::Pawn)); 
+                    int8_t rank = square::rank(sq);
+                    if ((clr == color::white && rank == 7) || (clr == color::black && rank == 0))
+                    {
+                        moves.emplace_back(pos[i], sq, MoveType::Queen_Promotion_Capture, captured);
+                        moves.emplace_back(pos[i], sq, MoveType::Rook_Promotion_Capture, captured);
+                        moves.emplace_back(pos[i], sq, MoveType::Bishop_Promotion_Capture, captured);
+                        moves.emplace_back(pos[i], sq, MoveType::Knight_Promotion_Capture, captured);
+                    }
+                    else
+                    {
+                        moves.emplace_back(pos[i], sq, MoveType::Capture, captured);
+                    }
+                }
+            }
+
+            int8_t ep = board_obj.get_en_passant_loc();
+            if (ep != def::none && sq == ep + clr * direction::S)
+            {
+                int8_t pawn_pos[2] =
+                {
+                    static_cast<int8_t>(ep + clr * direction::SW),
+                    static_cast<int8_t>(ep + clr * direction::SE)
+                };
+
+                for (int i = 0; i < 2; i++)
+                {
+                    if (board[pawn_pos[i]] == clr * piece::Pawn)
+                    {
+                        int8_t pin_dir = get_pin_direction(pawn_pos[i]);
+                        if (pin_dir == (ep - pawn_pos[i]) || (pin_dir == direction::ND && !is_under_attack(-clr, find_king_pos(clr), pawn_pos[i], sq)))
+                            moves.emplace_back(Move(pawn_pos[i], ep, MoveType::En_Passant_Capture, -clr * piece::Pawn));
+                    }
                 }
             }
         }

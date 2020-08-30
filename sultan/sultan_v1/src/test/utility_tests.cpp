@@ -124,12 +124,11 @@ namespace test
     bool UtilityTests::check_piece_locations(Board const& b, int8_t piece, std::vector<int8_t> expected_loc)
     {
         auto r = b.get_piece_locations().equal_range(piece);
-        int k = 0;
-        for (auto it = r.first; it != r.second; it++)
+        size_t k = 0;
+        for (auto it = r.first; it != r.second; it++, k++)
         {
-            if (it->second != expected_loc[k++])
+            if (it->second != expected_loc[k])
             {
-                k--;
                 std::cout << "Piece location error! expected: " << expected_loc[k] << " got: " << it->second << std::endl;
                 return false;
             }

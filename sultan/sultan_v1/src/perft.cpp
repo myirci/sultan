@@ -59,57 +59,68 @@ uint64_t Perft::perft_divide(int depth)
 
 void Perft::perft_with_statistics(int depth)
 {
-	if (depth == 0)
-	{
-		stats->num_nodes++;
-		return;
-	};
-
 	auto moves = mg->generate_moves();
-	
-	for (auto const & mv : moves)
+	if (depth == 1) 
 	{
-		auto st = board->make_move(mv);
-		mg->compute_attacks();
-		perft_with_statistics(depth - 1);
-		board->unmake_move(mv, st);
-		mg->compute_attacks();
-	}
-
-	/*
-	if (depth == 0) 
-	{
-		stats->num_nodes++;
-		if (mg->generate_moves().size() == 0)
-			stats->num_check_mates++;
-		return;
-	}
-	
-	auto moves = mg->generate_moves();
-	
-	for (auto const& mv : moves)
-	{
-		auto st = board->make_move(mv);
-		mg->compute_attacks();
-		if (depth == 1)
+		stats->num_nodes += moves.size();
+		for (auto const& mv : moves)
 		{
-			if (mv.is_capture())  stats->num_captures++;
+			if (mv.is_capture()) stats->num_captures++;
 			if (mv.is_promotion()) stats->num_promotions++;
 			if (mv.is_castle()) stats->num_castles++;
 			if (mv.is_en_passant_capture()) stats->num_en_passant_captures++;
-			auto attack_info = mg->get_attack_info();
+
+			auto st = board->make_move(mv);
+			mg->compute_attacks();
+			
 			int8_t stm = board->get_side_to_move();
+			auto attack_info = mg->get_attack_info();
 			auto king_pos = mg->find_king_pos(stm);
 			auto r = attack_info.equal_range(king_pos);
 			auto num_checkers = std::distance(r.first, r.second);
-			if (num_checkers > 0) stats->num_checks++;
-			if (num_checkers == 2) stats->num_double_checks++;
+
+			auto num_children = mg->generate_moves().size();
+			if (num_checkers > 0) 
+			{
+				stats->num_checks++;
+				if (num_children == 0) stats->num_check_mates++;
+				if (num_checkers == 2) 
+				{
+					stats->num_double_checks++;
+					// std::cout << Utility::board_to_fen_string(*board) << std::endl;
+				}
+				else 
+				{
+					if (mv.get_to() != r.first->second.first)
+						stats->num_discovery_checks++;
+				}
+			}
+			else 
+			{
+				if (num_children == 0) 
+				{
+					stats->num_stale_mates++;
+					std::cout << Utility::board_to_fen_string(*board) << std::endl;
+				}
+					
+			}
+
+			board->unmake_move(mv, st);
+			mg->compute_attacks();
 		}
-		perft_with_statistics(depth - 1);
-		board->unmake_move(mv, st);
-		mg->compute_attacks();
+		return;
 	}
-	*/
+	else 
+	{
+		for (auto const& mv : moves)
+		{
+			auto st = board->make_move(mv);
+			mg->compute_attacks();
+			perft_with_statistics(depth - 1);
+			board->unmake_move(mv, st);
+			mg->compute_attacks();
+		}
+	}
 }
 
 void Perft::perft_debug(int depth)
@@ -160,7 +171,8 @@ void Perft::print_stats()
 	std::cout << "Number of promotions              : " << stats->num_promotions << std::endl;
 	std::cout << "Number of castles                 : " << stats->num_castles << std::endl;
 	std::cout << "Number of checks                  : " << stats->num_checks << std::endl;
+	std::cout << "Number of discovery checks        : " << stats->num_discovery_checks << std::endl;
 	std::cout << "Number of double checks           : " << stats->num_double_checks << std::endl;
-	std::cout << "Number of checkmates              : " << stats->num_check_mates << std::endl;
-	std::cout << "Number of dicovery checks         : " << stats->num_discovery_checks << std::endl;
+	std::cout << "Number of check mates             : " << stats->num_check_mates << std::endl;
+	std::cout << "Number of stale mates             : " << stats->num_stale_mates << std::endl;
 }

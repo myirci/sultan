@@ -270,5 +270,3 @@ void Board::add_piece(int8_t p, int8_t loc)
     if (piece_loc.size() > 32 || piece_loc.size() < 2)
         throw std::logic_error("ADD_PIECE FAILURE!");
 }
-
-
