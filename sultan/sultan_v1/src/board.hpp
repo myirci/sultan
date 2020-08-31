@@ -62,4 +62,5 @@ public:
 
     state::BoardState make_move(Move const& mv);
     void unmake_move(Move const& mv, state::BoardState const& st);
+    Move to_move(std::string_view str);
 };

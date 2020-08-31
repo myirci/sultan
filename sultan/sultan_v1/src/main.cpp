@@ -1,8 +1,10 @@
 #include <iostream>
+
+#include "engine.hpp"
+
 #include "fen.hpp"
 #include "board.hpp"
 #include "utility.hpp"
-
 #include "square.hpp"
 
 #include "test/fen_tests.hpp"
@@ -15,22 +17,27 @@
 
 using namespace std;
 
-int main()
+void unit_tests();
+void perft_tests();
+
+int main(int argc, char* argv[])
 {
-    /*
+    auto engine = make_unique<Engine>();
+    engine->run();
+    return 0;
+}
+
+void unit_tests()
+{
     test::FenTests::run_test();
     test::MoveTests::run_test();
     test::PieceTests::run_test();
     test::BoardTests::run_test();
     test::UtilityTests::run_test();
     test::MoveGeneratorTests::run_test();
-    */
+}
 
-    // test::PerftTests::run_test();
-    // test::BoardTests::run_test();
-    // test::MoveGeneratorTests::run_test();
-    // test::MoveGeneratorTests::debug_func();
-    test::PerftTests::debug_func();
-
-    return 0;
+void perft_tests() 
+{
+    test::PerftTests::run_test();
 }

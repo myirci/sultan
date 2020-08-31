@@ -203,14 +203,13 @@ void Utility::generate_and_print_moves(std::string const& fen_str)
     generate_and_print_moves(b);
 }
 
-
 void Utility::print_moves(std::vector<Move> const& moves) 
 {
     for (auto it = moves.begin(); it != moves.end(); it++)
         print_move(*it);
 }
 
-void Utility::print_move(Move m) 
+void Utility::print_move(Move const& m) 
 {
     auto captured = m.is_capture() ? piece::piece_to_char.find(m.get_captured_piece())->second : ' ';
     std::cout
@@ -219,15 +218,51 @@ void Utility::print_move(Move m)
         << " Type: " << Utility::move_type_to_chararr.find(m.get_move_type())->second << " " << captured << std::endl;
 }
 
-/*
-void Utility::print_attacks(std::vector<attack::AttackInfo> const& attack_infos)
+std::string Utility::to_string(Move const& mv) 
 {
-    for (auto it = attack_infos.begin(); it != attack_infos.end(); it++) 
+    std::string str = square::square_to_string(mv.get_from()) + square::square_to_string(mv.get_to());
+    if (mv.is_promotion()) 
     {
-        std::cout << "attacker loc:\t" << square::square_to_string(it->attacker_loc)
-                  << ", \tattack dir:\t" << direction::direction_to_chararray.find(it->attack_dir)->second
-                  << ", \ttarget square:\t" << square::square_to_string(it->target_loc)
+        switch (mv.get_move_type()) 
+        {
+            case MoveType::Queen_Promotion:
+            case MoveType::Queen_Promotion_Capture:
+                str.push_back('q');
+                break;
+            case MoveType::Knight_Promotion:
+            case MoveType::Knight_Promotion_Capture:
+                str.push_back('n');
+                break;
+            case MoveType::Rook_Promotion:
+            case MoveType::Rook_Promotion_Capture:
+                str.push_back('r');
+                break;
+            case MoveType::Bishop_Promotion:
+            case MoveType::Bishop_Promotion_Capture:
+                str.push_back('b');
+                break;
+        }
+    }
+    return str;
+}
+
+void Utility::print_attacks(std::unordered_map<int8_t, std::pair<int8_t, int8_t>> const& attack_info)
+{
+    for (auto it = attack_info.begin(); it != attack_info.end(); it++) 
+    {
+        std::cout << "attacker loc:\t" << square::square_to_string(it->second.first)
+                  << ", \tattack dir:\t" << direction::direction_to_chararray.find(it->second.second)->second
+                  << ", \ttarget square:\t" << square::square_to_string(it->first)
                   << std::endl;
     } 
 }
-*/
+
+std::vector<std::string> Utility::tokenize(std::string const& str)
+{
+    std::vector<std::string> tokens;
+    std::stringstream ss{ str };
+    std::string token{ "" };
+    while (ss >> token)
+        tokens.push_back(token);
+    return std::move(tokens);
+}

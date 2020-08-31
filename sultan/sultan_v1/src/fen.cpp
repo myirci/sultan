@@ -1,7 +1,7 @@
 #include <sstream>
 #include "fen.hpp"
 
-Fen::Fen() : fen_str { "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" } { parse(); }
+Fen::Fen() : fen_str { Fen::startpos } { parse(); }
 
 Fen::Fen(std::string&& f_str) : fen_str { std::move(f_str) } { parse(); }
 

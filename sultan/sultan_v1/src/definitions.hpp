@@ -46,3 +46,9 @@ namespace state
         int16_t half_move_counter;
     };
 }
+
+namespace message_direction 
+{
+    inline constexpr int8_t engine_to_gui{ 1 };
+    inline constexpr int8_t gui_to_engine{ -1 };
+}

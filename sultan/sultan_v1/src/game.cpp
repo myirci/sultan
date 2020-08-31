@@ -1,11 +1,24 @@
 #include "game.hpp"
 #include "fen.hpp"
 #include "utility.hpp"
+#include "square.hpp"
+#include "piece.hpp"
 
-Game::Game(const std::string& fen_str) : board{ std::make_unique<Board>() }, mg{ std::make_unique<MoveGenerator>(*board)}
+Game::Game() : board{ std::make_unique<Board>() }, mg{ std::make_unique<MoveGenerator>(*board) }
+{
+	Fen f;
+	Utility::fen_to_board(f, *board);
+}
+
+Game::Game(const std::string& fen_str) : board{ std::make_unique<Board>() }, mg{ std::make_unique<MoveGenerator>(*board) }
 {
 	Fen f{fen_str};
 	Utility::fen_to_board(f, *board);
+}
+
+void Game::make_move(std::string_view mv_str) 
+{
+	make_move(board->to_move(mv_str));
 }
 
 void Game::make_move(Move const& mv) 

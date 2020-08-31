@@ -270,3 +270,49 @@ void Board::add_piece(int8_t p, int8_t loc)
     if (piece_loc.size() > 32 || piece_loc.size() < 2)
         throw std::logic_error("ADD_PIECE FAILURE!");
 }
+
+Move Board::to_move(std::string_view str) 
+{
+    if(str.length() != 4 || str.length() == 5)
+        throw std::logic_error("Invalid move!");
+
+    int8_t from{ square::string_to_square(str[0], str[1]) };
+    int8_t to{ square::string_to_square(str[2], str[3]) };
+    int8_t cap = board[to] == piece::eM ? def::none : board[to];
+    
+    MoveType mt{ MoveType::Quite };
+    if (str.length() == 5) 
+    {
+        // promotion and promotion with capture
+        if (str[4] == 'q')       mt = cap == def::none ? MoveType::Queen_Promotion : MoveType::Queen_Promotion_Capture;
+        else if (str[4] == 'n')  mt = cap == def::none ? MoveType::Knight_Promotion : MoveType::Knight_Promotion_Capture;
+        else if (str[4] == 'r')  mt = cap == def::none ? MoveType::Rook_Promotion : MoveType::Rook_Promotion_Capture;
+        else if (str[4] == 'b')  mt = cap == def::none ? MoveType::Bishop_Promotion : MoveType::Bishop_Promotion_Capture;
+    }
+    else if (cap != def::none) 
+    {
+        // capture and en-passant capture
+        mt = (to == en_passant_loc) ? MoveType::En_Passant_Capture : MoveType::Capture;
+    }
+    else
+    {
+        // castle and double pawn push
+        if ((board[from] == piece::wP && (to - from) == (2 * direction::N)) ||
+            (board[from] == piece::bP && (to - from) == (2 * direction::S)))
+        {
+            mt = MoveType::Double_Pawn_Push;
+        }
+        else if (board[from] == piece::wK && from == square::e1)
+        {
+            if (to == square::g1)      mt = MoveType::King_Side_Castle;
+            else if (to == square::c1) mt = MoveType::Queen_Side_Castle;
+        }
+        else if (board[from] == piece::bK && from == square::e8) 
+        {
+            if (to == square::g8)      mt = MoveType::King_Side_Castle;
+            else if (to == square::c8) mt = MoveType::Queen_Side_Castle;
+        }     
+    }
+    
+    return Move(from, to, mt, cap);
+}

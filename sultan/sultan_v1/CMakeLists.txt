@@ -13,7 +13,8 @@ add_executable(
     src/square.hpp src/square.cpp
     src/move_generator.hpp src/move_generator.cpp
     src/utility.hpp src/utility.cpp
-    src/uci.hpp src/uci.cpp
+    src/move_selector.hpp src/move_selector.cpp
+	src/engine.hpp src/engine.cpp
     src/game.hpp src/game.cpp
 	src/perft.hpp src/perft.cpp
     src/piece.hpp

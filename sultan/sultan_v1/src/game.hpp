@@ -19,7 +19,10 @@ class Game
 
 public:
 
+    Game();
     Game(const std::string& fen_str);
+
+    void make_move(std::string_view mv_str);
     void make_move(Move const& mv);
     void unmake_move();
 };

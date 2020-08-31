@@ -14,11 +14,11 @@ namespace test
         std::vector<std::string> epd_files
         {
             // R"(C:\Users\myirci\Documents\dev\bitbucket\chess\sultan\sultan_v1\src\test\data\perft_positions1.epd)",
-            // R"(C:\Users\myirci\Documents\dev\bitbucket\chess\sultan\sultan_v1\src\test\data\perft_positions2.epd)",
+            R"(C:\Users\myirci\Documents\dev\bitbucket\chess\sultan\sultan_v1\src\test\data\perft_positions2.epd)",
             // R"(C:\Users\myirci\Documents\dev\bitbucket\chess\sultan\sultan_v1\src\test\data\perft_positions3.epd)",
             // R"(C:\Users\myirci\Documents\dev\bitbucket\chess\sultan\sultan_v1\src\test\data\perft_positions4.epd)",
             // R"(C:\Users\myirci\Documents\dev\bitbucket\chess\sultan\sultan_v1\src\test\data\perft_positions5.epd)",
-            R"(C:\Users\myirci\Documents\dev\bitbucket\chess\sultan\sultan_v1\src\test\data\perft_positions6.epd)",
+            // R"(C:\Users\myirci\Documents\dev\bitbucket\chess\sultan\sultan_v1\src\test\data\perft_positions6.epd)",
             // R"(C:\Users\myirci\Documents\dev\bitbucket\chess\sultan\sultan_v1\src\test\data\perft_positions9.epd)",
             // R"(C:\Users\myirci\Documents\dev\bitbucket\chess\sultan\sultan_v1\src\test\data\perft_positions10.epd)",
             // R"(C:\Users\myirci\Documents\dev\bitbucket\chess\sultan\sultan_v1\src\test\data\perft_positions11.epd)",

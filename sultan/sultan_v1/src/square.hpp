@@ -53,5 +53,7 @@ namespace square
     constexpr int8_t file(int8_t idx) { return idx & 0x07; }
 
     std::string square_to_string(int8_t sq);
+
+    constexpr int8_t string_to_square(char fl, char rk) { return sq(rk - '1', fl - 'a'); };
 }
 
