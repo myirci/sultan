@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(sultan_v1 LANGUAGES CXX)
+project(sultan LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
