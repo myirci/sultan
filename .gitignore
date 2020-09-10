@@ -1,4 +1,7 @@
+# This file is used to ignore files which are generated
+# ----------------------------------------------------------------------------
 build
+out
+.vs
 .DS_Store
 CMakeLists.txt.user
-
