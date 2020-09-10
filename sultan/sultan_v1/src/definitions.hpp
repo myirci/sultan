@@ -52,3 +52,24 @@ namespace message_direction
     inline constexpr int8_t engine_to_gui{ 1 };
     inline constexpr int8_t gui_to_engine{ -1 };
 }
+
+namespace uci 
+{
+    struct SearchParameters 
+    {
+        SearchParameters() : 
+            wtime{ 0 }, btime{ 0 }, winc{ 0 }, binc{ 0 }, 
+            move_to_go{ -1 }, infinite{ false }, depth{ -1 }, nodes{ 0 }, move_time{ 0 }, mate{ 0 }  { }
+
+        std::uint64_t wtime;
+        std::uint64_t btime;
+        std::uint32_t winc;
+        std::uint32_t binc;
+        std::uint64_t nodes;
+        std::uint64_t move_time;
+        std::uint8_t mate;
+        std::int16_t depth;
+        std::int16_t move_to_go;
+        bool infinite;
+    };
+}

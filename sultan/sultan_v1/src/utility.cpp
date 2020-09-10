@@ -4,6 +4,7 @@
 #include "definitions.hpp"
 #include "square.hpp"
 #include "board.hpp"
+#include "factory.hpp"
 
 #include <iostream>
 #include <iomanip>
@@ -11,6 +12,7 @@
 #include <vector>
 #include <unordered_map>
 #include <sstream>
+#include <random>
 
 std::unordered_map<MoveType, char const *> const Utility::move_type_to_chararr
 {
@@ -30,7 +32,7 @@ std::unordered_map<MoveType, char const *> const Utility::move_type_to_chararr
     { MoveType::Rook_Promotion_Capture, "Rook Promotion Capture" }
 };
 
-bool Utility::is_equal(Move m1, Move m2) 
+bool Utility::is_equal(Move const& m1, Move const& m2)
 {
     return m1.get_from() == m2.get_from() && 
            m1.get_to() == m2.get_to() && 
@@ -38,64 +40,12 @@ bool Utility::is_equal(Move m1, Move m2)
            m1.get_captured_piece() == m2.get_captured_piece();
 }
 
-void Utility::fen_to_board(Fen const & f, Board& b)
+bool Utility::is_equal(Board const& b1, Board const& b2) 
 {
-    // piece placement
-    size_t start{0}, pos{0};
-    int idx{0};
-    std::string row{""}, pp{f.piece_placement + "/" };
-    std::unordered_multimap<int8_t, int8_t> piece_loc;
-    auto board = b.get_board();
-    while((pos = pp.find('/', start)) != std::string::npos)
-    {
-        row = pp.substr(start, pos - start);
-        start = pos + 1;
-
-        for(char c : row)
-        {
-            if(std::isdigit(c))
-            {
-                for(int i = 0; i < static_cast<int>(c - '0'); i++)
-                    board[square::order[idx++]] = piece::eM;
-            }
-            else
-            {
-                int8_t loc { square::order[idx++] };
-                int8_t piece = piece::char_to_piece.at(c);
-                board[loc] = piece;
-                piece_loc.insert(std::make_pair(piece, loc));
-            }
-        }
-    }
-    b.set_piece_locations(std::move(piece_loc));
-
-    // active color
-    if (f.active_color == "w")
-        b.set_side_to_move(color::white);
-    else if(f.active_color == "b")
-        b.set_side_to_move(color::black);
-    else
-        throw std::invalid_argument("active color parse error");
-
-    // castling availability
-    if (f.castling_availability.find('K') != std::string::npos)
-        b.set_castling_rights(Castling::white_king_side, true);
-    if (f.castling_availability.find('Q') != std::string::npos)
-        b.set_castling_rights(Castling::white_queen_side, true);
-    if (f.castling_availability.find('k') != std::string::npos)
-        b.set_castling_rights(Castling::black_king_side, true);
-    if (f.castling_availability.find('q') != std::string::npos)
-        b.set_castling_rights(Castling::black_queen_side, true);
-
-    // en passant
-    if (f.en_passant == "-") b.set_en_passant_loc(def::none);
-    else b.set_en_passant_loc(square::sq(static_cast<int8_t>(f.en_passant[1] - '1'), static_cast<int8_t>(f.en_passant[0] - 'a')));
-
-    // half_move_clock
-    b.set_half_move_counter(f.half_move_clock);
-
-    // full_move_number
-    b.set_full_move_counter(f.full_move_number);
+    return b1.get_castling_rights() == b2.get_castling_rights() && b1.get_side_to_move() == b2.get_side_to_move() &&
+           b1.get_full_move_counter() == b2.get_full_move_counter() && b1.get_half_move_counter() == b2.get_half_move_counter() &&
+           b1.get_en_passant_loc() == b2.get_en_passant_loc() && std::equal(b1.board, b1.board + Board::BOARDSIZE, b2.board) &&
+           b1.ploc->piece_loc == b2.ploc->piece_loc && b1.attacks->checks_and_pins == b2.attacks->checks_and_pins;
 }
 
 std::string Utility::board_to_fen_string(Board const & b)
@@ -157,13 +107,12 @@ std::string Utility::board_to_fen_string(Board const & b)
 void Utility::print_board(Board const & b, bool full)
 {
     auto board = b.get_board();
-    std::cout << "\n";
     if(full)
     {
         for (auto i = 0; i < 128; i++)
         {
             if(i % 16 == 0) std::cout << "\n";
-            std::cout << std::setw(3) << static_cast<int>(board[square::full_order[i]]) << " ";
+            std::cout << std::setw(3) << piece::piece_to_char.find(board[square::full_order[i]])->second << " ";
         }
     }
     else
@@ -171,36 +120,36 @@ void Utility::print_board(Board const & b, bool full)
         for (auto i = 0; i < 64; i++)
         {
             if(i % 8 == 0) std::cout << "\n";
-            std::cout << std::setw(3) << static_cast<int>(board[square::order[i]]) << " ";
+            std::cout << std::setw(3) << piece::piece_to_char.find(board[square::order[i]])->second << " ";
         }
     }
 
     std::cout << "\n";
+}
 
-    std::cout << "\nPiece Locations" << std::endl;
-    auto ploc = b.get_piece_locations();
-    for (auto it = ploc.begin(); it != ploc.end(); it++) 
-        std::cout << piece::piece_to_char.find(it->first)->second << " at " << square::square_to_string(it->second) << ", ";
+void Utility::print_piece_locations(Board const& b) 
+{
+    std::cout << std::endl;
+    auto ploc = b.ploc->piece_loc;
+    for (auto it = ploc.begin(); it != ploc.end(); it++)
+        std::cout << piece::piece_to_char.find(it->first)->second << " at " << square::square_to_string(it->second) << "\n";
     std::cout << std::endl;
 }
 
-void Utility::generate_and_print_moves(Board const& board) 
+void Utility::generate_and_print_moves(Board const& board)
 {
-    MoveGenerator mg{ board };
-    mg.compute_attacks();
-    auto moves = mg.generate_moves();
+    auto moves = MoveGenerator::generate_moves(board);
+    std::cout << std::endl;
     std::cout << moves.size() << " legal moves : ";
     for (auto it = moves.begin(); it != moves.end(); it++)
         std::cout << *it << " ";
     std::cout << std::endl;
 }
 
-void Utility::generate_and_print_moves(std::string const& fen_str) 
+void Utility::generate_and_print_moves(std::string_view fen_str) 
 {
-    Fen f{ fen_str };
-    Board b;
-    fen_to_board(f, b);
-    generate_and_print_moves(b);
+    auto b = Factory::CreateBoard(fen_str);
+    generate_and_print_moves(*b);
 }
 
 void Utility::print_moves(std::vector<Move> const& moves) 
@@ -265,4 +214,59 @@ std::vector<std::string> Utility::tokenize(std::string const& str)
     while (ss >> token)
         tokens.push_back(token);
     return std::move(tokens);
+}
+
+Move Utility::to_move(std::string_view str, Board const& brd)
+{
+    if (str.length() != 4 && str.length() != 5)
+        throw std::logic_error("Invalid move!");
+
+    int8_t from{ square::string_to_square(str[0], str[1]) };
+    int8_t to{ square::string_to_square(str[2], str[3]) };
+    if (to == brd.get_en_passant_loc())
+        return Move(from, to, MoveType::En_Passant_Capture, -brd.get_side_to_move() * piece::Pawn);
+    int8_t cap = brd.board[to] == piece::eM ? def::none : brd.board[to];
+    
+    MoveType mt{ MoveType::Quite };
+    if (str.length() == 5)
+    {
+        // promotion and promotion with capture
+        if (str[4] == 'q')       mt = cap == def::none ? MoveType::Queen_Promotion : MoveType::Queen_Promotion_Capture;
+        else if (str[4] == 'n')  mt = cap == def::none ? MoveType::Knight_Promotion : MoveType::Knight_Promotion_Capture;
+        else if (str[4] == 'r')  mt = cap == def::none ? MoveType::Rook_Promotion : MoveType::Rook_Promotion_Capture;
+        else if (str[4] == 'b')  mt = cap == def::none ? MoveType::Bishop_Promotion : MoveType::Bishop_Promotion_Capture;
+    }
+    else if (cap != def::none)
+    {
+        mt = MoveType::Capture;
+    }
+    else
+    {
+        // castle and double pawn push
+        if ((brd.board[from] == piece::wP && (to - from) == (2 * direction::N)) ||
+            (brd.board[from] == piece::bP && (to - from) == (2 * direction::S)))
+        {
+            mt = MoveType::Double_Pawn_Push;
+        }
+        else if (brd.board[from] == piece::wK && from == square::e1)
+        {
+            if (to == square::g1)      mt = MoveType::King_Side_Castle;
+            else if (to == square::c1) mt = MoveType::Queen_Side_Castle;
+        }
+        else if (brd.board[from] == piece::bK && from == square::e8)
+        {
+            if (to == square::g8)      mt = MoveType::King_Side_Castle;
+            else if (to == square::c8) mt = MoveType::Queen_Side_Castle;
+        }
+    }
+
+    return Move(from, to, mt, cap);
+}
+
+int Utility::get_random(int lower_limit, int upper_limit) 
+{
+    std::random_device rd;
+    std::default_random_engine generator{rd()};
+    std::uniform_int_distribution<int> distribution(lower_limit, upper_limit);
+    return distribution(generator);
 }

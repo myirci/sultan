@@ -1,6 +1,7 @@
 #include "perft_tests.hpp"
 #include "../perft.hpp"
 #include "../utility.hpp"
+#include "../factory.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -14,10 +15,10 @@ namespace test
         std::vector<std::string> epd_files
         {
             // R"(C:\Users\myirci\Documents\dev\bitbucket\chess\sultan\sultan_v1\src\test\data\perft_positions1.epd)",
-            R"(C:\Users\myirci\Documents\dev\bitbucket\chess\sultan\sultan_v1\src\test\data\perft_positions2.epd)",
+            // R"(C:\Users\myirci\Documents\dev\bitbucket\chess\sultan\sultan_v1\src\test\data\perft_positions2.epd)",
             // R"(C:\Users\myirci\Documents\dev\bitbucket\chess\sultan\sultan_v1\src\test\data\perft_positions3.epd)",
             // R"(C:\Users\myirci\Documents\dev\bitbucket\chess\sultan\sultan_v1\src\test\data\perft_positions4.epd)",
-            // R"(C:\Users\myirci\Documents\dev\bitbucket\chess\sultan\sultan_v1\src\test\data\perft_positions5.epd)",
+            R"(C:\Users\myirci\Documents\dev\bitbucket\chess\sultan\sultan_v1\src\test\data\perft_positions5.epd)",
             // R"(C:\Users\myirci\Documents\dev\bitbucket\chess\sultan\sultan_v1\src\test\data\perft_positions6.epd)",
             // R"(C:\Users\myirci\Documents\dev\bitbucket\chess\sultan\sultan_v1\src\test\data\perft_positions9.epd)",
             // R"(C:\Users\myirci\Documents\dev\bitbucket\chess\sultan\sultan_v1\src\test\data\perft_positions10.epd)",
@@ -68,8 +69,9 @@ namespace test
         std::cout << "Position - " << id << " : " << fen << std::endl;
         for (auto it = perft_results.begin(); it != perft_results.end(); it++) 
         {
-            Perft p(fen);
-            auto res = p.perft(it->first);
+            auto b = Factory::CreateBoard(fen);
+            auto p = Factory::CreatePerft(b.get());
+            auto res = p->perft(it->first);
             if (res == it->second)
             {
                 std::cout << "\tPeft-" << it->first << " computed correctly: " << res << std::endl;
@@ -96,30 +98,5 @@ namespace test
             std::make_pair(7,3195901860)
         };
         return perft(1, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", perft_results);
-    }
-
-    void PerftTests::debug_func()
-    {
-        Perft p("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
-        p.perft_with_statistics(5);
-        p.print_stats();
-
-        // Perft p("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1");
-        // p.perft_divide(6);
-
-        // Perft p("8/2p5/3p4/KP5r/5p1k/8/4P1P1/1R6 b - - 0 1");
-        // p.perft_divide(5);
-
-        // Perft p("r1bqk2r/pp1p1ppp/5n2/n1pP4/Q7/2PB1N2/P4PPP/R1B1K2R w KQkq c6 0 1");
-        // std::cout << p.perft(4) << std::endl;
-
-        // Perft p("8/2p5/3p4/KP5r/5pk1/8/4P1P1/6R1 b - - 0 1");
-        // p.perft_divide(3);
-
-        // Perft p("8/2p5/3p4/KP4kr/5p2/8/4P1P1/6R1 w - - 0 1");
-        // p.perft_divide(2);
-
-        // Utility::generate_and_print_moves("6k1/r2n3p/2p1p1p1/p1PpPp2/3P4/P2B2P1/5P1P/1R4K1 w - f6 0 1");
-
     }
 }

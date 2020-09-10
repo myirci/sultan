@@ -1,44 +1,49 @@
 #pragma once
 
-/* Implements 0x88 board representation */
-
 #include <cstdint>
-#include <unordered_map>
 #include <vector>
 #include <memory>
 
 #include "move.hpp"
 #include "enums.hpp"
+#include "piece_location.hpp"
+#include "attack_detector.hpp"
 #include "test/board_tests.hpp"
+
+class AttackDetector;
 
 class Board
 {
-    int8_t board[128];
+    Board();
+    Board(Board const& brd);
+    Board& operator=(Board const& brd) = delete;
+    Board(Board&& brd) = delete;
+    Board& operator=(Board&& brd) = delete;
 
+    int8_t board[128];         
     int16_t half_move_counter;
     int16_t full_move_counter;
     int8_t en_passant_loc;
     int8_t side_to_move;
     int8_t castling_rights;
 
-    std::unordered_multimap<int8_t, int8_t> piece_loc; // keys: pieces, values: locations
-    
-    void clear();
-    inline void make_quite_move(int8_t from, int8_t to);
-    void update_piece_loc(int8_t old_loc, int8_t new_loc);
-    void remove_piece(int8_t loc);
-    inline void add_piece(int8_t p, int8_t loc);
+    std::unique_ptr<PieceLocation> ploc;
+    std::unique_ptr<AttackDetector> attacks;
 
+    inline void make_quite_move(int8_t from, int8_t to);
+
+    friend class Factory;
+    friend class Utility;
     friend class test::BoardTests;
 
 public:
 
     constexpr static int BOARDSIZE = 128;
-    Board();
 
     int8_t* get_board();
-    int8_t const * get_board() const;
 
+    int8_t const * get_board() const;
+    
     int8_t get_side_to_move() const;
     void set_side_to_move(int8_t);
 
@@ -56,11 +61,17 @@ public:
     int8_t get_en_passant_loc() const;
     void set_en_passant_loc(int8_t val);
 
-    void set_piece_locations(std::unordered_multimap<int8_t, int8_t>&& plocs);
-    std::unordered_multimap<int8_t, int8_t>& get_piece_locations();
-    std::unordered_multimap<int8_t, int8_t> const& get_piece_locations() const;
+    // Piece Location:
+    int8_t find_piece_location(int8_t ptype) const;
+    std::pair<PieceLocation::PLConstIt, PieceLocation::PLConstIt> find_piece_locations(int8_t ptype) const;
+
+    // Attack Detector:
+    int8_t num_checkers(int8_t king_pos) const;
+    std::pair<int8_t, int8_t> get_checker_positions(int8_t king_pos) const;
+    bool is_under_attack(int8_t attacking_side, int8_t target_sq, int8_t exclude_pos1 = def::none, int8_t exclude_pos2 = def::none) const;
+    int8_t get_pin_direction(int8_t sq) const;
+    std::pair<int8_t, int8_t> get_attack_info(int8_t pos) const;
 
     state::BoardState make_move(Move const& mv);
     void unmake_move(Move const& mv, state::BoardState const& st);
-    Move to_move(std::string_view str);
 };

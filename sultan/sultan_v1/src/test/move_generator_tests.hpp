@@ -50,20 +50,5 @@ namespace test
         static bool test31();
         static bool test32();
         static bool test33();
-        static bool test34();
-        static bool test35();
-        static bool test36();
-        static bool test37();
-        static bool test38();
-        static bool test39();
-        static bool test40();
-        static bool test41();
-        static bool test42();
-        static bool test43();
-        static bool test44();
-        static bool test45();
-        static bool test46();
-        static bool test47();
-        static bool test48();
     };
 }

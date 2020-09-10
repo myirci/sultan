@@ -10,10 +10,14 @@ add_executable(
     src/fen.hpp src/fen.cpp
     src/move.hpp src/move.cpp
     src/board.hpp src/board.cpp
+	src/piece_location.hpp src/piece_location.cpp
     src/square.hpp src/square.cpp
     src/move_generator.hpp src/move_generator.cpp
+	src/attack_detector.hpp src/attack_detector.cpp
+	src/factory.hpp src/factory.cpp
     src/utility.hpp src/utility.cpp
     src/move_selector.hpp src/move_selector.cpp
+	src/analyzer.hpp src/analyzer.cpp
 	src/engine.hpp src/engine.cpp
     src/game.hpp src/game.cpp
 	src/perft.hpp src/perft.cpp
@@ -28,6 +32,5 @@ add_executable(
 	src/test/perft_tests.hpp src/test/perft_tests.cpp 
 	src/test/piece_tests.hpp src/test/piece_tests.cpp
 	src/test/test_base.hpp src/test/test_base.cpp
-	src/test/utility_tests.hpp src/test/utility_tests.cpp 
 	
 	src/main.cpp)

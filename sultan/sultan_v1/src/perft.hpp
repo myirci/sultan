@@ -4,13 +4,14 @@
 #include <string>
 #include <memory>
 
-#include "move_generator.hpp"
-#include "board.hpp"
+class Board;
 
 class Perft
 {
-public:
-    
+    Board* board;
+
+    Perft(Board* brd);
+
     struct PerftStats
     {
         PerftStats() :
@@ -30,17 +31,15 @@ public:
         uint64_t num_stale_mates;
     };
 
-    Perft(std::string const& fen_string);
+    void print_stats(std::unique_ptr<PerftStats> const& stats);
+    void perft_with_statistics_implementation(int depth, std::unique_ptr<PerftStats>& stats);
+
+    friend class Factory;
+
+public:
+
     uint64_t perft(int depth);
     uint64_t perft_divide(int depth);
     void perft_with_statistics(int depth);
-    void perft_debug(int depth);
-    void print_stats();
-
-private:
-
-    std::unique_ptr<Board> board;
-    std::unique_ptr<MoveGenerator> mg;
-    std::unique_ptr<PerftStats> stats;
 };
 

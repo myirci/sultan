@@ -12,6 +12,5 @@ namespace test
 	public:
 		static void run_test();
 		static bool initial_pos_test();
-		static void debug_func();
 	};
 }

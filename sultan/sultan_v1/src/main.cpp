@@ -24,6 +24,10 @@ int main(int argc, char* argv[])
 {
     auto engine = make_unique<Engine>();
     engine->run();
+
+    // unit_tests();
+    // perft_tests();
+    // test::PerftTests::initial_pos_test();
     return 0;
 }
 
@@ -33,7 +37,6 @@ void unit_tests()
     test::MoveTests::run_test();
     test::PieceTests::run_test();
     test::BoardTests::run_test();
-    test::UtilityTests::run_test();
     test::MoveGeneratorTests::run_test();
 }
 

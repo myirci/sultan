@@ -45,7 +45,7 @@ namespace piece
         { piece::wB, 'B' }, { piece::bB, 'b' },
         { piece::wQ, 'Q' }, { piece::bQ, 'q' },
         { piece::wK, 'K' }, { piece::bK, 'k' }, 
-        { piece::eM, ' ' }, { def::none, 'x' }
+        { piece::eM, '-' }, { def::none, 'x' }
     };
 
     inline constexpr bool is_same_sign(int8_t a, int8_t b)

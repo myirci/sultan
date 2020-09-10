@@ -1,28 +1,27 @@
 #pragma once
 
-#include <string>
+#include <string_view>
 #include <memory>
 #include <stack>
 
 #include "move.hpp"
-#include "move_generator.hpp"
-#include "board.hpp"
-#include "definitions.hpp"
+#include "move_selector.hpp"
+
+class Board;
 
 class Game
 {
-    std::unique_ptr<Board> board; 
-    std::unique_ptr<MoveGenerator> mg;
-
+    Game(Board* brd);
+    Board* board;
+    
     std::stack<Move> move_stack;
     std::stack<state::BoardState> state_stack;
 
+    friend class Factory;
+
 public:
-
-    Game();
-    Game(const std::string& fen_str);
-
     void make_move(std::string_view mv_str);
     void make_move(Move const& mv);
+    std::string make_move(uci::SearchParameters const& param);
     void unmake_move();
 };

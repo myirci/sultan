@@ -11,10 +11,11 @@ namespace test
 {
 	void UtilityTests::run_test()
 	{
-		std::vector<bool (*)()> tests{ test1, test2, test3, test4, test5, test6 };
+		std::vector<bool (*)()> tests { test1, test2, test3, test4, test5, test6 };
 		TestBase::run_test("Utility", tests);
 	}
 
+    /*
     bool UtilityTests::test1()
     {
         Board b;
@@ -43,7 +44,7 @@ namespace test
             }
         }
 
-        if (b.get_piece_locations().size() != 32) return false;
+        // if (b.get_piece_locations().size() != 32) return false;
 
         std::vector<int8_t> white_pawn_loc{ square::a2, square::b2, square::c2, square::d2, square::e2, square::f2, square::g2, square::h2 };
         if (!check_piece_locations(b, piece::wP, white_pawn_loc)) return false;
@@ -70,8 +71,10 @@ namespace test
         if (!check_piece_locations(b, piece::bB, black_bishop_loc)) return false;
 
         return
-            b.get_piece_locations().find(piece::wK)->second == square::e1 && b.get_piece_locations().find(piece::bK)->second == square::e8 &&
-            b.get_piece_locations().find(piece::wQ)->second == square::d1 && b.get_piece_locations().find(piece::bQ)->second == square::d8 &&
+            // b.get_piece_locations().find(piece::wK)->second == square::e1 && 
+            // b.get_piece_locations().find(piece::bK)->second == square::e8 &&
+            // b.get_piece_locations().find(piece::wQ)->second == square::d1 && 
+            // b.get_piece_locations().find(piece::bQ)->second == square::d8 &&
             b.get_en_passant_loc() == def::none && b.get_castling_rights() == 15 && b.get_side_to_move() == color::white &&
             b.get_half_move_counter() == 0 && b.get_full_move_counter() == 1;
     }
@@ -120,9 +123,11 @@ namespace test
         auto fstr = Utility::board_to_fen_string(b);
         return fstr == f.get_fen();
     }
+    */
 
     bool UtilityTests::check_piece_locations(Board const& b, int8_t piece, std::vector<int8_t> expected_loc)
     {
+        /*
         auto r = b.get_piece_locations().equal_range(piece);
         size_t k = 0;
         for (auto it = r.first; it != r.second; it++, k++)
@@ -134,6 +139,8 @@ namespace test
             }
         }
         return true;
+        */
+        return false;
     }
 
 }

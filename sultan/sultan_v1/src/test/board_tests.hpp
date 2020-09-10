@@ -34,5 +34,22 @@ namespace test
 		static bool test21();
 		static bool test22();
 		static bool test23();
+		static bool test24();
+		static bool test25();
+		static bool test26();
+		static bool test27();
+		static bool test28();
+		static bool test29();
+		static bool test30();
+		static bool test31();
+		static bool test32();
+		static bool test33();
+		static bool test34();
+		static bool test35();
+		static bool test36();
+		static bool test37();
+		static bool test38();
+		static bool test39();
+		static bool test40();
 	};
 }

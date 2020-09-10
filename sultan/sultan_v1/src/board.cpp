@@ -5,21 +5,28 @@
 
 #include <algorithm>
 
-Board::Board()
+Board::Board() : 
+    side_to_move{ def::none }, 
+    en_passant_loc{ def::none }, 
+    castling_rights{ 0 }, 
+    half_move_counter{ -1 }, 
+    full_move_counter{ -1 }, 
+    ploc{ nullptr },
+    attacks{ nullptr } { std::fill(board, board + BOARDSIZE, def::none); }
+
+Board::Board(Board const& brd) :
+    side_to_move{ brd.side_to_move },
+    en_passant_loc{ brd.en_passant_loc },
+    castling_rights { brd.castling_rights },
+    half_move_counter {brd.half_move_counter },
+    full_move_counter{ brd.full_move_counter } 
 {
-    clear();
+    std::copy(brd.board, brd.board + BOARDSIZE, board);
 }
 
-void Board::clear()
-{
-    std::fill(board, board + BOARDSIZE, def::none);
-    en_passant_loc = def::none;
-    castling_rights = 0;
-    half_move_counter = -1;
-    full_move_counter = -1;
-    side_to_move = def::none;
-    piece_loc.clear();
-}
+int8_t* Board::get_board() { return  board; }
+
+int8_t const* Board::get_board() const { return board; }
 
 int8_t Board::get_side_to_move() const { return side_to_move; }
 
@@ -45,10 +52,6 @@ void Board::set_castling_rights(int8_t color, bool val)
     }
 }
 
-int8_t* Board::get_board() { return  board; }
-
-int8_t const * Board::get_board() const { return board; }
-
 int16_t Board::get_half_move_counter() const { return half_move_counter; }
 
 void Board::set_half_move_counter(int16_t val) { half_move_counter = val; }
@@ -61,15 +64,23 @@ int8_t Board::get_en_passant_loc() const { return en_passant_loc; }
 
 void Board::set_en_passant_loc(int8_t val) { en_passant_loc = val; }
 
-void Board::set_piece_locations(std::unordered_multimap<int8_t, int8_t>&& plocs) { piece_loc = std::move(plocs);  }
+int8_t Board::find_piece_location(int8_t ptype) const { return ploc->find_piece_location(ptype); }
 
-std::unordered_multimap<int8_t, int8_t>& Board::get_piece_locations() { return piece_loc;  };
+std::pair<PieceLocation::PLConstIt, PieceLocation::PLConstIt> Board::find_piece_locations(int8_t ptype) const { return ploc->find_piece_locations(ptype); };
 
-std::unordered_multimap<int8_t, int8_t> const& Board::get_piece_locations() const { return piece_loc;  };
+int8_t Board::num_checkers(int8_t king_pos) const { return attacks->num_checkers(king_pos); }
+
+std::pair<int8_t, int8_t> Board::get_checker_positions(int8_t king_pos) const { return attacks->get_checker_positions(king_pos); }
+
+bool Board::is_under_attack(int8_t attacking_side, int8_t target_sq, int8_t exclude_pos1, int8_t exclude_pos2) const { return attacks->is_under_attack(attacking_side, target_sq, exclude_pos1, exclude_pos2); }
+
+int8_t Board::get_pin_direction(int8_t sq) const { return attacks->get_pin_direction(sq); }
+
+std::pair<int8_t, int8_t> Board::get_attack_info(int8_t pos) const { return attacks->get_attack_info(pos); }
 
 void Board::make_quite_move(int8_t from, int8_t to) 
 {
-    update_piece_loc(from, to);
+    ploc->update_piece_loc(board[from], from, to);
     board[to] = board[from];
     board[from] = piece::eM;
 }
@@ -90,12 +101,12 @@ state::BoardState Board::make_move(Move const& mv)
         if (mtype == MoveType::En_Passant_Capture) 
         {
             int8_t pawn_loc = en_passant_loc + side_to_move * direction::S;
-            remove_piece(pawn_loc);
+            ploc->remove_piece(-side_to_move*piece::Pawn, pawn_loc);
             board[pawn_loc] = piece::eM;
         }
         else 
         {
-            remove_piece(to);
+            ploc->remove_piece(board[to], to);
 
             if (castling_rights != 0)
             {
@@ -124,8 +135,8 @@ state::BoardState Board::make_move(Move const& mv)
         else if (mtype == MoveType::Knight_Promotion || mtype == MoveType::Knight_Promotion_Capture)    p = side_to_move * piece::Knight;
         else if (mtype == MoveType::Rook_Promotion || mtype == MoveType::Rook_Promotion_Capture)        p = side_to_move * piece::Rook;
 
-        remove_piece(from);
-        add_piece(p, to);
+        ploc->remove_piece(board[from], from);
+        ploc->add_piece(p, to);
         board[from] = piece::eM;
         board[to] = p;
     }
@@ -171,6 +182,8 @@ state::BoardState Board::make_move(Move const& mv)
     
     side_to_move = -side_to_move;
 
+    attacks->compute_checks_and_pins();
+
     return std::move(st);
 }
 
@@ -194,10 +207,10 @@ void Board::unmake_move(Move const& mv, state::BoardState const& st)
 
     if (mv.is_promotion())
     {
-        int8_t p = side_to_move * piece::Pawn;
-        remove_piece(to);
-        add_piece(p, from);
-        board[from] = p;
+        int8_t p1{ side_to_move * piece::Pawn };
+        ploc->remove_piece(board[to], to);
+        ploc->add_piece(p1, from);
+        board[from] = p1;
         board[to] = piece::eM;
     }
     else 
@@ -222,97 +235,16 @@ void Board::unmake_move(Move const& mv, state::BoardState const& st)
         {
             int8_t pawn_loc = en_passant_loc + side_to_move * direction::S;
             int8_t p = -side_to_move * piece::Pawn;
-            add_piece(p, pawn_loc);
+            ploc->add_piece(p, pawn_loc);
             board[pawn_loc] = p;
         }
         else 
         {
             int8_t p{ mv.get_captured_piece() };
             board[to] = p;
-            add_piece(p, to);
-        }
-    }
-}
-
-void Board::update_piece_loc(int8_t old_loc, int8_t new_loc)
-{
-    auto r = piece_loc.equal_range(board[old_loc]);
-    for (auto it = r.first; it != r.second; it++) 
-    {
-        if (it->second == old_loc)
-        {
-            it->second = new_loc;
-            return;
+            ploc->add_piece(p, to);
         }
     }
 
-    throw std::logic_error("UPDATE_PIECE_LOC FAILURE!");
-    
-}
-
-void Board::remove_piece(int8_t loc)
-{
-    auto r = piece_loc.equal_range(board[loc]);
-    for (auto it = r.first; it != r.second; it++) 
-    {
-        if (it->second == loc) 
-        {
-            piece_loc.erase(it);
-            return;
-        }
-    }
-    throw std::logic_error("REMOVE_PIECE FAILURE!");
-}
-
-void Board::add_piece(int8_t p, int8_t loc) 
-{
-    piece_loc.insert(std::make_pair(p, loc));
-    if (piece_loc.size() > 32 || piece_loc.size() < 2)
-        throw std::logic_error("ADD_PIECE FAILURE!");
-}
-
-Move Board::to_move(std::string_view str) 
-{
-    if(str.length() != 4 || str.length() == 5)
-        throw std::logic_error("Invalid move!");
-
-    int8_t from{ square::string_to_square(str[0], str[1]) };
-    int8_t to{ square::string_to_square(str[2], str[3]) };
-    int8_t cap = board[to] == piece::eM ? def::none : board[to];
-    
-    MoveType mt{ MoveType::Quite };
-    if (str.length() == 5) 
-    {
-        // promotion and promotion with capture
-        if (str[4] == 'q')       mt = cap == def::none ? MoveType::Queen_Promotion : MoveType::Queen_Promotion_Capture;
-        else if (str[4] == 'n')  mt = cap == def::none ? MoveType::Knight_Promotion : MoveType::Knight_Promotion_Capture;
-        else if (str[4] == 'r')  mt = cap == def::none ? MoveType::Rook_Promotion : MoveType::Rook_Promotion_Capture;
-        else if (str[4] == 'b')  mt = cap == def::none ? MoveType::Bishop_Promotion : MoveType::Bishop_Promotion_Capture;
-    }
-    else if (cap != def::none) 
-    {
-        // capture and en-passant capture
-        mt = (to == en_passant_loc) ? MoveType::En_Passant_Capture : MoveType::Capture;
-    }
-    else
-    {
-        // castle and double pawn push
-        if ((board[from] == piece::wP && (to - from) == (2 * direction::N)) ||
-            (board[from] == piece::bP && (to - from) == (2 * direction::S)))
-        {
-            mt = MoveType::Double_Pawn_Push;
-        }
-        else if (board[from] == piece::wK && from == square::e1)
-        {
-            if (to == square::g1)      mt = MoveType::King_Side_Castle;
-            else if (to == square::c1) mt = MoveType::Queen_Side_Castle;
-        }
-        else if (board[from] == piece::bK && from == square::e8) 
-        {
-            if (to == square::g8)      mt = MoveType::King_Side_Castle;
-            else if (to == square::c8) mt = MoveType::Queen_Side_Castle;
-        }     
-    }
-    
-    return Move(from, to, mt, cap);
+    attacks->compute_checks_and_pins();
 }

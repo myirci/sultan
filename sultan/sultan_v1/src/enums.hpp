@@ -10,3 +10,4 @@ enum class Castling : int8_t
     black_queen_side = 8
 };
 
+
