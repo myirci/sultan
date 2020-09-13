@@ -65,7 +65,8 @@ bool UciEngine::execute_command(std::string const& engine_command)
 	}
 	else if (tokens[0] == "ponderhit") 
 	{ 
-		// apply the ponder move 
+		// ponder move is played by the opponent, no need to update the board, 
+		// engine can finalize the ponder search and make its move
 	}
 	else if (tokens[0] == "register") 
 	{ 

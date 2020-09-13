@@ -17,6 +17,7 @@ class UciGame
     std::stack<Move> move_stack;
     std::stack<state::BoardState> state_stack;
 
+
     friend class Factory;
 
 public:
