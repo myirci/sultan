@@ -18,8 +18,8 @@ add_executable(
     src/utility.hpp src/utility.cpp
     src/move_selector.hpp src/move_selector.cpp
 	src/analyzer.hpp src/analyzer.cpp
-	src/engine.hpp src/engine.cpp
-    src/game.hpp src/game.cpp
+	src/uci_engine.hpp src/uci_engine.cpp
+    src/uci_game.hpp src/uci_game.cpp
 	src/perft.hpp src/perft.cpp
     src/piece.hpp
     src/enums.hpp

@@ -59,7 +59,8 @@ namespace uci
     {
         SearchParameters() : 
             wtime{ 0 }, btime{ 0 }, winc{ 0 }, binc{ 0 }, 
-            move_to_go{ -1 }, infinite{ false }, depth{ -1 }, nodes{ 0 }, move_time{ 0 }, mate{ 0 }  { }
+            move_to_go{ -1 }, depth{ -1 }, nodes{ 0 }, move_time{ 0 }, mate{ 0 },
+            infinite{ false }, ponder{ false } { }
 
         std::uint64_t wtime;
         std::uint64_t btime;
@@ -71,5 +72,6 @@ namespace uci
         std::int16_t depth;
         std::int16_t move_to_go;
         bool infinite;
+        bool ponder;
     };
 }

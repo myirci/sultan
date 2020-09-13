@@ -78,13 +78,12 @@ void Perft::perft_with_statistics_implementation(int depth, std::unique_ptr<Perf
 			if (checkers.first != def::none) num_checkers++;
 			if (checkers.second != def::none) num_checkers++;
 
-
 			auto num_children = MoveGenerator::generate_moves(*board).size();
 			if (num_checkers > 0) 
 			{
 				stats->num_checks++;
 				if (num_children == 0) stats->num_check_mates++;
-			    if (num_checkers == 1 && mv.get_to() != checkers.first) stats->num_discovery_checks++;
+			    if (num_checkers == 1 && board->get_board()[mv.get_to()] != checkers.first) stats->num_discovery_checks++;
 				else stats->num_double_checks++;
 			}
 			else 

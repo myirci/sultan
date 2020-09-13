@@ -1,6 +1,7 @@
 #pragma once
 
 #include "move.hpp"
+#include <memory>
 
 class Board;
 
@@ -10,7 +11,7 @@ class MoveSelector
 
 public:
 
-	static Move select_random_move(Board const& board);
+	static std::unique_ptr<Move> select_random_move(Board const& board);
 };
 
 

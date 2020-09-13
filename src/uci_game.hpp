@@ -9,9 +9,9 @@
 
 class Board;
 
-class Game
+class UciGame
 {
-    Game(Board* brd);
+    UciGame(Board* brd);
     Board* board;
     
     std::stack<Move> move_stack;

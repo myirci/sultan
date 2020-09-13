@@ -76,9 +76,9 @@ std::unique_ptr<Board> Factory::CloneBoard(Board const& brd)
     return std::move(b);
 }
 
-std::unique_ptr<Game> Factory::CreateGame(Board* brd)
+std::unique_ptr<UciGame> Factory::CreateGame(Board* brd)
 {
-    auto game = std::unique_ptr<Game>(new Game{ brd });
+    auto game = std::unique_ptr<UciGame>(new UciGame{ brd });
     return std::move(game);
 }
 
