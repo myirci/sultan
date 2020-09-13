@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "engine.hpp"
+#include "uci_engine.hpp"
 
 #include "fen.hpp"
 #include "board.hpp"
@@ -22,7 +22,7 @@ void perft_tests();
 
 int main(int argc, char* argv[])
 {
-    auto engine = make_unique<Engine>();
+    auto engine = make_unique<UciEngine>();
     engine->run();
 
     // unit_tests();
